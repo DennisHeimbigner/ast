@@ -1,0 +1,46 @@
+# Define how to build the parser(s)
+
+TEST=t.proto
+
+PARSER=ProtobufParser.java
+
+GRAMMAR=protobuf.y
+
+SRC=\
+    ProtobufActions.java ProtobufLexer.java $(PARSER) AST.java \
+    Semantics.java Util.java Printer.java Debug.java  \
+    ASTFactory.java ASTFactoryDefault.java
+    
+COMPILERPATH=classes/unidate/protobuf/ast/compiler
+
+CLASSES=$(SRC:%.java=$(COMPILERPATH)/%.class)
+
+BUILDDIR=classes
+
+.PHONEY: compile test
+
+all: test
+
+clean::
+	rm -f  $(PARSER) Protobuf.output
+	rm -fr $(BUILDDIR)
+
+compile: $(BUILDDIR) $(SRC) 
+	javac -d $(BUILDDIR) $(SRC)
+
+$(PARSER): $(GRAMMAR)
+	rm -f ./tmp
+	bison -v -t -L java $(GRAMMAR) -o ./tmp
+	sed -e "s/(null,\ null)/(new Position(),new Position())/" <./tmp >$(PARSER)	
+
+$(BUILDDIR):
+	mkdir $(BUILDDIR)
+
+test: compile
+	javac -d $(BUILDDIR) -classpath $(BUILDDIR) Main.java
+	java -cp $(BUILDDIR) Main $(TEST)
+
+fix::
+	for f in $(SRC) ; do \
+	    sed -e 's/ast.protobuf/unidata.protobuf.ast/g'  <save/$$f >./$$f ; \
+	done

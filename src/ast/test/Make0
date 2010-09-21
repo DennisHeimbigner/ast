@@ -1,0 +1,26 @@
+# Define how to build the parser(s)
+
+SRC=Diff.java TestAST.java TestFiles.java
+    
+CLASSES=$(SRC:.java=.class)
+
+BUILDDIR=classes
+
+.PHONEY: compile
+
+all:: ProtobufParser.java compile
+
+clean::
+	rm -fr $(BUILDDIR)
+
+compile: $(BUILDDIR) $(SRC) 
+	javac -d $(BUILDDIR) $(SRC)
+
+$(BUILDDIR):
+	mkdir $(BUILDDIR)
+
+
+fix::
+	for f in $(SRC) ; do \
+	    sed -e 's/ast.protobuf/unidata.protobuf.ast/g'  <save/$$f >./$$f ; \
+	done
