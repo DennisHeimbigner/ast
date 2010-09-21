@@ -1,0 +1,15 @@
+package tutorial;
+option java_package = com.example.tutorial;
+option java_outer_classname = AddressBookProtos;
+message Person {
+  required null name = 1  required null id = 2  optional null email = 3  enum PhoneType {
+    MOBILE = 0;
+    HOME = 1;
+    WORK = 2;
+  }
+  message PhoneNumber {
+    required null number = 1    optional null type = 2 [.DEFAULT = HOME];
+  }
+  repeated null phone = 4}
+message AddressBook {
+  repeated null person = 1}
