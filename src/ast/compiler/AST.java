@@ -34,6 +34,8 @@ package unidata.protobuf.ast.compiler;
 
 import java.util.*;
 
+// An instance of AST serves as the tree root
+
 abstract public class AST
 {
     // Verify that pass1 of semantics is catching all created AST nodes
@@ -63,7 +65,7 @@ abstract public class AST
 	EXTEND("extend"), EXTENSIONRANGE("extensionrange"),
 	FIELD("field"), MESSAGE("message"),
 	OPTION("option"), RPC("rpc"), SERVICE("service"),
-	PRIMITIVETYPE("primitivetype"), FILE("file");
+	PRIMITIVETYPE("primitivetype"), FILE("file"), ROOT("root");
 
 	private final String name;
         ClassEnum(String name) {this.name = name;}
@@ -118,7 +120,7 @@ abstract public class AST
 
     AST.Position position = null;
     AST.ClassEnum classenum = null;
-    AST.File root = null; // top-level root
+    AST.Root root = null; // top-level root
     AST.File srcfile = null; // immediately containing src file node
     AST.Package packageroot = null; // immediately containing package
     AST container = null;
@@ -126,10 +128,6 @@ abstract public class AST
     String name = null;
     String qualifiedname = null;
     Object annotation = null;
-
-    List<AST> allnodes = null; // pre-order set of all nodes in the AST tree
-    List<AST> semanticnodes = null; // nodes in semantic tree (allnodes - files)
-    List<AST.Package> allpackages = null;
 
     AST(AST.ClassEnum classenum)
     {
@@ -153,32 +151,12 @@ abstract public class AST
         this.contents.add(contents);
     }
 
-    public List<AST> getAllNodes() {return this.allnodes;}
-    public void setAllNodes(List<AST> allnodes) {this.allnodes = allnodes;}
-
-    public List<AST> getSemanticNodes() {return this.semanticnodes;}
-    public void setSemanticNodes(List<AST> semanticnodes) {this.semanticnodes = semanticnodes;}
-    public void addSemanticNode(AST node)
-    {
-        if(this.semanticnodes == null) this.semanticnodes = new ArrayList<AST>();
-        this.semanticnodes.add(node);
-    }
-
-    public List<AST.Package> getAllPackages() {return this.allpackages;}
-    public void setAllPackages(List<AST.Package> allpackages) {this.allpackages = allpackages;}
-    public void addAllPackages(AST.Package node)
-    {
-        if(this.allpackages == null)
-	    this.allpackages = new ArrayList<AST.Package>();
-        this.allpackages.add(node);
-    }
-
     public AST.Position getPosition() {return position;}
     public void setPosition(AST.Position position) {this.position = position;}
     public AST.ClassEnum getClassEnum() {return this.classenum;}
     public void setClassEnum(AST.ClassEnum astclass) {this.classenum = astclass;}
-    public AST.File getRoot() {return root;}
-    public void setRoot(AST.File root) {this.root = root;}
+    public AST.Root getRoot() {return root;}
+    public void setRoot(AST.Root root) {this.root = root;}
     public AST.Package getPackage() {return packageroot;}
     public void setPackage(AST.Package packageroot) {this.packageroot = packageroot;}
     public AST.File getSrcFile() {return srcfile;}
@@ -192,12 +170,48 @@ abstract public class AST
     public Object getAnnotation() {return annotation;}
     public void setAnnotation(Object annotation) {this.annotation = annotation;}
 
+
+// Convenience grouping class
 static public class Type extends AST 
 {
     Type(AST.ClassEnum classenum) {super(classenum);}
 }
 
-// AST.File is the root of the AST tree.
+// An instance of this is the root of the AST tree
+static public class Root extends AST 
+{
+    List<AST> allnodes = null; // pre-order set of all nodes in the AST tree
+    List<AST> semanticnodes = null; // nodes in semantic tree (allnodes - files)
+    List<AST.Package> allpackages = null;
+    List<AST.File> allfiles = null;
+    AST.File rootfile = null;
+
+    Root(String name)
+    {
+	super(AST.ClassEnum.ROOT);
+	setName(name);
+	setAllNodes(new ArrayList<AST>());
+	setAllPackages(new ArrayList<AST.Package>());
+	setSemanticNodes(new ArrayList<AST>());
+	setAllFiles(new ArrayList<AST.File>());
+    }
+
+    public List<AST> getAllNodes() {return this.allnodes;}
+    public void setAllNodes(List<AST> allnodes) {this.allnodes = allnodes;}
+
+    public List<AST.File> getAllFiles() {return this.allfiles;}
+    public void setAllFiles(List<AST.File> allfiles) {this.allfiles = allfiles;}
+
+    public List<AST> getSemanticNodes() {return this.semanticnodes;}
+    public void setSemanticNodes(List<AST> semanticnodes) {this.semanticnodes = semanticnodes;}
+
+    public List<AST.Package> getAllPackages() {return this.allpackages;}
+    public void setAllPackages(List<AST.Package> allpackages) {this.allpackages = allpackages;}
+
+    AST.File getRootFile() {return this.rootfile;}
+    void setRootFile(AST.File f) {this.rootfile = f;}
+}
+
 static public class File extends AST 
 {
     AST.Package filepackage = null;
@@ -440,4 +454,4 @@ static public class PrimitiveType extends AST.Type
     public void setPrimitiveEnum(AST.PrimitiveEnum primitiveenum) {this.primitiveenum = primitiveenum;}
 }
 
-} // class AST
+}// class AST

@@ -36,6 +36,7 @@ import java.util.List;
 
 public interface ASTFactory
 {
+    AST.Root newRoot(String name);
     AST.File newFile(String name);
     AST.Package newPackage(String name);
     AST.Enum newEnum(String name);

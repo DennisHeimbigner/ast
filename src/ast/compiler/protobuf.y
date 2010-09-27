@@ -64,9 +64,12 @@ import unidata.protobuf.ast.compiler.AST.Position;
 %token IDENTIFIER INTCONST FLOATCONST STRINGCONST TRUE FALSE
 
 
-%start protobuffile
+%start root
 
 %%
+
+root: protobuffile
+	    {setLocation(yyloc);protobufroot($1);}
 
 protobuffile:
 	packagedecl importlist decllist ENDFILE

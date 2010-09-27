@@ -22,7 +22,7 @@ public abstract class ProtobufActions
     ProtobufActions state = null; /* Slight kludge */
     ASTFactory astfactory = null;
     ProtobufParser.Location currentlocation = null;
-    AST.File ast = null; // root node of the AST
+    AST.Root ast = null; // root node of the AST
     String filename = null;
 
 //////////////////////////////////////////////////
@@ -46,7 +46,7 @@ ProtobufActions(ASTFactory factory)
 public void setLocation(ProtobufParser.Location loc) {currentlocation = loc;}
 public ProtobufParser.Location getLocation() {return currentlocation;}
 
-public AST.File getAST() {return ast;}
+public AST.Root getAST() {return ast;}
 
 //////////////////////////////////////////////////
 // Access into the DapParser for otherwise inaccessible fiels
@@ -67,23 +67,34 @@ void notimplemented(String s)
 
 // Construct tree root
 void
-protobuffile(Object package0, Object imports0, Object decllist0)
+protobufroot(Object file0)
 {
     // Store in state
-    this.ast = astfactory.newFile(this.filename);
-    this.ast.setFilePackage((AST.Package)package0);
+    AST.File f = (AST.File)file0;
+    f.setName(filename);
+    this.ast = astfactory.newRoot(filename);
+    this.ast.setRootFile(f);
+}
+
+
+Object
+protobuffile(Object package0, Object imports0, Object decllist0)
+{
+    AST.File f = astfactory.newFile(null); // we don't know the file name at this point
+    f.setFilePackage((AST.Package)package0);
     // concat for now; divide later
-    this.ast.addContents((AST.Package)package0);
-    this.ast.addContents((List<AST>)imports0);
-    this.ast.addContents((List<AST>)decllist0);
-    this.ast.setPosition(position());
+    f.addContents((List<AST>)imports0);
+    f.addContents((List<AST>)decllist0);
+    f.setPosition(position());
+    return f;
 }
 
 Object
 packagedecl(Object name0)
 {
-    if(name0 == null) name0 = "";
-    AST.Package node = astfactory.newPackage((String)name0);
+    String name = (String)name0;
+    if(name == null) name = "";
+    AST.Package node = astfactory.newPackage(name);
     node.setPosition(position());
     return node;
 }

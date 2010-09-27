@@ -36,6 +36,8 @@ import java.util.*;
 
 public class ASTFactoryDefault implements ASTFactory
 {
+    public AST.Root newRoot(String name)
+	{return new AST.Root(name);}
     public AST.File newFile(String name)
 	{return new AST.File(name);}
     public AST.Package newPackage(String name)

@@ -49,7 +49,7 @@ public class Debug
  */
 
 
-static public void print(AST.File root, PrintWriter writer, boolean qualified)
+static public void print(AST.Root root, PrintWriter writer, boolean qualified)
 {
     printR(root,0,writer,qualified);
 }
@@ -65,7 +65,7 @@ static void printR(AST node, int depth,
     switch (node.classenum) {
     case FILE:
 	AST.File astfile = (AST.File)node;
-	if(astfile != astfile.getRoot()) {
+	if(astfile != astfile.getRoot().getRootFile()) {
 	    writer.printf("%simport %s;\n",indent(depth),astfile.getName());
 	} else {
 	    printR(astfile.getPackage(),depth,writer,qualified);
@@ -184,12 +184,12 @@ private static String indent(int depth)
 
 // Print an indented tree representation of the AST Tree
 
-static public void printTree(AST.File root, PrintWriter writer)
+static public void printTree(AST.Root root, PrintWriter writer)
 {
     printTree(root,writer,false);
 }
 
-static public void printTree(AST.File root, PrintWriter writer, boolean presemantic)
+static public void printTree(AST.Root root, PrintWriter writer, boolean presemantic)
 {
     printTreeR(root,0,writer,presemantic);
     writer.flush();
@@ -223,6 +223,15 @@ static void printTreeR(AST node, int depth,
 
     // switch to print any additional parameters
     switch (node.classenum) {
+    case ROOT:
+        AST.Root root = (AST.Root)node;
+        writer.print(" rootfile="+root.getRootFile().getName());
+        break;
+    case FILE:
+        AST.File f = (AST.File)node;
+        if(f.getFilePackage() != null)
+            writer.print(" filepackage="+f.getFilePackage().getName());
+        break;
     case EXTENSIONRANGE:
 	AST.ExtensionRange astextensionrange = (AST.ExtensionRange)node;
 	writer.printf(" start=%d stop=%d",
@@ -263,14 +272,12 @@ static void printTreeR(AST node, int depth,
         }
     } else {// Dump under the packages, not the files
     switch (node.classenum) {
-    case FILE:
-        AST.File f = (AST.File)node;
-        if(f != f.getRoot()) break; 
-        if(f.getAllPackages() != null) {
-            for(AST subnode : f.getAllPackages())
+    case ROOT:
+        AST.Root root = (AST.Root)node;
+        if(root.getAllPackages() != null) {
+            for(AST subnode : root.getAllPackages())
                 printTreeR(subnode,depth+1,writer,presemantic);
-        }
-	break;
+        } break;
     case PACKAGE:
 	AST.Package p = (AST.Package)node;
         if(p.getOptions() != null) {

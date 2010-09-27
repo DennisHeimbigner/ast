@@ -45,30 +45,28 @@ public Semantics() {}
 
 //////////////////////////////////////////////////
 
-public boolean checksemantics(AST.File root)
+public boolean checksemantics(AST.Root root)
 {
-    List<AST> allnodes = new ArrayList<AST>();
-    if(!pass1(root,root,root,allnodes)) return false;
-    verify(root, allnodes);
-    root.allnodes = allnodes;
+    AST.File f = root.getRootFile();
+    AST.Package p = f.getFilePackage();
+    if(!pass1(root,root,f,p)) return false;
+    verify(root);
     Debug.printTree(root,new PrintWriter(System.out),true);
-    if(!pass2(root,allnodes,root.getPackage().getName())) return false;
+    if(!pass2(root)) return false;
     Debug.printTree(root,new PrintWriter(System.out));
-/*
-    if(!pass2a(root,allnodes)) return false;
-    if(!pass2b(allnodes)) return false;
-    if(!pass4(root)) return false;
-    if(!pass5(root)) return false;
-    if(!pass6(root)) return false;
-*/
+    if(!pass3(root)) return false;
+    if(!pass4(root.getAllNodes())) return false;
+    if(!pass5(root.getAllNodes())) return false;
+    if(!pass6(root.getAllNodes())) return false;
+    if(!pass7(root)) return false;
     return true;
 }
 
-void verify(AST root, List<AST> allnodes)
+void verify(AST.Root root)
 {
 if(false) {
     // verify that everynode is in allnodes
-    for(AST ast : allnodes) ast.visited = true;
+    for(AST ast : root.getAllNodes()) ast.visited = true;
     System.err.println("begin missing");
     for(AST ast : root.nodeset) {
 	if(ast.visited) continue;
@@ -85,30 +83,41 @@ if(false) {
  * 1. Collect all nodes
  * 2. Link all nodes to the tree root
  * 3. Link subnodes to container
- * 4. Link nodes to a file (for file nodes, link to the importing file)
+ * 4. Link subnodes to src file and to package
+ * 4. Collect all package nodes and all file nodes
+ * 5. Make packages point to corresponding files
  *
  * @param node The current node being walked
  * @param root The AST tree root
  * @param srcfile The current srcfile we are traversing
- * @param allnodes The set of all collected nodes
  * @return true if the processing succeeded.
 */
 
 boolean
-pass1(AST node, AST.File root, AST.File srcfile, List<AST> allnodes)
+pass1(AST node, AST.Root root, AST.File srcfile, AST.Package currentpackage)
 {
-    allnodes.add(node);
+    root.getAllNodes().add(node);
     node.setRoot(root);
-    // link to enclosing srcfile (or importing file)
     node.setSrcFile(srcfile);
+    node.setPackage(currentpackage);
     if(node.getClassEnum() == AST.ClassEnum.FILE) {
-	srcfile = (AST.File)node;
+	AST.File f = (AST.File)node;
+	if(f == root.getRootFile()) node.setSrcFile(null); // undo
+	srcfile = f;
+	root.getAllFiles().add(f);
+	AST.Package p = f.getFilePackage();
+	if(p != null) {
+  	    root.getAllPackages().add(p);
+	    p.setSrcFile(f);
+	    if(f == root.getRootFile()) p.setPackage(null); // undo
+	    currentpackage = p;
+	}	
     }
     // link children to container & recurse
     if(node.getContents() != null) {
         for(AST subnode: node.getContents()) {
    	    subnode.setContainer(node);
-	    if(!pass1(subnode,root,srcfile,allnodes)) return false;
+	    if(!pass1(subnode,root,srcfile,currentpackage)) return false;
 	}
     }
     return true;
@@ -116,39 +125,110 @@ pass1(AST node, AST.File root, AST.File srcfile, List<AST> allnodes)
 
 /**
  * Pass 2 does the following:
- * 1. assign qualified names
- * 2. check for duplicate qualified names
+ * 1. Reassign file contents to associated packages
+ * 2. set package qualified name
  *
- * @param allnodes The set of all collected nodes
+ * @param root The AST tree root
  * @return true if the processing succeeded.
 */
 
 boolean
-pass2(AST node, List<AST> allnodes, String qualpath)
+pass2(AST.Root root)
 {
-    // Assign qualified names
-    String qualname = qualpath+node.getName();
-    for(AST ast : allnodes) {
-        if(ast == node) continue;
-        if(ast.qualifiedname == null) continue;
-        if(qualname.equals(ast.qualifiedname))
-  	    return semerror(node,"Duplicate names: "+qualname);
+    // Transfer file contents to package
+    for(AST node: root.allnodes) {
+        switch (node.getClassEnum()) {
+        case FILE:
+            AST.File file = (AST.File)node;
+            while(file.getFilePackage() == null)
+                file = file.getSrcFile();
+            AST.Package p = file.getFilePackage();
+            for(AST subnode: node.getContents()) {
+                p.addContents(subnode);
+                subnode.setContainer(p);
+            }
+            file.setContents(null);
+            break;
+        case PACKAGE:
+            p = (AST.Package)node;
+            p.setQualifiedName("."+p.getName());
+            break;
+	default: break;
+        }
     }
-    node.setQualifiedName(qualname);
-    // recurse
-    switch (node.classenum) {
-    default:
-	if(node.getContents() != null) {
-	    for(AST subnode: node.getContents())
-		pass2(subnode,allnodes,qualname);
-	} break;
+    return true;
+}
+/**
+ * Pass 3 does the following:
+ * 1. link all nodes to containing package
+ * 2. link all file nodes to the root package
+ * 3. link all package nodes to self
+ *     (so every node has a package)
+ *
+ * @param root The AST tree root
+ * @return true if the processing succeeded.
+*/
+
+boolean
+pass3(AST.Root root)
+{
+    for(AST.Package p: root.allpackages) {
+        if(p.getContents() != null)
+            for(AST ast: p.getContents()) {
+            if(!pass3R(ast,p)) return false;
+        }
     }
+    AST.Package rootpackage = root.getRootFile().getFilePackage();
+    for(AST ast: root.getAllNodes()) {
+        if(ast instanceof AST.File) ast.setPackage(rootpackage);
+        if(ast instanceof AST.Package) ast.setPackage((AST.Package)ast);
+    }
+    return true;
+}
+
+boolean
+pass3R(AST node, AST.Package currentpackage)
+{
+    node.setPackage(currentpackage);
+    System.out.print("xxx: "+node.getName()+"->"+currentpackage.getName());
+    if(node.getContents() != null)
+        for(AST ast: node.getContents()) {
+            if(!pass3R(ast,currentpackage)) return false;
+        }
     return true;
 }
 
 
 /**
- * Non-recursive pass 4 does the following:
+ * Pass 4 does the following:
+ * 1. assign qualified names
+ * 2. check for duplicate qualified names
+ *
+ * @param allnodes nodes in the AST tree
+ * @return true if the processing succeeded.
+*/
+
+boolean
+pass4(List<AST> allnodes)
+{
+    // Assign qualified names
+    for(AST ast1 : allnodes) {
+        String qualname = Util.computequalifiedname(ast1);
+        ast1.setQualifiedName(qualname);
+        if(ast1.getQualifiedName() == null) return false;
+        for(AST ast2 : allnodes) {
+            if(ast2 == ast1 || ast2.qualifiedname == null) continue;
+            if(ast2.qualifiedname.equals(ast1.qualifiedname)) {
+                semerror(ast1,"Duplicate qualified names:"+ast1.qualifiedname);
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+/**
+ * Pass 5does the following:
  * 1. Deref all references to other objects
  *
  * @param root The AST tree root
@@ -156,7 +236,7 @@ pass2(AST node, List<AST> allnodes, String qualpath)
 */
 
 boolean
-pass4(AST.File root, List<AST> allnodes)
+pass4(AST.Root root, List<AST> allnodes)
 {
     boolean found;
     String qualname;
@@ -242,56 +322,28 @@ pass4(AST.File root, List<AST> allnodes)
     return true;
 }
 
-
-
-
 /**
- * Pass 2 does the following:
+ * Pass 5 does the following:
  * 1. Divide element lists into separate groups
- * 2. collect all package nodes
  *
- * @param node The current node being walked
  * @param allnodes The set of all collected nodes
- * @param qualifiedname The qualified name to this point in the tree
  * @return true if the processing succeeded.
 */
 
 boolean
-pass5(AST.File root, List<AST> allnodes)
+pass5(List<AST> allnodes)
 {
     // Divide contents lists
     for(AST node: allnodes) {
         switch (node.getClassEnum()) {
-        case FILE:
-            // Group the file contents
-            AST.File file = (AST.File)node;
-            file.filepackage = null;
-            file.imports = new ArrayList<AST.File>();
-            file.decls = new ArrayList<AST>();
-            for(AST ast: file.getContents()) {
-                switch(ast.getClassEnum()) {
-                case PACKAGE: file.filepackage = (AST.Package)ast; break;
-                case FILE: file.imports.add((AST.File)ast); break;
-                default: file.decls.add(ast); break; // all else goes here
-                }
-            }
-            break;
         case PACKAGE:
-	    root.addAllPackages((AST.Package)node); // collect package nodes en pasant
-            // After semantic processing, the Package becomes the
-            // primary processing point
             AST.Package astpackage = (AST.Package)node;
-            AST.File astfile = astpackage.getSrcFile();
-            astpackage.setContents(new ArrayList<AST>());
             astpackage.messages = new ArrayList<AST.Message>();
             astpackage.extenders = new ArrayList<AST.Extend>();
             astpackage.enums = new ArrayList<AST.Enum>();
             astpackage.options = new ArrayList<AST.Option>();
             astpackage.services = new ArrayList<AST.Service>();
-            for(AST ast: astfile.getContents()) {
-                // attach all the non-file contents to the package
-                if(ast.classenum != AST.ClassEnum.FILE)
-                    astpackage.getContents().add(ast);
+            for(AST ast: astpackage.getContents()) {
                 switch(ast.classenum) {
                 case ENUM:
                     astpackage.enums.add((AST.Enum)ast);
@@ -377,6 +429,7 @@ pass5(AST.File root, List<AST> allnodes)
             }
             break;
         // Cases where no extra action is required in pass
+        case FILE:
         case ENUMFIELD:
         case EXTENSIONRANGE:
         case OPTION:
@@ -392,142 +445,69 @@ pass5(AST.File root, List<AST> allnodes)
 }
 
 /**
- * Pass 2a does the following:
- * 1. Link nodes to a package
- * 2. Group all package sub nodes
- *
- * @param allnodes List of allnodes
- * @return true if the processing succeeded.
-*/
-
-boolean
-pass6(AST root, List<AST> allnodes)
-{
-    for(AST node: allnodes) {
-        AST.File srcfile = node.getSrcFile();
-        if(srcfile == null) srcfile = node.getRoot();
-        AST.Package pack = srcfile.getFilePackage();
-        assert (pack != null) : "Srcfile has no package: "+srcfile.getName();
-        node.setPackage(pack);
-    }
-    // Setup all the package nodes
-    for(AST.Package pnode: root.getAllPackages()) {
-	pnode. messages = new ArrayList<AST.Message>();
-	pnode. extenders = new ArrayList<AST.Extend>();
-	pnode. enums = new ArrayList<AST.Enum>();
-	pnode. options = new ArrayList<AST.Option>();
-	pnode. services = new ArrayList<AST.Service>();
-    }
-    // Now collect groups package subnodes
-    for(AST ast: allnodes) {
-        AST.Package pack = ast.getPackage();
-        assert (pack != null) : "Node has null package: "+ast.getName();
-        switch(ast.getClassEnum()) {
-	case MESSAGE: pack.messages.add((AST.Message)ast); break;
-	case ENUM: pack.enums.add((AST.Enum)ast); break;
-	case OPTION: pack.options.add((AST.Option)ast); break;
-	case SERVICE: pack.services.add((AST.Service)ast); break;
-	case EXTEND: pack.extenders.add((AST.Extend)ast); break;
-        default: break; // ignore
-	}
-    }
-    return true;
-}
-
-/**
- * Non-recursive pass 4 does the following:
+ * Pass 6 does the following:
  * 1. Check that all msg ids appear legal and are not duplicates
  * 2. Check for duplicate enum field values 
  *
- * @param root The AST tree root
  * @param allnodes The set of all collected nodes
- * @param qualifiedname The qualified name to this point in the tree
  * @return true if the processing succeeded.
 */
 
 boolean
-pass7(AST.File root)
+pass6(List<AST> allnodes)
 {
-    for(AST node: root.allnodes)
-	if(!pass4walk(node,root)) return false;
-    return true;
-}
+    for(AST node: allnodes) {
+        switch (node.getClassEnum()) {
+        case ENUM:
+            // check for duplicates
+            for(AST.EnumField field1: ((AST.Enum)node).getEnumFields()) {
+                for(AST.EnumField field2: ((AST.Enum)node).getEnumFields()) {
+                    if(field1 == field2) continue;
+                    if(field1.value == field2.value) {
+                        return semerror(node,"Duplicate enum field numbers: "+field1.value);
+                    }
+                }
+            }
+            break;
+        case MESSAGE:
+            // check for duplicates
+            for(AST.Field field1: ((AST.Message)node).fields) {
+                for(AST.Field field2: ((AST.Message)node).fields) {
+                    if(field1 == field2) continue;
+                    if(field1.id == field2.id) {
+                        return semerror(node,"Duplicate message field numbers: "+field1.id);
+                    }
+                }
+            }
+            break;
 
-/**
- * Recursive procedure for pass4
- * @param node The current node
- * @param root The AST tree root
- * @param allnodes The set of all collected nodes
- * @param qualifiedname The qualified name to this point in the tree
- * @return true if the processing succeeded.
- */
-boolean
-pass4walk(AST node, AST.File root)
-{
-    switch (node.getClassEnum()) {
-    case ENUM:
-	// check for duplicates
-	for(AST.EnumField field1: ((AST.Enum)node).getEnumFields()) {
-	    for(AST.EnumField field2: ((AST.Enum)node).getEnumFields()) {
-		if(field1 == field2) continue;
-		if(field1.value == field2.value) {
-		    return semerror(node,"Duplicate enum field numbers: "+field1.value);
-		}
-	    }	
-	}
-	break;
-    case ENUMFIELD:
-	AST.EnumField efield = (AST.EnumField)node;
-	break;
-
-    case MESSAGE:
-	// check for duplicates
-	for(AST.Field field1: ((AST.Message)node).fields) {
-	    for(AST.Field field2: ((AST.Message)node).fields) {
-		if(field1 == field2) continue;
-		if(field1.id == field2.id) {
-		    return semerror(node,"Duplicate message field numbers: "+field1.id);
-		}
-	    }	
-	}
-	break;
-
-    case FIELD:
-        // Check legality of field number
-	AST.Field field = (AST.Field)node;
-        if(field.id < 0 || field.id >= AST.MAXFIELDID)
-	    return semerror(node,"Illegal message field id"+field.id);
-	break;
-
-    // Cases where no extra action is required in pass2
-    case PACKAGE:
-    case SERVICE:
-    case EXTEND:
-    case EXTENSIONRANGE:
-    case OPTION:
-    case RPC:
-    case PRIMITIVETYPE:
-	break;
-    default: // should not happen
-	assert(false) : "Illegal astcase";
-	break;
+        case FIELD:
+            // Check legality of field number
+            AST.Field field = (AST.Field)node;
+            if(field.id < 0 || field.id >= AST.MAXFIELDID)
+                return semerror(node,"Illegal message field id"+field.id);
+            break;
+        default:
+	    break;
+        }
     }
     return true;
 }
 
 
 /**
- * Non-recursive pass 6 does the following:
+ * Pass7 does the following:
  * 1. Compute root.semanticnodes
  *
  * @param root The AST tree root
  * @return true if the processing succeeded.
 */
 boolean
-pass8(AST.File root)
+pass7(AST.Root root)
 {
     // compute semantic node set
     // insert root as first element
+    root.semanticnodes = new ArrayList<AST>();
     root.semanticnodes.add(root);
     // walk the package nodes in preorder
     for(int i=0;i<root.allpackages.size();i++) {

@@ -38,10 +38,11 @@ import java.io.*;
 public class Util
 {
 
-static public String qualify(String name, AST enclosure)
+static String qualify(String relpath, AST node)
 {
-    if(name.startsWith(".")) return name; // already fully qualified
-    return enclosure.getQualifiedName()+name;
+    if(relpath.startsWith(".")) return relpath;
+    AST.Package p = node.getPackage();
+    return p.getName() + "." + relpath;
 }
 
 static public List<AST> findbyname(String qualname, List<AST> allnodes)
@@ -65,34 +66,29 @@ static List<AST> concat(List<AST> list1, List<AST> list2)
 }
 
 
+static List<AST> computepath(AST node, boolean includepackage)
+{
+    List<AST> path = new ArrayList<AST>();
+    while(node.getContainer() != null) {
+        if(includepackage || !(node instanceof AST.Package)) path.add(0,node);
+        node = node.getContainer();
+    }
+    assert(node.getClassEnum() == AST.ClassEnum.PACKAGE);
+    return path;
+}
+
 static String computequalifiedname(AST node)
 {
     if(node.getQualifiedName() != null)
         return node.getQualifiedName();
     AST.Package pack = node.getPackage();
+    if(pack == null) return null;
     assert( pack != null): "node not in package:"+node.getName();
-    AST container = node.getContainer();
-    switch (node.getClassEnum()) {
-    case FILE:
-    case PACKAGE:
-	node.setQualifiedName(node.getName());
-	break;
-    case MESSAGE:
-    case SERVICE:
-    case ENUM:
-    case EXTEND:
-    case FIELD:
-    case ENUMFIELD:
-    case EXTENSIONRANGE:
-    case OPTION:
-    case RPC:
-    case PRIMITIVETYPE:
-	node.setQualifiedName(computequalifiedname(container)
-			      +"."+node.getName());
-	break;	
-    }
-
-    return node.getQualifiedName();    
+    List<AST> path = computepath(node,false);
+    String qualname = pack.getName();
+    if(!qualname.startsWith(".")) qualname = '.' + qualname;
+    for(int i=0;i<path.size();i++) qualname = qualname + "." + path.get(i).getName();
+    return qualname;
 }
 
 
