@@ -67,10 +67,10 @@ void notimplemented(String s)
 
 // Construct tree root
 void
-protobufroot(Object file0)
+protobufroot(Object root0)
 {
     // Store in state
-    AST.File f = (AST.File)file0;
+    AST.Root root = (AST.Root)root0
     f.setName(filename);
     this.ast = astfactory.newRoot(filename);
     this.ast.setRootFile(f);
@@ -83,8 +83,8 @@ protobuffile(Object package0, Object imports0, Object decllist0)
     AST.File f = astfactory.newFile(null); // we don't know the file name at this point
     f.setFilePackage((AST.Package)package0);
     // concat for now; divide later
-    f.addContents((List<AST>)imports0);
-    f.addContents((List<AST>)decllist0);
+    f.addChildren((List<AST>)imports0);
+    f.addChildren((List<AST>)decllist0);
     f.setPosition(position());
     return f;
 }
@@ -145,7 +145,7 @@ Object
 message(Object name0, Object body0)
 {
     AST.Message node = astfactory.newMessage((String)name0);
-    node.addContents((List<AST>)body0);
+    node.addChildren((List<AST>)body0);
     node.setPosition(position());
     return node;
 }
@@ -154,7 +154,7 @@ Object
 extend(Object type0, Object fieldlist0)
 {
     AST.Extend node = astfactory.newExtend((String)type0);
-    node.addContents((List<AST>)fieldlist0);
+    node.addChildren((List<AST>)fieldlist0);
     node.setPosition(position());
     return node;
 }
@@ -172,7 +172,7 @@ Object
 enumtype(Object name0, Object enumlist0)
 {
     AST.Enum node = astfactory.newEnum((String)name0);
-    node.addContents((List<AST>)enumlist0);
+    node.addChildren((List<AST>)enumlist0);
     node.setPosition(position());
     return node;
 }
@@ -205,7 +205,7 @@ Object
 service(Object name0, Object caselist0)
 {
     AST.Service node = astfactory.newService((String)name0);
-    node.addContents((List<AST>)caselist0);
+    node.addChildren((List<AST>)caselist0);
     node.setPosition(position());
     return node;
 }
@@ -260,7 +260,7 @@ field(Object cardinality0, Object type0, Object name0, Object id0, Object option
 			cardinality,
 			(String)type0,
 			id);
-    node.addContents((List<AST>)options0);
+    node.addChildren((List<AST>)options0);
     node.setPosition(position());
     return node;
 }

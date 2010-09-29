@@ -60,7 +60,7 @@ abstract public class AST
     }	
 
     // Define the kinds of AST objects to avoid having to do instanceof.
-    public enum ClassEnum {
+    public enum Sort {
 	PACKAGE("package"), ENUM("enum"), ENUMFIELD("enumfield"),
 	EXTEND("extend"), EXTENSIONRANGE("extensionrange"),
 	FIELD("field"), MESSAGE("message"),
@@ -68,12 +68,12 @@ abstract public class AST
 	PRIMITIVETYPE("primitivetype"), FILE("file"), ROOT("root");
 
 	private final String name;
-        ClassEnum(String name) {this.name = name;}
+        Sort(String name) {this.name = name;}
 	public String getName()   { return name; }
     }
 
     // Define the kinds or primitive types
-    public enum PrimitiveEnum {
+    public enum PrimitiveSort {
 	DOUBLE("double"), FLOAT("float"),
 	INT32("int32"), INT64("int64"),
 	UINT32("uint32"), UINT64("uint64"),
@@ -84,7 +84,7 @@ abstract public class AST
 	BOOL("bool");
 	
 	private final String name;
-        PrimitiveEnum(String name) {this.name = name;}
+        PrimitiveSort(String name) {this.name = name;}
 	public String getName()   { return name; }
     }
 
@@ -119,50 +119,51 @@ abstract public class AST
     // Instance variables
 
     AST.Position position = null;
-    AST.ClassEnum classenum = null;
+    AST.Sort sort = null;
     AST.Root root = null; // top-level root
     AST.File srcfile = null; // immediately containing src file node
     AST.Package packageroot = null; // immediately containing package
-    AST container = null;
-    List<AST> contents = null;
+    AST parent = null;
+    List<AST> children = null;
     String name = null;
     String qualifiedname = null;
     Object annotation = null;
 
-    AST(AST.ClassEnum classenum)
+    AST(AST.Sort sort)
     {
-	this.classenum = classenum;
+	this.sort = sort;
 	nodeset.add(this);
     }
 
-    public List<AST> getContents() {return this.contents;}
-    public void setContents(List<AST> contents) {this.contents = contents;}
-    public void addContents(List<AST> contents)
+    public List<AST> getChildren() {return this.children;}
+    public void setChildren(List<AST> children) {this.children = children;}
+    public void addChildren(List<AST> children)
     {
-        if(this.contents == null)
-            this.contents = contents;
+        if(this.children == null)
+            this.children = children;
         else
-           this.contents.addAll(contents);
+           this.children.addAll(children);
     }
-    public void addContents(AST contents)
+
+    public void addChildren(AST children)
     {
-        if(this.contents == null)
-	    this.contents = new ArrayList<AST>();
-        this.contents.add(contents);
+        if(this.children == null)
+	    this.children = new ArrayList<AST>();
+        this.children.add(children);
     }
 
     public AST.Position getPosition() {return position;}
     public void setPosition(AST.Position position) {this.position = position;}
-    public AST.ClassEnum getClassEnum() {return this.classenum;}
-    public void setClassEnum(AST.ClassEnum astclass) {this.classenum = astclass;}
+    public AST.Sort getSort() {return this.sort;}
+    public void setSort(AST.Sort astclass) {this.sort = astclass;}
     public AST.Root getRoot() {return root;}
     public void setRoot(AST.Root root) {this.root = root;}
     public AST.Package getPackage() {return packageroot;}
     public void setPackage(AST.Package packageroot) {this.packageroot = packageroot;}
     public AST.File getSrcFile() {return srcfile;}
     public void setSrcFile(AST.File srcfile) {this.srcfile = srcfile;}
-    public AST getContainer() {return container;}
-    public void setContainer(AST container) {this.container = container;}
+    public AST getParent() {return parent;}
+    public void setParent(AST parent) {this.parent = parent;}
     public String getName() {return name;}
     public void setName(String name) {this.name = name;}
     public String getQualifiedName() {return qualifiedname;}
@@ -174,25 +175,23 @@ abstract public class AST
 // Convenience grouping class
 static public class Type extends AST 
 {
-    Type(AST.ClassEnum classenum) {super(classenum);}
+    Type(AST.Sort sort) {super(sort);}
 }
 
 // An instance of this is the root of the AST tree
 static public class Root extends AST 
 {
     List<AST> allnodes = null; // pre-order set of all nodes in the AST tree
-    List<AST> semanticnodes = null; // nodes in semantic tree (allnodes - files)
     List<AST.Package> allpackages = null;
     List<AST.File> allfiles = null;
     AST.File rootfile = null;
 
     Root(String name)
     {
-	super(AST.ClassEnum.ROOT);
+	super(AST.Sort.ROOT);
 	setName(name);
 	setAllNodes(new ArrayList<AST>());
 	setAllPackages(new ArrayList<AST.Package>());
-	setSemanticNodes(new ArrayList<AST>());
 	setAllFiles(new ArrayList<AST.File>());
     }
 
@@ -201,9 +200,6 @@ static public class Root extends AST
 
     public List<AST.File> getAllFiles() {return this.allfiles;}
     public void setAllFiles(List<AST.File> allfiles) {this.allfiles = allfiles;}
-
-    public List<AST> getSemanticNodes() {return this.semanticnodes;}
-    public void setSemanticNodes(List<AST> semanticnodes) {this.semanticnodes = semanticnodes;}
 
     public List<AST.Package> getAllPackages() {return this.allpackages;}
     public void setAllPackages(List<AST.Package> allpackages) {this.allpackages = allpackages;}
@@ -220,7 +216,7 @@ static public class File extends AST
 
     File(String name)
     {
-	super(AST.ClassEnum.FILE);
+	super(AST.Sort.FILE);
 	setName(name);
     }
 
@@ -232,7 +228,6 @@ static public class File extends AST
 
 static public class Package extends AST
 {
-    // Filled in by semantic processing
     List<AST.Message> messages = null;
     List<AST.Extend> extenders = null;
     List<AST.Enum> enums = null;
@@ -241,7 +236,7 @@ static public class Package extends AST
 
     public Package(String name)
     {
-	super(AST.ClassEnum.PACKAGE);
+	super(AST.Sort.PACKAGE);
 	setName(name);
     }
 
@@ -264,7 +259,7 @@ static public class Enum extends AST
 
     public Enum(String name)
     {
-	super(AST.ClassEnum.ENUM);
+	super(AST.Sort.ENUM);
 	setName(name);
     }
 
@@ -278,7 +273,7 @@ static public class EnumField extends AST
 
     public EnumField(String name, int value)
     {
-	super(AST.ClassEnum.ENUMFIELD);
+	super(AST.Sort.ENUMFIELD);
 	setName(name);
         setValue(value);
     }
@@ -294,7 +289,7 @@ static public class Extend extends AST
 
     public Extend(String msgname)
     {
-	super(AST.ClassEnum.EXTEND);
+	super(AST.Sort.EXTEND);
 	setAnnotation(msgname); // temporary storage place
     }
 
@@ -312,7 +307,7 @@ static public class ExtensionRange extends AST
 
     public ExtensionRange(int start, int stop)
     {
-	super(AST.ClassEnum.EXTENSIONRANGE);
+	super(AST.Sort.EXTENSIONRANGE);
 	setStart(start);
 	setStop(stop);
     }
@@ -333,7 +328,7 @@ static public class Field extends AST
 
     public Field(String name, AST.Cardinality cardinality, String fieldtype, int id)
     {
-	super(AST.ClassEnum.FIELD);
+	super(AST.Sort.FIELD);
 	setName(name);
 	setCardinality(cardinality);
 	setAnnotation(fieldtype); // temporary storage
@@ -362,7 +357,7 @@ static public class Message extends AST.Type
 
     public Message(String name)
     {
-	super(AST.ClassEnum.MESSAGE);
+	super(AST.Sort.MESSAGE);
 	setName(name);
     }
 
@@ -387,7 +382,7 @@ static public class Option extends AST
 
     public Option(String name, String value)
     {
-	super(AST.ClassEnum.OPTION);
+	super(AST.Sort.OPTION);
 	setName(name);
 	setValue(value);
     }
@@ -406,7 +401,7 @@ static public class Rpc extends AST
 
     public Rpc(String name, String argtype, String returntype)
     {
-	super(AST.ClassEnum.RPC);
+	super(AST.Sort.RPC);
 	setName(name);
 	// Use annotation to temporarily store the type names
 	String[] names = new String[2];
@@ -429,7 +424,7 @@ static public class Service extends AST
 
     public Service(String name)
     {
-	super(AST.ClassEnum.SERVICE);
+	super(AST.Sort.SERVICE);
 	setName(name);
     }
 
@@ -441,17 +436,17 @@ static public class Service extends AST
 
 static public class PrimitiveType extends AST.Type
 {
-    AST.PrimitiveEnum primitiveenum = null;
+    AST.PrimitiveSort PrimitiveSort = null;
 
-    public PrimitiveType(AST.PrimitiveEnum primitiveenum)
+    public PrimitiveType(AST.PrimitiveSort PrimitiveSort)
     {
-	super(AST.ClassEnum.PRIMITIVETYPE);
-	this.primitiveenum = primitiveenum;
-        setName(primitiveenum.getName());
+	super(AST.Sort.PRIMITIVETYPE);
+	this.PrimitiveSort = PrimitiveSort;
+        setName(PrimitiveSort.getName());
     }
 
-    public AST.PrimitiveEnum getPrimitiveEnum() {return this.primitiveenum;}
-    public void setPrimitiveEnum(AST.PrimitiveEnum primitiveenum) {this.primitiveenum = primitiveenum;}
+    public AST.PrimitiveSort getPrimitiveSort() {return this.PrimitiveSort;}
+    public void setPrimitiveSort(AST.PrimitiveSort PrimitiveSort) {this.PrimitiveSort = PrimitiveSort;}
 }
 
 }// class AST

@@ -65,7 +65,7 @@ public class ASTFactoryDefault implements ASTFactory
     static final Map<String,AST.PrimitiveType> primitivetypes;
     static {
 	primitivetypes = new HashMap<String,AST.PrimitiveType>();
-	for(AST.PrimitiveEnum pe : AST.PrimitiveEnum.values()) {
+	for(AST.PrimitiveSort pe : AST.PrimitiveSort.values()) {
             String name = pe.getName();
             AST.PrimitiveType pt = new AST.PrimitiveType(pe);
 	    primitivetypes.put(name,pt);

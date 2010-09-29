@@ -62,7 +62,7 @@ static void printR(AST node, int depth,
     String name;
 
     name = namefor(node,qualified);
-    switch (node.classenum) {
+    switch (node.sort) {
     case FILE:
 	AST.File astfile = (AST.File)node;
 	if(astfile != astfile.getRoot().getRootFile()) {
@@ -74,20 +74,20 @@ static void printR(AST node, int depth,
     case PACKAGE:
 	AST.Package astpackage = (AST.Package)node;
 	writer.printf("%spackage %s;\n",indent(depth),name);
-	for(AST subnode : astpackage.contents) 
+	for(AST subnode : astpackage.children) 
 	    printR(subnode,depth,writer,qualified);
 	break;
     case MESSAGE:
 	AST.Message astmessage = (AST.Message)node;
 	writer.printf("%smessage %s {\n",indent(depth),name);
-	for(AST subnode : astmessage.contents)
+	for(AST subnode : astmessage.children)
 	    printR(subnode,depth+1,writer,qualified);
 	writer.printf("%s}\n",indent(depth));
 	break;
     case SERVICE:
 	AST.Service astservice = (AST.Service)node;
 	writer.printf("%sservice %s {\n",indent(depth),name);
-	for(AST subnode : astservice.contents) 
+	for(AST subnode : astservice.children) 
 	    printR(subnode,depth+1,writer,qualified);
 	writer.printf("%s}\n",indent(depth));
 	break;
@@ -202,15 +202,15 @@ static void printTreeR(AST node, int depth,
     String typename;
     String name;
 
-    writer.printf("[%s] %s%s ",depth,indent(depth),node.classenum.getName());
+    writer.printf("[%s] %s%s ",depth,indent(depth),node.sort.getName());
     name = namefor(node);
     if(name != null) writer.print("name="+name);
     name = namefor(node,true);
     writer.print(" qualifiedname="+name);
     // print container, file, package pointers
-    if(node.getContainer() != null) {
-	name = namefor(node.getContainer());
-	writer.print(" container="+name);
+    if(node.getParent() != null) {
+	name = namefor(node.getParent());
+	writer.print(" parent="+name);
     }
     if(node.getSrcFile() != null) {
 	name = namefor(node.getSrcFile());
@@ -222,7 +222,7 @@ static void printTreeR(AST node, int depth,
     }
 
     // switch to print any additional parameters
-    switch (node.classenum) {
+    switch (node.sort) {
     case ROOT:
         AST.Root root = (AST.Root)node;
         writer.print(" rootfile="+root.getRootFile().getName());
@@ -266,12 +266,12 @@ static void printTreeR(AST node, int depth,
 
     // Recurse to dump children
     if(presemantic) {
-        if(node.getContents() != null) {
-	    for(AST subnode : node.getContents())
+        if(node.getChildren() != null) {
+	    for(AST subnode : node.getChildren())
 	        printTreeR(subnode,depth+1,writer,presemantic);
         }
     } else {// Dump under the packages, not the files
-    switch (node.classenum) {
+    switch (node.sort) {
     case ROOT:
         AST.Root root = (AST.Root)node;
         if(root.getAllPackages() != null) {

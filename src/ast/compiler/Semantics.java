@@ -58,7 +58,10 @@ public boolean checksemantics(AST.Root root)
     if(!pass4(root.getAllNodes())) return false;
     if(!pass5(root.getAllNodes())) return false;
     if(!pass6(root.getAllNodes())) return false;
-    if(!pass7(root)) return false;
+    List<AST> newallnodes = new ArrayList<AST>();
+    if(!pass7(root,newallnodes)) return false;
+    root.setAllNodes(newallnodes);
+
     return true;
 }
 
@@ -72,7 +75,7 @@ if(false) {
 	if(ast.visited) continue;
         if(ast instanceof AST.PrimitiveType) continue;
 	// We have an uncaptured node
-	System.err.printf("%s: %s\n",ast.getName(),ast.getClassEnum().getName());
+	System.err.printf("%s: %s\n",ast.getName(),ast.getSort().getName());
     }
     System.err.println("end missing");
 }
@@ -82,7 +85,7 @@ if(false) {
  * Pass 1 does the following:
  * 1. Collect all nodes
  * 2. Link all nodes to the tree root
- * 3. Link subnodes to container
+ * 3. Link subnodes to parent
  * 4. Link subnodes to src file and to package
  * 4. Collect all package nodes and all file nodes
  * 5. Make packages point to corresponding files
@@ -100,7 +103,7 @@ pass1(AST node, AST.Root root, AST.File srcfile, AST.Package currentpackage)
     node.setRoot(root);
     node.setSrcFile(srcfile);
     node.setPackage(currentpackage);
-    if(node.getClassEnum() == AST.ClassEnum.FILE) {
+    if(node.getSort() == AST.Sort.FILE) {
 	AST.File f = (AST.File)node;
 	if(f == root.getRootFile()) node.setSrcFile(null); // undo
 	srcfile = f;
@@ -113,10 +116,10 @@ pass1(AST node, AST.Root root, AST.File srcfile, AST.Package currentpackage)
 	    currentpackage = p;
 	}	
     }
-    // link children to container & recurse
-    if(node.getContents() != null) {
-        for(AST subnode: node.getContents()) {
-   	    subnode.setContainer(node);
+    // link children to parent & recurse
+    if(node.getChildren() != null) {
+        for(AST subnode: node.getChildren()) {
+   	    subnode.setParent(node);
 	    if(!pass1(subnode,root,srcfile,currentpackage)) return false;
 	}
     }
@@ -125,7 +128,7 @@ pass1(AST node, AST.Root root, AST.File srcfile, AST.Package currentpackage)
 
 /**
  * Pass 2 does the following:
- * 1. Reassign file contents to associated packages
+ * 1. Reassign file children to associated packages
  * 2. set package qualified name
  *
  * @param root The AST tree root
@@ -135,19 +138,19 @@ pass1(AST node, AST.Root root, AST.File srcfile, AST.Package currentpackage)
 boolean
 pass2(AST.Root root)
 {
-    // Transfer file contents to package
+    // Transfer file children to package
     for(AST node: root.allnodes) {
-        switch (node.getClassEnum()) {
+        switch (node.getSort()) {
         case FILE:
             AST.File file = (AST.File)node;
             while(file.getFilePackage() == null)
                 file = file.getSrcFile();
             AST.Package p = file.getFilePackage();
-            for(AST subnode: node.getContents()) {
-                p.addContents(subnode);
-                subnode.setContainer(p);
+            for(AST subnode: node.getChildren()) {
+                p.addChildren(subnode);
+                subnode.setParent(p);
             }
-            file.setContents(null);
+            file.setChildren(null);
             break;
         case PACKAGE:
             p = (AST.Package)node;
@@ -173,8 +176,8 @@ boolean
 pass3(AST.Root root)
 {
     for(AST.Package p: root.allpackages) {
-        if(p.getContents() != null)
-            for(AST ast: p.getContents()) {
+        if(p.getChildren() != null)
+            for(AST ast: p.getChildren()) {
             if(!pass3R(ast,p)) return false;
         }
     }
@@ -191,8 +194,8 @@ pass3R(AST node, AST.Package currentpackage)
 {
     node.setPackage(currentpackage);
     System.out.print("xxx: "+node.getName()+"->"+currentpackage.getName());
-    if(node.getContents() != null)
-        for(AST ast: node.getContents()) {
+    if(node.getChildren() != null)
+        for(AST ast: node.getChildren()) {
             if(!pass3R(ast,currentpackage)) return false;
         }
     return true;
@@ -242,7 +245,7 @@ pass4(AST.Root root, List<AST> allnodes)
     String qualname;
     List<AST> matches;
     for(AST node: root.allnodes) {
-	switch (node.getClassEnum()) {
+	switch (node.getSort()) {
 	case EXTEND:
 	    // deref the msg name
 	    AST.Extend extender = (AST.Extend)node;
@@ -333,9 +336,9 @@ pass4(AST.Root root, List<AST> allnodes)
 boolean
 pass5(List<AST> allnodes)
 {
-    // Divide contents lists
+    // Divide children lists
     for(AST node: allnodes) {
-        switch (node.getClassEnum()) {
+        switch (node.getSort()) {
         case PACKAGE:
             AST.Package astpackage = (AST.Package)node;
             astpackage.messages = new ArrayList<AST.Message>();
@@ -343,8 +346,8 @@ pass5(List<AST> allnodes)
             astpackage.enums = new ArrayList<AST.Enum>();
             astpackage.options = new ArrayList<AST.Option>();
             astpackage.services = new ArrayList<AST.Service>();
-            for(AST ast: astpackage.getContents()) {
-                switch(ast.classenum) {
+            for(AST ast: astpackage.getChildren()) {
+                switch(ast.sort) {
                 case ENUM:
                     astpackage.enums.add((AST.Enum)ast);
                     break;
@@ -373,8 +376,8 @@ pass5(List<AST> allnodes)
             msg.extenders = new ArrayList<AST.Extend>();
             msg.extensionranges = new ArrayList<AST.ExtensionRange>();
             msg.options = new ArrayList<AST.Option>();
-            for(AST ast: msg.getContents()) {
-                switch(ast.getClassEnum()) {
+            for(AST ast: msg.getChildren()) {
+                switch(ast.getSort()) {
                 case FIELD: msg.fields.add((AST.Field)ast); break;
                 case ENUM: msg.enums.add((AST.Enum)ast); break;
                 case MESSAGE: msg.messages.add((AST.Message)ast); break;
@@ -388,8 +391,8 @@ pass5(List<AST> allnodes)
             AST.Service svc = (AST.Service)node;
             svc.options = new ArrayList<AST.Option>();
             svc.rpcs = new ArrayList<AST.Rpc>();
-            for(AST ast: svc.getContents()) {
-                switch(ast.getClassEnum()) {
+            for(AST ast: svc.getChildren()) {
+                switch(ast.getSort()) {
                 case OPTION: svc.options.add((AST.Option)ast); break;
                 case RPC: svc.rpcs.add((AST.Rpc)ast); break;
                 default: assert(false) : "Illegal ast case"; break;
@@ -399,8 +402,8 @@ pass5(List<AST> allnodes)
         case ENUM:
             AST.Enum astenum = (AST.Enum)node;
             astenum.setEnumFields(new ArrayList<AST.EnumField>());
-            for(AST ast: astenum.getContents()) {
-                switch(ast.getClassEnum()) {
+            for(AST ast: astenum.getChildren()) {
+                switch(ast.getSort()) {
                 case ENUMFIELD: astenum.getEnumFields().add((AST.EnumField)ast); break;
                 default: assert(false) : "Illegal ast case"; break;
                 }
@@ -410,8 +413,8 @@ pass5(List<AST> allnodes)
         case EXTEND:
             AST.Extend astextend = (AST.Extend)node;
             astextend.setFields(new ArrayList<AST.Field>());
-            for(AST ast: astextend.getContents()) {
-                switch(ast.getClassEnum()) {
+            for(AST ast: astextend.getChildren()) {
+                switch(ast.getSort()) {
                 case FIELD: astextend.getFields().add((AST.Field)ast); break;
                 default: assert(false) : "Illegal ast case"; break;
                 }
@@ -420,8 +423,8 @@ pass5(List<AST> allnodes)
         case FIELD:
             AST.Field astfield = (AST.Field)node;
             astfield.setOptions(new ArrayList<AST.Option>());
-            for(AST ast: astfield.getContents()) {
-                switch(ast.getClassEnum()) {
+            for(AST ast: astfield.getChildren()) {
+                switch(ast.getSort()) {
                 case OPTION: astfield.getOptions().add((AST.Option)ast); break;
                 case PACKAGE: astfield.setPackage((AST.Package)ast); break;
                 default: assert(false) : "Illegal ast case"; break;
@@ -457,7 +460,7 @@ boolean
 pass6(List<AST> allnodes)
 {
     for(AST node: allnodes) {
-        switch (node.getClassEnum()) {
+        switch (node.getSort()) {
         case ENUM:
             // check for duplicates
             for(AST.EnumField field1: ((AST.Enum)node).getEnumFields()) {
@@ -497,30 +500,62 @@ pass6(List<AST> allnodes)
 
 /**
  * Pass7 does the following:
- * 1. Compute root.semanticnodes
+ * 1. Rebuild allnodes to be preorder
  *
  * @param root The AST tree root
+ * @param newallnodes The new list of all nodes in preorder
  * @return true if the processing succeeded.
 */
 boolean
-pass7(AST.Root root)
+pass7(AST node, List<AST> newallnodes)
 {
-    // compute semantic node set
-    // insert root as first element
-    root.semanticnodes = new ArrayList<AST>();
-    root.semanticnodes.add(root);
-    // walk the package nodes in preorder
-    for(int i=0;i<root.allpackages.size();i++) {
-	AST packnode = root.allpackages.get(i);
-	// Add all nodes in this package
-        for(int j=0;j<root.allnodes.size();j++) {
-	    AST node = root.allnodes.get(j);
-	    if(node instanceof AST.Package
-	       || node instanceof AST.File
-	       || node == root) continue;
-	    if(node.getPackage() == packnode)
-		root.semanticnodes.add(node);
-	}
+    newallnodes.add(node);
+    switch(node.getSort()) {
+    case ROOT: {
+	AST.Root r = (AST.Root)node;
+	for(AST.Package p: r.getAllPackages()) pass7(p,newallnodes);	    
+	} break;
+    case PACKAGE: {
+	AST.Package p = (AST.Package)node;
+	pass7(p.getSrcFile(),newallnodes);
+	for(AST.Option o: p.getOptions()) pass7(o,newallnodes);	    
+	for(AST.Enum en: p.getEnums()) pass7(en,newallnodes);	    
+	for(AST.Message m: p.getMessages()) pass7(m,newallnodes);
+	for(AST.Extend ex: p.getExtenders()) pass7(ex,newallnodes);
+	for(AST.Service s: p.getServices()) pass7(s,newallnodes);
+	} break;
+    case ENUM: {
+	AST.Enum en = (AST.Enum)node;
+	for(AST.EnumField ef: en.getEnumFields()) pass7(ef,newallnodes);
+	} break;
+    case EXTEND: {
+	AST.Extend ex = (AST.Extend)node;
+ 	for(AST.Field f: ex.getFields()) pass7(f,newallnodes);
+	} break;
+    case FIELD: {
+	AST.Field f = (AST.Field)node;
+	for(AST.Option o: f.getOptions()) pass7(o,newallnodes);	    
+	} break;
+    case MESSAGE: {
+	AST.Message m = (AST.Message)node;
+	for(AST.Option o: m.getOptions()) pass7(o,newallnodes);	    
+	for(AST.Enum e: m.getEnums()) pass7(e,newallnodes);	    
+	for(AST.Message m2: m.getMessages()) pass7(m2,newallnodes);
+ 	for(AST.Field f: m.getFields()) pass7(f,newallnodes);
+	for(AST.Extend ex: m.getExtenders()) pass7(ex,newallnodes);
+	} break;
+    case SERVICE: {
+	AST.Service s = (AST.Service)node;
+	for(AST.Option o: s.getOptions()) pass7(o,newallnodes);	    
+	for(AST.Rpc r: s.getRpcs()) pass7(r,newallnodes);	    
+	} break;
+    case ENUMFIELD:
+    case EXTENSIONRANGE:
+    case FILE:
+    case OPTION:
+    case PRIMITIVETYPE:
+    case RPC:
+	break;
     }
     return true;
 }
