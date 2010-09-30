@@ -46,12 +46,19 @@ public class Debug
 
 /**
  * Print the AST optionally using qualified names
+ * Assumes the AST has been semantically processed.
+ * Result is not quite same as original imput.
  */
 
 
 static public void print(AST.Root root, PrintWriter writer, boolean qualified)
 {
-    printR(root,0,writer,qualified);
+    for(AST.File f: root.getAllFiles()) {
+        printR(f,0,writer,qualified);
+    }
+    for(AST.Package p: root.getAllPackages()) {
+        printR(p,0,writer,qualified);
+    }
 }
 
 static void printR(AST node, int depth,
@@ -67,14 +74,12 @@ static void printR(AST node, int depth,
 	AST.File astfile = (AST.File)node;
 	if(astfile != astfile.getRoot().getRootFile()) {
 	    writer.printf("%simport %s;\n",indent(depth),astfile.getName());
-	} else {
-	    printR(astfile.getPackage(),depth,writer,qualified);
 	}
 	break;
     case PACKAGE:
 	AST.Package astpackage = (AST.Package)node;
 	writer.printf("%spackage %s;\n",indent(depth),name);
-	for(AST subnode : astpackage.children) 
+	for(AST subnode : astpackage.getChildren()) 
 	    printR(subnode,depth,writer,qualified);
 	break;
     case MESSAGE:
@@ -162,14 +167,14 @@ private static void printSimpleOption(String name, AST.Option option, PrintWrite
 
 private static String namefor(AST node)
 {
-    return namefor(node,true);
+    return namefor(node,false);
 }
 
 private static String namefor(AST node, boolean qualified)
 {
     if(node == null) return null;
     if(qualified && node.qualifiedname != null)
-	return node.qualifiedname;
+	    return node.qualifiedname;
     return node.name;
 }    
 
@@ -191,7 +196,16 @@ static public void printTree(AST.Root root, PrintWriter writer)
 
 static public void printTree(AST.Root root, PrintWriter writer, boolean presemantic)
 {
-    printTreeR(root,0,writer,presemantic);
+    if(presemantic) {
+        printTreeR(root,0,writer,presemantic);
+    } else {
+        for(AST.File f: root.getAllFiles()) {
+            printTreeR(f,0,writer,presemantic);
+        }
+        for(AST.Package p: root.getAllPackages()) {
+            printTreeR(p,0,writer,presemantic);
+        }
+    }
     writer.flush();
 }
 
@@ -206,19 +220,19 @@ static void printTreeR(AST node, int depth,
     name = namefor(node);
     if(name != null) writer.print("name="+name);
     name = namefor(node,true);
-    writer.print(" qualifiedname="+name);
+    if(name != null) writer.print(" qualifiedname="+name);
     // print container, file, package pointers
     if(node.getParent() != null) {
 	name = namefor(node.getParent());
-	writer.print(" parent="+name);
+	if(name != null) writer.print(" parent="+name);
     }
     if(node.getSrcFile() != null) {
 	name = namefor(node.getSrcFile());
-	writer.print(" file="+name);
+	if(name != null) writer.print(" file="+name);
     }
     if(node.getPackage() != null) {
 	name = namefor(node.getPackage());
-	writer.print(" package="+name);
+	if(name != null) writer.print(" package="+name);
     }
 
     // switch to print any additional parameters

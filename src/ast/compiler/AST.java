@@ -145,11 +145,11 @@ abstract public class AST
            this.children.addAll(children);
     }
 
-    public void addChildren(AST children)
+    public void addChild(AST child)
     {
         if(this.children == null)
 	    this.children = new ArrayList<AST>();
-        this.children.add(children);
+        this.children.add(child);
     }
 
     public AST.Position getPosition() {return position;}
@@ -184,6 +184,7 @@ static public class Root extends AST
     List<AST> allnodes = null; // pre-order set of all nodes in the AST tree
     List<AST.Package> allpackages = null;
     List<AST.File> allfiles = null;
+    List<AST.PrimitiveType> primitivetypes = null;
     AST.File rootfile = null;
 
     Root(String name)
@@ -191,6 +192,8 @@ static public class Root extends AST
 	super(AST.Sort.ROOT);
 	setName("");
 	setQualifiedName("");
+        setPackage(null);
+        setSrcFile(null);
 	setAllNodes(new ArrayList<AST>());
 	setAllPackages(new ArrayList<AST.Package>());
 	setAllFiles(new ArrayList<AST.File>());
@@ -204,6 +207,9 @@ static public class Root extends AST
 
     public List<AST.Package> getAllPackages() {return this.allpackages;}
     public void setAllPackages(List<AST.Package> allpackages) {this.allpackages = allpackages;}
+
+    public List<AST.PrimitiveType> getPrimitiveTypes() {return this.primitivetypes;}
+    public void setPrimitiveTypes(List<AST.PrimitiveType> primitivetypes) {this.primitivetypes = primitivetypes;}
 
     AST.File getRootFile() {return this.rootfile;}
     void setRootFile(AST.File f) {this.rootfile = f;}
@@ -229,6 +235,8 @@ static public class File extends AST
 
 static public class Package extends AST
 {
+    AST.File packagefile = null; // inverse of AST.File.filepackage
+
     List<AST.Message> messages = null;
     List<AST.Extend> extenders = null;
     List<AST.Enum> enums = null;
@@ -240,6 +248,9 @@ static public class Package extends AST
 	super(AST.Sort.PACKAGE);
 	setName(name);
     }
+
+    AST.File getPackageFile() {return this.packagefile;}
+    void setPackageFile(AST.File astfile) {this.packagefile = astfile;}
 
     public List<AST.Message> getMessages() {return this.messages;}
     public void setMessages(List<AST.Message> sessages) {this.messages = messages;}

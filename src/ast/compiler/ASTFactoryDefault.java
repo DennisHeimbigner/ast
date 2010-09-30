@@ -60,21 +60,6 @@ public class ASTFactoryDefault implements ASTFactory
 	{return new AST.Rpc(name, argtype, returntype);}
     public AST.Service newService(String name)
 	{return new AST.Service(name);}
-
-    // Get pre-constructed primitive types
-    static final Map<String,AST.PrimitiveType> primitivetypes;
-    static {
-	primitivetypes = new HashMap<String,AST.PrimitiveType>();
-	for(AST.PrimitiveSort pe : AST.PrimitiveSort.values()) {
-            String name = pe.getName();
-            AST.PrimitiveType pt = new AST.PrimitiveType(pe);
-	    primitivetypes.put(name,pt);
-	}
-    }
-
-    public AST.PrimitiveType
-    getPrimitiveType(String typename)
-    {
-	return primitivetypes.get(typename);	
-    }
+    public AST.PrimitiveType newPrimitiveType(AST.PrimitiveSort sort)
+	{return new AST.PrimitiveType(sort);}
 }

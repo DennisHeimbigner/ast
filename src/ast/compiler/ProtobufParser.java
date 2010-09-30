@@ -444,7 +444,7 @@ public class ProtobufParser extends ProtobufActions
     
 /* Line 354 of lalr1.java  */
 /* Line 76 of "protobuf.y"  */
-    {setLocation(yyloc);protobuffile(((yystack.valueAt (4-(1)))),((yystack.valueAt (4-(2)))),((yystack.valueAt (4-(3)))));};
+    {setLocation(yyloc);yyval=protobuffile(((yystack.valueAt (4-(1)))),((yystack.valueAt (4-(2)))),((yystack.valueAt (4-(3)))));};
   break;
     
 

@@ -24,6 +24,7 @@ public abstract class ProtobufActions
     ProtobufParser.Location currentlocation = null;
     AST.Root ast = null; // root node of the AST
     String filename = null;
+    List<AST.PrimitiveType> primitives = null;
 
 //////////////////////////////////////////////////
 // Constructors
@@ -38,6 +39,12 @@ ProtobufActions(ASTFactory factory)
     state = this;
     if(factory == null) factory = new ASTFactoryDefault();
     this.astfactory = factory;
+    // Construct the primitive type nodes
+    primitives = new ArrayList<AST.PrimitiveType>();
+    for(AST.PrimitiveSort prim: AST.PrimitiveSort.values()) {
+	AST.PrimitiveType pt = factory.newPrimitiveType(prim);
+	primitives.add(pt);
+    }
 }
 
 //////////////////////////////////////////////////
@@ -59,28 +66,25 @@ abstract void setDebugLevel(int level);
 //////////////////////////////////////////////////
 // Parser actions
 
-void notimplemented(String s)
-{
-    parseError(s+" not implemented.");
-    return;
-}
-
 // Construct tree root
 void
-protobufroot(Object root0)
+protobufroot(Object file0)
 {
     // Store in state
-    AST.Root root = (AST.Root)root0
-    f.setName(filename);
-    this.ast = astfactory.newRoot(filename);
-    this.ast.setRootFile(f);
+    AST.File file = (AST.File)file0;
+    file.setName(filename);
+    this.ast = astfactory.newRoot("");
+    this.ast.setRootFile(file);
+    this.ast.addChild(file);
+    // Place the set of primitive type nodes in the root
+    this.ast.setPrimitiveTypes(primitives);
 }
 
 
 Object
 protobuffile(Object package0, Object imports0, Object decllist0)
 {
-    AST.File f = astfactory.newFile(null); // we don't know the file name at this point
+    AST.File f = astfactory.newFile(null);
     f.setFilePackage((AST.Package)package0);
     // concat for now; divide later
     f.addChildren((List<AST>)imports0);
@@ -331,5 +335,11 @@ position()
     return (loc == null ? null : loc.begin);
 }
 
+
+void notimplemented(String s)
+{
+    parseError(s+" not implemented.");
+    return;
+}
 
 } // class ProtobufActions

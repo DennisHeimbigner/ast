@@ -56,6 +56,24 @@ static public List<AST> findbyname(String qualname, List<AST> allnodes)
     return matches;
 }
 
+static List<AST.Type> findtypebyname(String typename, AST node)
+{
+    List<AST.Type> matches = new ArrayList<AST.Type>();
+    // First, see is this a primitive type name
+    List<AST.PrimitiveType> primitives = node.getRoot().getPrimitiveTypes();
+    for(AST.PrimitiveType pt: primitives) 
+        if(typename.equals(pt.getName())) {matches.add(pt); return matches;}
+    // Otherwise, qualify the name and search for it
+    String qualname = Util.qualify(typename,node);
+    // Locate the single matching type name
+    for(AST ast : node.getRoot().getAllNodes()) {
+        if(ast.qualifiedname != null && qualname.equals(ast.qualifiedname)
+	   && ast instanceof AST.Type) {
+	    matches.add((AST.Type)ast);
+        }
+    }
+    return matches;
+}    
 
 static List<AST> concat(List<AST> list1, List<AST> list2)
 {
@@ -66,31 +84,26 @@ static List<AST> concat(List<AST> list1, List<AST> list2)
 }
 
 
-static List<AST> computepath(AST node, boolean includepackage)
+// Compute path from root to this node.
+// Root is 0 entry, package is 1 entry  and the node is last entry
+static List<AST> computepath(AST node)
 {
     List<AST> path = new ArrayList<AST>();
-    while(node.getParent() != null) {
-        if(includepackage || !(node instanceof AST.Package)) path.add(0,node);
+    while(node != null) {
+        path.add(0,node);
         node = node.getParent();
     }
-    assert(node.getSort() == AST.Sort.PACKAGE);
     return path;
 }
 
 static String computequalifiedname(AST node)
 {
-    if(node.getQualifiedName() != null)
-        return node.getQualifiedName();
-    AST.Package pack = node.getPackage();
-    if(pack == null) return null;
-    assert( pack != null): "node not in package:"+node.getName();
-    List<AST> path = computepath(node,false);
-    String qualname = pack.getName();
-    if(!qualname.startsWith(".")) qualname = '.' + qualname;
-    for(int i=0;i<path.size();i++) qualname = qualname + "." + path.get(i).getName();
+    List<AST> path = computepath(node);
+    String qualname = node.getRoot().getQualifiedName();
+    for(int i=1;i<path.size();i++)  // do not include root
+        qualname = qualname + "." + path.get(i).getName();
     return qualname;
 }
-
 
 } // class Util
 

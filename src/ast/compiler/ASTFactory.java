@@ -48,7 +48,5 @@ public interface ASTFactory
     AST.Option newOption(String name, String value);
     AST.Rpc newRpc(String name, String argtype, String returntype);
     AST.Service newService(String name);
-
-    // Get pre-constructed primitive types
-    AST.PrimitiveType getPrimitiveType(String typename);    
+    AST.PrimitiveType newPrimitiveType(AST.PrimitiveSort sort);
 }

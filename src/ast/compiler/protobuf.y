@@ -73,7 +73,7 @@ root: protobuffile
 
 protobuffile:
 	packagedecl importlist decllist ENDFILE
-	    {setLocation(yyloc);protobuffile($1,$2,$3);}
+	    {setLocation(yyloc);$$=protobuffile($1,$2,$3);}
 
 packagedecl:
 	  /*empty*/
