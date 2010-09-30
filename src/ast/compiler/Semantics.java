@@ -87,8 +87,7 @@ if(false) {
  * 2. Link all nodes to the tree root
  * 3. Link subnodes to parent
  * 4. Link subnodes to src file and to package
- * 4. Collect all package nodes and all file nodes
- * 5. Make packages point to corresponding files
+ * 5. Collect all package nodes and all file nodes
  *
  * @param node The current node being walked
  * @param root The AST tree root
@@ -128,7 +127,8 @@ pass1(AST node, AST.Root root, AST.File srcfile, AST.Package currentpackage)
 
 /**
  * Pass 2 does the following:
- * 1. Reassign file children to associated packages
+ * 1. Invert the file/package relationship =>
+ *       reassigning file children to associated packages
  * 2. set package qualified name
  *
  * @param root The AST tree root
@@ -139,18 +139,19 @@ boolean
 pass2(AST.Root root)
 {
     // Transfer file children to package
-    for(AST node: root.allnodes) {
+    for(AST.File f: root.getAllFiles()) {
+        while(file.getFilePackage() == null)
+            file = file.getSrcFile();
+	AST.Package p = file.getFilePackage();
+        for(AST child: f.getChildren()) {
+	    p.addChildren(child);
+            child.setParent(p);
+        }
+        file.setChildren(null);
+    }
+	
         switch (node.getSort()) {
         case FILE:
-            AST.File file = (AST.File)node;
-            while(file.getFilePackage() == null)
-                file = file.getSrcFile();
-            AST.Package p = file.getFilePackage();
-            for(AST subnode: node.getChildren()) {
-                p.addChildren(subnode);
-                subnode.setParent(p);
-            }
-            file.setChildren(null);
             break;
         case PACKAGE:
             p = (AST.Package)node;

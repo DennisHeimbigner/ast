@@ -189,7 +189,8 @@ static public class Root extends AST
     Root(String name)
     {
 	super(AST.Sort.ROOT);
-	setName(name);
+	setName("");
+	setQualifiedName("");
 	setAllNodes(new ArrayList<AST>());
 	setAllPackages(new ArrayList<AST.Package>());
 	setAllFiles(new ArrayList<AST.File>());
