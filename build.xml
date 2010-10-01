@@ -2,11 +2,7 @@
 <project name="ast.compiler" default="all" basedir=".">
 
 <!-- Compiler Settings -->
-<property name="compile.debug"		value="on"/>
-<property name="compile.debuglevel"	value="lines,vars,source"/>
-<property name="compile.deprecation"	value="on"/>
-<property name="modern.compiler"	value="modern"/>
-<property name="classic.compiler"	value="classic"/>
+<property name="compile.deprecation"	value="off"/>
 
 <!-- Project directories -->
 <property name="src.main.dir"		location="src/ast"/>
@@ -22,7 +18,7 @@
 <property name="buildfiles.dir" location="target"/>
 
 <!-- Build Directories -->
-<property name="build.dir"	location="target"/>
+<property name="build.dir"	location="build"/>
 <property name="build.classes"	location="${build.dir}/classes"/>
 <property name="build.doc"	location="${build.dir}/doc"/>
 <property name="build.lib"	location="${build.dir}/lib"/>
@@ -30,7 +26,7 @@
 <!-- Where to put test case output -->
 <property name="results.dir"	location="${build.dir}/results"/>
 
-// jar files
+<!-- jar files -->
 <property name="protobufjar" value="protobuf.jar"/>
 <property name="main.class" value="unidata.protobuf.ast.compiler.Main"/>
 
