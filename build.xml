@@ -2,163 +2,76 @@
 <project name="ast.compiler" default="all" basedir=".">
 
 <!-- Compiler Settings -->
-<property name="compile.debug" value="on"/>
-<property name="compile.debuglevel" value="lines,vars,source"/>
-<property name="compile.deprecation" value="on"/>
-<property name="modern.compiler" value="modern"/>
-<property name="classic.compiler" value="classic"/>
+<property name="compile.debug"		value="on"/>
+<property name="compile.debuglevel"	value="lines,vars,source"/>
+<property name="compile.deprecation"	value="on"/>
+<property name="modern.compiler"	value="modern"/>
+<property name="classic.compiler"	value="classic"/>
 
-<property name="build.compiler" value="${modern.compiler}"/>
-<property name="build.sysclasspath" value="ignore"/>
+<!-- Project directories -->
+<property name="src.main.dir"		location="src/ast"/>
+<property name="src.test.dir"		location="src/test"/>
 
-    <!-- Project directories -->
-    <property name="src.main.dir"          location="src/ast"/>
-        <property name="src.test.dir"          location="src/test"/>
+<property name="doc.dir"	location="doc"/>
+<property name="lib.dir"	location="lib"/>
+<!--property name="bin.dir"	location="bin"/ -->
+<!--property name="dist.dir"	location="dist"/ -->
+<property name="resources.dir"	location="${src.main.dir}/resources"/>
+<property name="schema.dir"	location="schema"/>
+<property name="testsuites.dir" location="${src.test.dir}/testsuites"/>
+<property name="buildfiles.dir" location="target"/>
 
-    <property name="doc.dir"          location="doc"/>
-    <property name="lib.dir"          location="lib"/>
-    <!--property name="bin.dir"          location="bin"/ -->
-    <!--property name="dist.dir"         location="dist"/ -->
-    <property name="resources.dir"    location="${src.main.dir}/resources"/>
-    <property name="schema.dir"       location="schema"/>
-    <property name="testsuites.dir"   location="${src.test.dir}/testsuites"/>
-    <property name="buildfiles.dir"   location="target"/>
+<!-- Build Directories -->
+<property name="build.dir"	location="target"/>
+<property name="build.classes"	location="${build.dir}/classes"/>
+<property name="build.doc"	location="${build.dir}/doc"/>
+<property name="build.lib"	location="${build.dir}/lib"/>
 
-    <!-- Build Directories -->
-    <property name="build.dir"        location="target"/>
-    <property name="build.classes"    location="${build.dir}/classes"/>
-    <property name="build.doc"        location="${build.dir}/doc"/>
-    <property name="build.lib"        location="${build.dir}/lib"/>
+<!-- Where to put test case output -->
+<property name="results.dir"	location="${build.dir}/results"/>
 
-    <!-- Where to put test case output -->
-    <property name="results.dir"        location="${build.dir}/results"/>
-
-<property name="RELEASE" value="132_1"/>
-<property name="RELEASEDATE" value="2005-10-27"/>
-<property name="JACLVER" value="1.3.2"/>
-
-<property name="JACLJAR" value="jacl.jar"/>
-<property name="JACLSHELL" value="jaclsh"/>
-
-<property name="INSTALLDIR" value="c:/tools/bin"/>
-
-<property name="MAINCLASS" value="tcl.lang.Shell"/>
-
-<property name="CLASSDIR" value="classes"/>
-
-<property name="JARMF" value="=jacl.mf"/>
-
-<import file="manifest.xml"/>
-
-<property name="JAVAC" value="${JAVABIN}/javac"/>
-<property name="JAVA" value="${JAVABIN}/java"/>
-<property name="JAR" value="${JAVABIN}/jar"/>
+// jar files
+<property name="protobufjar" value="protobuf.jar"/>
+<property name="main.class" value="unidata.protobuf.ast.compiler.Main"/>
 
 <!-- BUILD TASKS  -->
 
-<target name="all" depends="jacl.jar,jaclshell"/>
+<target name="all" depends="init,compiler"/>
 
-<target name="jacl.jar" depends="compile,tclsrc">
-    <jar destfile="${JACLJAR}" basedir="classes">
+<!--
+- Target "init" prepares (creates if neccessary)
+- the build dircteory tree.
+-->
+<target name="init" description="Prepare all build directories.">
+    <mkdir dir="${build.dir}"/>
+    <mkdir dir="${build.lib}"/>
+    <mkdir dir="${build.classes}"/>
+    <mkdir dir="${build.doc}"/>
+    <mkdir dir="${results.dir}"/>
+    <tstamp/>
+    <echo level="info" message="time: ${TSTAMP}"/>
+</target>
+
+<target name="compiler">
+    <javac
+	destdir="${build.classes}"
+	deprecation="${compile.deprecation}">
+	<src path="${src.main.dir}"/>
+	<include name="compiler/*.java"/>
+	<include name="Java/*.java"/>
+    </javac>
+    <jar destfile="${build.dir}/${protobufjar}" basedir="${build.classes}">
 	<manifest>
-	    <attribute name="Manifest-Version" value="1.0"/>
-	    <attribute name="Main-class" value="${MAINCLASS}"/>
+	<attribute name="Manifest-Version" value="1.0"/>
+	<attribute name="Main-class" value="${main.class}"/>
 	</manifest>
     </jar>
 </target>
 
-<target name="compile" depends="classdir">
-	<javac destdir="${CLASSDIR}" srcdir="src" includes="${SRC}"/>
-</target>
-
-<target name="install" depends="jacl.jar">
-    <chmod file="${JACLSHELL}" perm="ugo+rx"/>
-    <copy file="${JACLSHELL}" todir="${INSTALLDIR}"/>
-    <copy file="${JACLJAR}" todir="${INSTALLDIR}"/>
-</target>
-
-<target name="uninstall">
-	<delete file="${INSTALLDIR}/${JACLSHELL}"/>
-	<delete file="${INSTALLDIR}/${JACLJAR}"/>
-</target>
-
 <target name="clean">
     <delete includeemptydirs="true" failonerror="false">
-        <fileset file="${JACLJAR}"/>
-        <fileset file="${JACLSHELL}"/>
-	<fileset dir="${CLASSDIR}"/>
+        <fileset dir="${build.dir}"/>
     </delete>
-</target>
-
-<target name="tclsrc" depends="classdir">
-    <mkdir dir="${CLASSDIR}/${TCLSRCDST}"/>
-    <mkdir dir="${CLASSDIR}/${TCLSRCDST}/java"/>
-    <copy flatten="true" todir="${CLASSDIR}/${TCLSRCDST}">
-	<fileset dir="src" includes="${TCLSRC1}"/>
-    </copy>
-    <copy flatten="true" todir="${CLASSDIR}/${TCLSRCDST}/java">
-	<fileset dir="src" includes="${TCLSRC2}"/>
-    </copy>
-</target>
-
-<target name="classdir">
-    <mkdir dir="${CLASSDIR}" />
-</target>
-
-<target name="jaclshell">
-	<delete file="${JACLSHELL}"/>
-	<echo file="${JACLSHELL}">#!c:/tools/cygwin/bin/env sh
-JAVA=${JAVA}
-JACLJAR=${INSTALLDIR}/jacl.jar
-# Run java with the args passed in from the calling environment
-# We must set the CLASSPATH env var instead of using the -classpath
-# argument because jacl might want to exec a program that also
-# depends on the CLASSPATH setting and Java can not export env vars
-# AGENTFLAG="-agentlib:jdwp=transport=dt_shmem,server=y,suspend=n,address=lisp"
-CLASSPATH="$${JACLJAR}"
-export CLASSPATH
-$${JAVA} $${AGENTFLAG} -cp "$${CLASSPATH}" -ms5m -mx22m -DJAVA="$${JAVA}" tcl.lang.Shell $${1+$$@}
-</echo>
-</target>
-
-<!-- Testing code -->
-
-<import file="test.xml"/>
-
-<!-- Overwrite files that need fixing to work with JDK1.5 -->
-
-<target name="jdk15" depends="save.jar">
-	<unjar src="fix15.jar" dest="."/>
-	<copy todir="${FIX15DIR}">
-	    <fileset dir="fix15" includes="*.java"/>
-	</copy>
-</target>
-
-<!-- But first save the old copies -->
-<!-- Is there someway to suppress the manifest file (== jar M flag) -->
-<target name="save.jar">
-    <jar update="false" destfile="save.jar" basedir="${FIX15DIR}" includes="${FIX15SRC}"/>
-</target>
-
-<!-- Construct a distributable jar file containing src, etc. -->
-
-<property name="DISTDIR" value="jaclite${RELEASE}"/>
-<property name="DISTJAR" value="${DISTDIR}.jar"/>
-
-<property name="DISTFILES" value="
-          README.html
-	  Makefile manifest.mk test.mk
-	  build.xml manifest.xml test.xml
-	  fix15.jar
-"/>
-
-<target name="dist">
-	<delete dir="${DISTDIR}"/>
-	<mkdir dir="${DISTDIR}"/>
-	<copy todir="${DISTDIR}">
-	    <fileset dir="." includes="${DISTFILES}"/>
-	</copy>
-	<jar destfile="${DISTJAR}"><fileset dir="${DISTDIR}"/></jar>
 </target>
 
 </project>
