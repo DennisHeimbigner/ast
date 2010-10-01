@@ -51,6 +51,11 @@ public class Debug
  */
 
 
+static public void print(AST.Root root, PrintWriter writer)
+{
+    print(root,writer,false);
+}
+
 static public void print(AST.Root root, PrintWriter writer, boolean qualified)
 {
     for(AST.File f: root.getAllFiles()) {

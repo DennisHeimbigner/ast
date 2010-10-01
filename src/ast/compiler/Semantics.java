@@ -54,19 +54,21 @@ public boolean checksemantics(AST.Root root)
     if(false) verify(root);
     if(!pass2(root)) return false;
     if(!pass4(root.getAllNodes())) return false;
-    System.out.println("Pass4:");
-    Debug.printTree(root,w,true);
-    System.out.flush();
     if(!pass5(root.getAllNodes())) return false;
     if(!pass6(root.getAllNodes())) return false;
     if(!pass7(root.getAllNodes())) return false;
     List<AST> newallnodes = new ArrayList<AST>();
     if(!pass8(root,newallnodes)) return false;
-    System.out.println("Pass8:");
-    Debug.printTree(root,w);
-    System.out.flush();
     root.setAllNodes(newallnodes);
 
+    // Print two ways
+    System.out.println("-------------------------");
+    Debug.printTree(root,w);
+    w.flush();
+
+    System.out.println("-------------------------");
+    Debug.print(root,w);
+    w.flush();
     return true;
 }
 
