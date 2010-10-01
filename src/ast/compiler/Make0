@@ -9,7 +9,8 @@ GRAMMAR=protobuf.y
 SRC=\
     ProtobufActions.java ProtobufLexer.java $(PARSER) AST.java \
     Semantics.java Util.java Printer.java Debug.java  \
-    ASTFactory.java ASTFactoryDefault.java
+    ASTFactory.java ASTFactoryDefault.java \
+    Getopts.java
     
 COMPILERPATH=classes/unidate/protobuf/ast/compiler
 
