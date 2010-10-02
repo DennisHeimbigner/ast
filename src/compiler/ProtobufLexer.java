@@ -38,7 +38,7 @@ import java.util.Stack;
 import unidata.protobuf.ast.compiler.AST.Position;
 import static unidata.protobuf.ast.compiler.ProtobufParser.*;
 
-class ProtobufLexer implements ProtobufParser.Lexer
+class ProtobufLexer implements Lexer
 {
 
     /* Define 1 and > 1st legal characters */
@@ -507,6 +507,6 @@ class ProtobufLexer implements ProtobufParser.Lexer
     /**
      * Method to retrieve the ending position of the last scanned token.
      * @return the first position beyond the last scanned token.  */
-    public AST.Position getEndPos() {return endpos;}
+    public Position getEndPos() {return endpos;}
 
 }

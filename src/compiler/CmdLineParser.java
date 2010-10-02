@@ -355,7 +355,7 @@ public class CmdLineParser {
     }
 
     /**
-     * Equivalent to {@link #getOptionValue(Option, Object) getOptionValue(o,
+     * Equivalent to {@link #getOptionValue(jargs.gnu.CmdLineParser.Option, Object) getOptionValue(o,
      * null)}.
      */
     public final Object getOptionValue( Option o ) {

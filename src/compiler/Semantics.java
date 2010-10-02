@@ -45,7 +45,7 @@ public Semantics() {}
 
 //////////////////////////////////////////////////
 
-public boolean checksemantics(AST.Root root)
+public boolean process(AST.Root root)
 {
     PrintWriter w = new PrintWriter(System.out);
     AST.File f = root.getRootFile();

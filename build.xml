@@ -5,7 +5,7 @@
 <property name="compile.deprecation"	value="off"/>
 
 <!-- Project directories -->
-<property name="src.main.dir"		location="src/ast"/>
+<property name="src.main.dir"		location="src"/>
 <property name="src.test.dir"		location="src/test"/>
 
 <property name="doc.dir"	location="doc"/>
@@ -30,6 +30,8 @@
 <property name="protobufjar" value="protobuf.jar"/>
 <property name="main.class" value="unidata.protobuf.ast.compiler.Main"/>
 
+<property name="junitjar" value="t:/JetBrains/IntelliJ IDEA Community Edition 9.0.3/lib/junit.jar"/>
+
 <!-- BUILD TASKS  -->
 
 <target name="all" depends="init,compiler"/>
@@ -48,9 +50,34 @@
     <echo level="info" message="time: ${TSTAMP}"/>
 </target>
 
+<target name="compiletests" depends="compiler">
+    <javac
+	destdir="${build.classes}"
+	includeAntRuntime="false"
+	deprecation="${compile.deprecation}"
+	classpath="${build.classes};${junitjar}">
+	<src path="${src.test.dir}"/>
+	<include name="*.java"/>
+    </javac>
+</target>
+
+<target name="test" depends="compiletests">
+    <java classname="unidata.protobuf.ast.test.TestAST"
+          classpath="${build.classes};${junitjar}"/>
+</target>
+
+<target name="generate" depends="compiletests">
+    <java classname="unidata.protobuf.ast.test.TestAST"
+          classpath="${build.classes};${junitjar}">
+        <arg value="-generate"/>
+    </java>
+</target>
+
 <target name="compiler">
     <javac
 	destdir="${build.classes}"
+	classpath="${build.classes}"
+	includeAntRuntime="false"
 	deprecation="${compile.deprecation}">
 	<src path="${src.main.dir}"/>
 	<include name="compiler/*.java"/>

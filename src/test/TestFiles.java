@@ -42,14 +42,17 @@ public class TestFiles extends TestCase
 
     static int debug = 0;
 
-    // Base line test data location relative to root jproto directory
-    static String testdata1path = "test/testdata1";
+    // path to test directory
+    static String testpath = "src/ast/test";
 
-    // Comparison test data location relative to root jproto directory
-    static String expectedpath = "test/testdata1";
+    // Base line test data location relative to root ast directory
+    static String testdata1path = testpath + "/testdata1";
 
-    // Storage of test case outputs relative to root jproto directory
-    static String resultspath = "test/results";
+    // Comparison test data location relative to root directory
+    static String expectedpath = testpath + "/testdata1";
+
+    // Storage of test case outputs relative to root directory
+    static String resultspath = testpath + "/results";
 
     //////////////////////////////////////////////////
     // Define the test data basenames
