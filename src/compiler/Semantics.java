@@ -30,7 +30,7 @@
  * WITH THE ACCESS, USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package unidata.protobuf.ast.compiler;
+package unidata.protobuf.compiler;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -47,28 +47,31 @@ public Semantics() {}
 
 public boolean process(AST.Root root)
 {
-    PrintWriter w = new PrintWriter(System.out);
+    PrintWriter w = new PrintWriter(System.err);
     AST.File f = root.getRootFile();
     AST.Package p = f.getFilePackage();
     if(!pass1(root,root,f,p)) return false;
     if(false) verify(root);
     if(!pass2(root)) return false;
     if(!pass4(root.getAllNodes())) return false;
-    if(!pass5(root.getAllNodes())) return false;
+    //Debug.printTree(root,w, true) ; w.flush();
+    if(!pass5(root)) return false;
     if(!pass6(root.getAllNodes())) return false;
     if(!pass7(root.getAllNodes())) return false;
     List<AST> newallnodes = new ArrayList<AST>();
     if(!pass8(root,newallnodes)) return false;
     root.setAllNodes(newallnodes);
 
+    if(false) {
     // Print two ways
-    System.out.println("-------------------------");
+    System.err.println("-------------------------");
     Debug.printTree(root,w);
     w.flush();
-
-    System.out.println("-------------------------");
+    System.err.println("-------------------------");
     Debug.print(root,w);
     w.flush();
+    }
+
     return true;
 }
 
@@ -206,11 +209,12 @@ pass4(List<AST> allnodes)
 */
 
 boolean
-pass5(List<AST> allnodes)
+pass5(AST.Root root)
 {
     boolean found;
     String qualname;
     List<AST> matches;
+    List<AST> allnodes = root.getAllNodes();
     for(AST node: allnodes) {
 	switch (node.getSort()) {
 	case EXTEND:
@@ -238,7 +242,8 @@ pass5(List<AST> allnodes)
 	    AST.Field field = (AST.Field)node;
 	    String fieldtypename = (String)field.getAnnotation();
 	    field.setAnnotation(null);
-	    List<AST.Type> typematches = Util.findtypebyname(fieldtypename,field);
+            // Compute absolute name relative to the parent message
+	    List<AST.Type> typematches = Util.findtypebyname(fieldtypename,root);
 	    if(typematches.size() == 0) {
 	        return semerror(node,"Field refers to undefined type: "+fieldtypename);
 	    } else if(typematches.size() > 1) {
@@ -253,7 +258,7 @@ pass5(List<AST> allnodes)
 	    AST.Rpc rpc = (AST.Rpc)node;
 	    String[] names = (String[])rpc.getAnnotation();
 	    rpc.setAnnotation(null);
-	    typematches = Util.findtypebyname(names[0],rpc);
+	    typematches = Util.findtypebyname(names[0],root);
 	    if(typematches.size() == 0) {
 	        return semerror(node,"RPC returntype refers to undefined type: "+names[0]);
 	    } else if(typematches.size() > 1) {
@@ -261,7 +266,7 @@ pass5(List<AST> allnodes)
 	    } else {// typematches.size() == 1
    	        rpc.argtype = typematches.get(0);
 	    }
-	    typematches = Util.findtypebyname(names[1],rpc);
+	    typematches = Util.findtypebyname(names[1],root);
 	    if(typematches.size() == 0) {
 	        return semerror(node,"RPC returntype refers to undefined type: "+names[1]);
 	    } else if(typematches.size() > 1) {
@@ -384,6 +389,7 @@ pass6(List<AST> allnodes)
             }
             break;
         // Cases where no extra action is required in pass
+        case ROOT:
         case FILE:
         case ENUMFIELD:
         case EXTENSIONRANGE:

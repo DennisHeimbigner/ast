@@ -30,7 +30,7 @@
  * WITH THE ACCESS, USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package unidata.protobuf.ast.compiler;
+package unidata.protobuf.compiler;
 
 import java.util.*;
 
@@ -265,7 +265,7 @@ static public class Package extends AST
 
 }
 
-static public class Enum extends AST
+static public class Enum extends AST.Type
 {
     List<EnumField> enumfields = null;
 

@@ -30,7 +30,7 @@
  * WITH THE ACCESS, USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package unidata.protobuf.ast.compiler;
+package unidata.protobuf.compiler;
 
 import java.util.*;
 import java.io.*;
@@ -41,8 +41,9 @@ public class Util
 static String qualify(String relpath, AST node)
 {
     if(relpath.startsWith(".")) return relpath;
-    AST.Package p = node.getPackage();
-    return p.getName() + "." + relpath;
+    // prepend the qualified name of the node
+    String qname = node.getQualifiedName() + "." + relpath;
+    return qname;
 }
 
 static public List<AST> findbyname(String qualname, List<AST> allnodes)
@@ -56,21 +57,20 @@ static public List<AST> findbyname(String qualname, List<AST> allnodes)
     return matches;
 }
 
-static List<AST.Type> findtypebyname(String typename, AST node)
+static List<AST.Type> findtypebyname(String typename, AST.Root root)
 {
     List<AST.Type> matches = new ArrayList<AST.Type>();
     // First, see is this a primitive type name
-    List<AST.PrimitiveType> primitives = node.getRoot().getPrimitiveTypes();
+    List<AST.PrimitiveType> primitives = root.getPrimitiveTypes();
     for(AST.PrimitiveType pt: primitives) 
         if(typename.equals(pt.getName())) {matches.add(pt); return matches;}
-    // Otherwise, qualify the name and search for it
-    String qualname = Util.qualify(typename,node);
-    // Locate the single matching type name
-    for(AST ast : node.getRoot().getAllNodes()) {
-        if(ast.qualifiedname != null && qualname.equals(ast.qualifiedname)
-	   && ast instanceof AST.Type) {
-	    matches.add((AST.Type)ast);
-        }
+    // Otherwise collect all nodes with matching names
+    // where the node's qualified name has suffix equal to typename
+    for(AST ast : root.getAllNodes()) {
+	if(!(ast instanceof AST.Type)) continue;
+	String candidate = ast.getQualifiedName();
+        if(candidate == null) continue;
+        if(candidate.endsWith(typename)) matches.add((AST.Type)ast);
     }
     return matches;
 }    

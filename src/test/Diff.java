@@ -1,4 +1,4 @@
-package unidata.protobuf.ast.test;
+package unidata.protobuf.test;
 
 
 // Diff -- text file difference utility.

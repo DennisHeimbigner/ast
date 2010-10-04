@@ -31,9 +31,9 @@
  * WITH THE ACCESS, USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package unidata.protobuf.ast.test;
+package unidata.protobuf.test;
 
-import unidata.protobuf.ast.compiler.*;
+import unidata.protobuf.compiler.*;
 
 import java.io.*;
 import java.io.FileWriter;
@@ -91,9 +91,10 @@ public class TestAST extends TestFiles
 	int ntests;
 	String[] tests = null;
 
-	if(xtestfiles.length > 0)
+	if(xtestfiles.length > 0) {
 	    tests = xtestfiles;
-	else
+	    System.err.println("Using experimental test set");
+	} else
 	    tests = testfiles;
         ntests = tests.length;
 
@@ -254,10 +255,19 @@ public class TestAST extends TestFiles
         File file;
         FileWriter content;
         PrintWriter pw;
-        int ntests = testfiles.length;
+        int ntests;
+	String[] tests;
+
+	if(xtestfiles.length > 0) {
+	    tests = xtestfiles;
+	    System.err.println("Using experimental test set");
+	} else {
+	    tests = testfiles;
+	}
+        ntests = tests.length;
 
         for(int i = 0; i < ntests; i++) {
-            String testname = testfiles[0];
+            String testname = tests[i];
             String path = testdir + "/" + testname;
             String protopath = path + ".proto";
             file = new File(protopath);
@@ -265,6 +275,8 @@ public class TestAST extends TestFiles
                 System.err.println("Generation input not readable: "+protopath);
                 continue;
             }
+
+	    System.out.println("\nProcessing File: "+protopath);
 
 	    // Capture the pretty print output
             FileReader rdr = new FileReader(file);
@@ -297,7 +309,7 @@ public class TestAST extends TestFiles
     static public void main(String[] argv) throws Exception
     {
 	TestAST test = new TestAST("TestAST");
-	test.generate = (argv.length > 0 && argv[0].equals("-generate"));
+	test.generate = (argv.length > 0 && argv[0].equals("generate"));
 	test.testAST();
 	System.exit(0);
     }

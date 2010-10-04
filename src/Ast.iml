@@ -3,13 +3,9 @@
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/ast" isTestSource="false" packagePrefix="unidata.protobuf.ast" />
-      <sourceFolder url="file://$MODULE_DIR$/ast/test" isTestSource="true" packagePrefix="unidata.protobuf.ast.test" />
-      <excludeFolder url="file://$MODULE_DIR$/ast/compiler/classes" />
-      <excludeFolder url="file://$MODULE_DIR$/ast/compiler/save" />
-      <excludeFolder url="file://$MODULE_DIR$/ast/compiler/save1" />
-      <excludeFolder url="file://$MODULE_DIR$/ast/compiler/save2" />
-      <excludeFolder url="file://$MODULE_DIR$/ast/test/save" />
+      <sourceFolder url="file://$MODULE_DIR$" isTestSource="false" packagePrefix="unidata.protobuf" />
+      <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" packagePrefix="unidata.protobuf.test" />
+      <excludeFolder url="file://$MODULE_DIR$/test/baseline" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

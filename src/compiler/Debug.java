@@ -30,7 +30,7 @@
  * WITH THE ACCESS, USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package unidata.protobuf.ast.compiler;
+package unidata.protobuf.compiler;
 
 import java.io.*;
 import java.util.*;
@@ -150,9 +150,9 @@ static void printR(AST node, int depth,
 	break;
     case RPC:
 	AST.Rpc astrpc = (AST.Rpc)node;
-	writer.printf("%srpc %s (%s) returns (%s);\n",indent(depth),name,
-			namefor(astrpc.argtype,qualified),
-			namefor(astrpc.returntype,qualified));
+	String argtype = namefor(astrpc.argtype,qualified);
+	String returntype = namefor(astrpc.returntype,qualified);
+	writer.printf("%srpc %s (%s) returns (%s);\n",indent(depth),name,argtype,returntype);
 	break;
     default: // ignore
 	break;
@@ -211,6 +211,7 @@ static public void printTree(AST.Root root, PrintWriter writer, boolean preseman
             printTreeR(p,0,writer,presemantic);
         }
     }
+
     writer.flush();
 }
 
@@ -258,7 +259,10 @@ static void printTreeR(AST node, int depth,
 	break;
     case FIELD:
 	AST.Field astfield = (AST.Field)node;
-	typename = namefor(astfield.fieldtype);
+	if(presemantic)
+            typename = (String)astfield.getAnnotation();
+        else
+            typename = namefor(astfield.fieldtype);
 	writer.printf(" cardinality=%s type=%s id=%d",
 		      astfield.cardinality.getName(),
 		      typename,astfield.id);
@@ -274,9 +278,16 @@ static void printTreeR(AST node, int depth,
 	break;
     case RPC:
 	AST.Rpc astrpc = (AST.Rpc)node;
-	writer.printf(" argtype=%s returntype=%s",
-			astrpc.argtype.getQualifiedName(),
-			astrpc.returntype.getQualifiedName());
+        String argtype;
+        String returntype;
+        if(presemantic) {
+	    argtype = ((String[])astrpc.getAnnotation())[0];
+	    returntype = ((String[])astrpc.getAnnotation())[1];
+	} else {
+            argtype = astrpc.argtype.getQualifiedName();
+            returntype = astrpc.returntype.getQualifiedName();
+	}
+	writer.printf(" argtype=%s returntype=%s", argtype, returntype);
 	break;
     default: // ignore
 	break;

@@ -31,7 +31,7 @@
  * WITH THE ACCESS, USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package unidata.protobuf.ast.test;
+package unidata.protobuf.test;
 
 import junit.framework.TestCase;
 
@@ -43,7 +43,7 @@ public class TestFiles extends TestCase
     static int debug = 0;
 
     // path to test directory
-    static String testpath = "src/ast/test";
+    static String testpath = "src/test";
 
     // Base line test data location relative to root ast directory
     static String testdata1path = testpath + "/testdata1";
@@ -57,6 +57,12 @@ public class TestFiles extends TestCase
     //////////////////////////////////////////////////
     // Define the test data basenames
     //////////////////////////////////////////////////
+
+    // For single file experiments
+    static String[] xtestfiles = {
+	//"test"
+    };
+
     static String[] testfiles = {
 	"addressbook",
 	"descriptor",
@@ -67,6 +73,7 @@ public class TestFiles extends TestCase
 	"simplerpc",
 	"test-full",
 	"test",
+	"t",
 	"unittest",
 	"unittest_custom_options",
 	"unittest_embed_optimize_for",
@@ -87,11 +94,6 @@ public class TestFiles extends TestCase
 
     // define the xfails
     static String[] xfailtests= {
-    };
-
-    // For single file experiments
-    static String[] xtestfiles = {
-	"addressbook"
     };
 
     //////////////////////////////////////////////////

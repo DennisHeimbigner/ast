@@ -1,6 +1,6 @@
 
 import jargs.gnu.CmdLineParser;
-import unidata.protobuf.ast.compiler.*;
+import unidata.protobuf.compiler.*;
 
 import java.util.*;
 import java.io.*;
@@ -9,7 +9,7 @@ import java.io.*;
 public class Main
 {
     static final String DFALTLANGUAGE = "java";
-    static final String DFALTPACKAGE = "unidata.protobuf.ast.compiler";
+    static final String DFALTPACKAGE = "unidata.protobuf.compiler";
 
     static public void main(String[] argv) throws Exception
     {

@@ -2,12 +2,12 @@
    See the COPYRIGHT file for more information. */
 /****************************************************/
 
-package unidata.protobuf.ast.compiler;
+package unidata.protobuf.compiler;
 
 import java.io.*;
 import java.util.*;
 
-import static unidata.protobuf.ast.compiler.ProtobufParser.*;
+import static unidata.protobuf.compiler.ProtobufParser.*;
 
 public abstract class ProtobufActions
 {

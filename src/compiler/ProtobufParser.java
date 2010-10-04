@@ -30,7 +30,7 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-package unidata.protobuf.ast.compiler;
+package unidata.protobuf.compiler;
 /* First part of user declarations.  */
 
 /* "%code imports" blocks.  */
@@ -39,7 +39,7 @@ package unidata.protobuf.ast.compiler;
 /* Line 19 of "protobuf.y"  */
 
 import java.io.*;
-import unidata.protobuf.ast.compiler.AST.Position;
+import unidata.protobuf.compiler.AST.Position;
 
 
 
