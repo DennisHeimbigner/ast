@@ -39,9 +39,9 @@ import unidata.protobuf.ast.compiler.AST.Position;
     
     public boolean parse(String filename, Reader stream) throws IOException
     {
-	this.filename = filename;
-        ((ProtobufLexer)yylexer).reset(state);
-        ((ProtobufLexer)yylexer).setStream(stream);
+	reset(filename);
+        //((ProtobufLexer)yylexer).reset(state);
+        //((ProtobufLexer)yylexer).setStream(stream);
         return parse();
     }
 
@@ -78,7 +78,7 @@ protobuffile:
 packagedecl:
 	  /*empty*/
 	    {setLocation(yyloc);$$=packagedecl(null);}
-	| PACKAGE identifier ';'
+	| PACKAGE packagename ';'
 	    {setLocation(yyloc);$$=packagedecl($2);}
 	;
 
@@ -295,8 +295,13 @@ constant:
 	| FALSE       {$$=$1;}
         ;
 
-// Check for embedded "."s
+// Identifiers cannot have embedded '.''s
 identifier:
 	IDENTIFIER
 	    {if(($$=identifier($1))==null) {return YYABORT;}}
+	;
+
+// But package names can have embedded '.''s
+packagename:
+	IDENTIFIER {$$=$1;}
 	;

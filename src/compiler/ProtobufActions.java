@@ -47,6 +47,17 @@ ProtobufActions(ASTFactory factory)
     }
 }
 
+public void
+reset(String filename)
+{
+    this.filename = filename;
+    this.currentlocation = new ProtobufParser.Location(new Position(0,0));
+    lexstate.reset(state);
+    lexstate.setStream(stream);
+}
+
+
+
 //////////////////////////////////////////////////
 // Get/set
 
@@ -332,7 +343,8 @@ AST.Position
 position()
 {
     ProtobufParser.Location loc = this.getLocation();
-    return (loc == null ? null : loc.begin);
+    return loc.begin;
+    //return (loc == null ? null : loc.begin);
 }
 
 
