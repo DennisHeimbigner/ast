@@ -93,6 +93,7 @@ public class TestAST extends TestFiles
 
 	if(xtestfiles.length > 0) {
 	    tests = xtestfiles;
+        testdir= xtestpath;
 	    System.err.println("Using experimental test set");
 	} else
 	    tests = testfiles;
@@ -260,6 +261,7 @@ public class TestAST extends TestFiles
 
 	if(xtestfiles.length > 0) {
 	    tests = xtestfiles;
+        testdir= xtestpath;        
 	    System.err.println("Using experimental test set");
 	} else {
 	    tests = testfiles;

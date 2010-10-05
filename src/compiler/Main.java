@@ -11,9 +11,11 @@ public class Main
     static final String DFALTLANGUAGE = "java";
     static final String DFALTPACKAGE = "unidata.protobuf.compiler";
 
+    static final String testpath="../test/testdata1/";
+
     static public void main(String[] argv) throws Exception
     {
-	CmdLineParser cmdline = new CmdLineParser();
+	    CmdLineParser cmdline = new CmdLineParser();
         CmdLineParser.Option optDebug = cmdline.addBooleanOption('D', "Debug");
         CmdLineParser.Option optVerbose = cmdline.addBooleanOption('V', "Verbose");
         CmdLineParser.Option optLanguage = cmdline.addStringOption('l', "language");
@@ -37,7 +39,7 @@ public class Main
 	    System.exit(1);
 	}
 
-	File inputfile = new File(arglist[0]);
+	File inputfile = new File(testpath + arglist[0]);
 	if(!inputfile.canRead()) {
 	    System.err.println("Cannot read input file: "+inputfile.toString());
 	    System.exit(1);

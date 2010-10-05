@@ -62,7 +62,7 @@ abstract public class AST
     // Define the kinds of AST objects to avoid having to do instanceof.
     public enum Sort {
 	PACKAGE("package"), ENUM("enum"), ENUMFIELD("enumfield"),
-	EXTEND("extend"), EXTENSIONRANGE("extensionrange"),
+	EXTEND("extend"), EXTENSIONS("extensions"), EXTENSIONRANGE("extensionrange"),
 	FIELD("field"), MESSAGE("message"),
 	OPTION("option"), RPC("rpc"), SERVICE("service"),
 	PRIMITIVETYPE("primitivetype"), FILE("file"), ROOT("root");
@@ -310,6 +310,19 @@ static public class Extend extends AST
     public List<Field> getFields() {return this.fields;}
     public void setFields(List<Field> fields) {this.fields = fields;}
 
+}
+
+static public class Extensions extends AST
+{
+    List<AST.ExtensionRange> ranges = null;
+
+    public Extensions()
+    {
+	super(Sort.EXTENSIONS);
+    }
+
+    public List<AST.ExtensionRange> getExtensionRanges() {return this.ranges;}
+    public void setExtensionRanges(List<AST.ExtensionRange> ranges) {this.ranges = ranges;}
 }
 
 static public class ExtensionRange extends AST

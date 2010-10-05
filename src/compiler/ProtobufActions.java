@@ -8,6 +8,8 @@ import java.io.*;
 import java.util.*;
 
 import static unidata.protobuf.compiler.ProtobufParser.*;
+import unidata.protobuf.compiler.AST.Position;
+import unidata.protobuf.compiler.ProtobufParser.Location;
 
 public abstract class ProtobufActions
 {
@@ -48,14 +50,13 @@ ProtobufActions(ASTFactory factory)
 }
 
 public void
-reset(String filename)
+reset(String filename, Reader stream)
 {
     this.filename = filename;
-    this.currentlocation = new ProtobufParser.Location(new Position(0,0));
+    this.currentlocation = new Location(new Position());
     lexstate.reset(state);
     lexstate.setStream(stream);
 }
-
 
 
 //////////////////////////////////////////////////
@@ -290,6 +291,14 @@ fieldoptionlist(Object list0, Object decl0)
 }
 
 Object
+extensions(Object list0)
+{
+    AST.Extensions node = astfactory.newExtensions();
+    node.setChildren((List<AST>)list0);
+    return node;
+}
+
+Object
 extensionlist(Object list0, Object decl0)
 {
     List<AST.ExtensionRange> list = (List<AST.ExtensionRange>)list0;
@@ -316,7 +325,7 @@ extensionrange(Object start0, Object stop0)
 	return parseError("Illegal extension range stop value");
     }
     if(start < 0 || start < 0
-       || start >= AST.MAXFIELDID || stop >= AST.MAXFIELDID) {
+       || start > AST.MAXFIELDID || stop > AST.MAXFIELDID) {
 	return parseError(String.format("Illegal Extension range: %d..%d",
 			  start,stop));
     }
@@ -331,12 +340,14 @@ extensionrange(Object start0, Object stop0)
     return node;
 }
 
-Object
-identifier(Object s)
+boolean
+illegalname(Object s)
 {
-    if(((String)s).indexOf('.') >= 0)
-        return parseError("Expected IDENTIFIER, found path: "+s);
-    return s;
+    if(((String)s).indexOf('.') >= 0) {
+        parseError("Expected  NAME, found path: "+s.toString());
+	return true;
+    }
+    return false;
 }
 
 AST.Position

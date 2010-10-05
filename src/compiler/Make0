@@ -1,6 +1,6 @@
 # Define how to build the parser(s)
 
-TEST=t.proto
+TEST=descriptor.proto
 
 PARSER=ProtobufParser.java
 
@@ -10,9 +10,9 @@ SRC=\
     ProtobufActions.java ProtobufLexer.java $(PARSER) AST.java \
     Semantics.java Util.java Printer.java Debug.java  \
     ASTFactory.java ASTFactoryDefault.java \
-    Generator.java CmdLineParser.java \
-    ../java/Java.java
-    
+    Generator.java CmdLineParser.java
+
+
 COMPILERPATH=classes/unidate/protobuf/ast/compiler
 
 CLASSES=$(SRC:%.java=$(COMPILERPATH)/%.class)
@@ -30,17 +30,18 @@ clean::
 compile: $(BUILDDIR) $(SRC) 
 	javac -d $(BUILDDIR) $(SRC)
 
+# The sed operations are to fix some bugs in the generated java code
 $(PARSER): $(GRAMMAR)
-	rm -f ./tmp
+	rm -f ./tmp 
 	bison -v -t -L java $(GRAMMAR) -o ./tmp
-	sed -e "s/(null,\ null)/(new Position(),new Position())/" <./tmp >$(PARSER)	
+	sed -e "s/(null,\ null)/(new Position())/" -e "s/public class Location/static public class Location/" <./tmp >$(PARSER)	
 
 $(BUILDDIR):
 	mkdir $(BUILDDIR)
 
 test: compile
 	javac -d $(BUILDDIR) -classpath $(BUILDDIR) Main.java
-	java -cp $(BUILDDIR) Main $(TEST)
+	java -cp $(BUILDDIR) Main -D $(TEST)
 
 fix::
 	for f in $(SRC) ; do \

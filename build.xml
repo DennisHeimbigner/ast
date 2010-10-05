@@ -30,7 +30,12 @@
 <property name="protobufjar" value="protobuf.jar"/>
 <property name="main.class" value="unidata.protobuf.ast.compiler.Main"/>
 
-<property name="junitjar" value="t:/JetBrains/IntelliJ IDEA Community Edition 9.0.3/lib/junit.jar"/>
+<available file="t:/JetBrains/IntelliJ IDEA Community Edition 9.0.3/lib/junit.jar"
+           property="junitjar" value="t:/JetBrains/IntelliJ IDEA Community Edition 9.0.3/lib/junit.jar"/>
+
+<available file="C:/Program Files (x86)/JetBrains/IntelliJ IDEA 9.0.2/lib/junit.jar"
+           property="junitjar" value="C:/Program Files (x86)/JetBrains/IntelliJ IDEA 9.0.2/lib/junit.jar"/>
+
 
 <!-- BUILD TASKS  -->
 
@@ -50,12 +55,12 @@
     <echo level="info" message="time: ${TSTAMP}"/>
 </target>
 
-<target name="compiletests" depends="compiler">
+<target name="compiletests">
     <javac
 	destdir="${build.classes}"
 	includeAntRuntime="false"
 	deprecation="${compile.deprecation}"
-	classpath="${build.classes};${junitjar}">
+	classpath="${build.classes}:${junitjar}">
 	<src path="${src.test.dir}"/>
 	<include name="*.java"/>
     </javac>
@@ -63,17 +68,17 @@
 
 <target name="test" depends="compiletests">
     <java classname="unidata.protobuf.ast.test.TestAST"
-          classpath="${build.classes};${junitjar}"/>
+          classpath="${build.classes}:${junitjar}"/>
 </target>
 
 <target name="generate" depends="compiletests">
     <java classname="unidata.protobuf.test.TestAST"
-          classpath="${build.classes};${junitjar}">
+          classpath="${build.classes}:${junitjar}">
         <arg value="-generate"/>
     </java>
 </target>
 
-<target name="compiler">
+<target name="compiler" depends="init">
     <javac
 	destdir="${build.classes}"
 	classpath="${build.classes}"

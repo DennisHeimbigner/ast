@@ -45,6 +45,8 @@ public class TestFiles extends TestCase
     // path to test directory
     static String testpath = "src/test";
 
+    static String xtestpath = "src/test";
+
     // Base line test data location relative to root ast directory
     static String testdata1path = testpath + "/testdata1";
 
@@ -62,6 +64,7 @@ public class TestFiles extends TestCase
     static String[] xtestfiles = {
 	//"test"
     };
+
 
     static String[] testfiles = {
 	"addressbook",

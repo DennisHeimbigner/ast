@@ -119,6 +119,13 @@ static void printR(AST node, int depth,
 	    printR(subnode,depth+1,writer,qualified);
 	writer.printf("%s}\n",indent(depth));
 	break;
+    case EXTENSIONS:
+	AST.Extensions astextensions = (AST.Extensions)node;
+	writer.printf("%sextensions %s {\n",indent(depth),name);
+	for(AST subnode : astextensions.getExtensionRanges()) 
+	    printR(subnode,depth+1,writer,qualified);
+	writer.printf("%s}\n",indent(depth));
+	break;
     case EXTENSIONRANGE:
 	AST.ExtensionRange astextensionrange = (AST.ExtensionRange)node;
 	writer.printf("%sextensionrange %d to %d\n",indent(depth),
@@ -380,6 +387,13 @@ static void printTreeR(AST node, int depth,
         AST.Extend extender = (AST.Extend)node;
           if(extender.getFields() != null) {
 	    for(AST subnode : extender.getFields())
+	        printTreeR(subnode,depth+1,writer,presemantic);
+        }
+        break;
+    case EXTENSIONS:
+        AST.Extensions extensions = (AST.Extensions)node;
+          if(extensions.getExtensionRanges() != null) {
+	    for(AST subnode : extensions.getExtensionRanges())
 	        printTreeR(subnode,depth+1,writer,presemantic);
         }
         break;

@@ -11,14 +11,14 @@
 %name-prefix "Protobuf"
 
 %define public
-%define package "unidata.protobuf.ast.compiler"
+%define package "unidata.protobuf.compiler"
 %define extends "ProtobufActions"
 %define throws "IOException"
 %define lex_throws "IOException"
 
 %code imports {
 import java.io.*;
-import unidata.protobuf.ast.compiler.AST.Position;
+import unidata.protobuf.compiler.AST.Position;
 }
 
 %code {
@@ -39,7 +39,7 @@ import unidata.protobuf.ast.compiler.AST.Position;
     
     public boolean parse(String filename, Reader stream) throws IOException
     {
-	reset(filename);
+	reset(filename,stream);
         //((ProtobufLexer)yylexer).reset(state);
         //((ProtobufLexer)yylexer).setStream(stream);
         return parse();
@@ -52,7 +52,7 @@ import unidata.protobuf.ast.compiler.AST.Position;
     }
 }
 
-%token IMPORT PACKAGE OPTION MESSAGE EXTEND
+%token IMPORT PACKAGE OPTION MESSAGE EXTEND EXTENSIONS
 %token ENUM SERVICE RPC RETURNS
 %token DEFAULT TO MAX REQUIRED OPTIONAL REPEATED
 %token DOUBLE FLOAT INT32 INT64 UINT32 UINT64
@@ -61,7 +61,7 @@ import unidata.protobuf.ast.compiler.AST.Position;
 %token GOOGLEOPTION
 %token ENDFILE
 
-%token IDENTIFIER INTCONST FLOATCONST STRINGCONST TRUE FALSE
+%token NAME INTCONST FLOATCONST STRINGCONST TRUE FALSE
 
 
 %start root
@@ -90,7 +90,7 @@ importlist:
 	;	
 
 importstmt:
-        IMPORT STRING ';' protobuffile
+        IMPORT STRINGCONST ';' protobuffile
 	    {setLocation(yyloc);importstmt($2,$4);}
         ;
 
@@ -118,12 +118,12 @@ optionstmt:
         ;
 
 option:
-	identifier '=' constant
+	name '=' constant
    	    {setLocation(yyloc);$$=option($1,$3);}
         ;
 
 message:
-        MESSAGE identifier messagebody
+        MESSAGE name messagebody
 	    {setLocation(yyloc);$$=message($2,$3);}
         ;
 
@@ -144,7 +144,7 @@ fieldlist:
 	;
 
 enumtype:
-        ENUM identifier '{' enumlist '}'
+        ENUM name '{' enumlist '}'
 	    {setLocation(yyloc);$$=enumtype($2,$4);}
         ;
 
@@ -159,12 +159,12 @@ enumlist:
 	;
 
 enumfield:
-        identifier '=' INTCONST
+        name '=' INTCONST
 	    {setLocation(yyloc);if(($$=enumfield($1,$3))==null) {return YYABORT;}}
         ;
 
 service:
-        SERVICE identifier '{' servicecaselist '}'
+        SERVICE name '{' servicecaselist '}'
 	    {setLocation(yyloc);$$=service($2,$4);}
         ;
 
@@ -182,7 +182,7 @@ servicecase:
 	;
 
 rpc:
-        RPC identifier '(' usertype ')' RETURNS '(' usertype ')' ';'
+        RPC name '(' usertype ')' RETURNS '(' usertype ')' ';'
 	    {setLocation(yyloc);$$=rpc($2,$4,$8);}
         ;
 
@@ -210,9 +210,9 @@ messageelement:
 
 // tag number must be 2^28-1 or lower
 field:
-	  cardinality type identifier '=' INTCONST  ';'
+	  cardinality type name '=' INTCONST  ';'
 	    {setLocation(yyloc);$$=field($1,$2,$3,$5,null);}
-	| cardinality type identifier '=' INTCONST '[' fieldoptionlist ']'  ';'
+	| cardinality type name '=' INTCONST '[' fieldoptionlist ']'  ';'
 	    {setLocation(yyloc);$$=field($1,$2,$3,$5,$7);}
         ;
 
@@ -231,8 +231,8 @@ fieldoption:
         ;
 
 extensions:
-	extensionlist ';'
-	    {$$=$1;}
+	EXTENSIONS extensionlist ';'
+	    {setLocation(yyloc); $$=extensions($2);}
 	;
 
 extensionlist:
@@ -276,32 +276,55 @@ type:
 	| usertype {$$=$1;}
 	;
 
-// leading dot for identifiers means they're fully qualified
-// Kenton: userType ::= "."? ident ( "." ident )*
-path:
-	identifier {$$=$1;}
-	;
-
+// user types are simple non-dotted names
 usertype: 
-	identifier {$$=$1;}
+	name {$$=$1;}	
 	;
 
+// Package names can have embedded '.''s
+packagename:
+	symbol {$$=$1;}
+	;
+
+// Path is a reference to some other object, so it can have embedded '.'s.
+path:
+	symbol {$$=$1;}
+	;
+
+// names do not allow embedded '.'s
+name:
+	symbol
+	    {if(illegalname($1)) {return YYABORT;}; $$=$1;}
+	;
+
+// In constants, symbols will end up being treated as strings that just happen to be unquoted.
 constant:
-          identifier  {$$=$1;}
-	| INTCONST    {$$=$1;}
+          symbol  {$$=$1;}
+	| INTCONST  {$$=$1;}
 	| FLOATCONST  {$$=$1;}
-	| STRINGCONST {$$=$1;}
-	| TRUE        {$$=$1;}
-	| FALSE       {$$=$1;}
+	| STRINGCONST  {$$=$1;}
+	| TRUE {$$=$1;}
+	| FALSE {$$=$1;}
         ;
 
-// Identifiers cannot have embedded '.''s
-identifier:
-	IDENTIFIER
-	    {if(($$=identifier($1))==null) {return YYABORT;}}
+// Some keywords are legal as symbols
+symbol:
+	  NAME {$$=$1;}
+	| IMPORT {$$=$1;}
+	| PACKAGE {$$=$1;}
+	| OPTION {$$=$1;}
+	| MESSAGE {$$=$1;}
+	| EXTEND {$$=$1;}
+	| EXTENSIONS {$$=$1;}
+	| ENUM {$$=$1;}
+	| SERVICE {$$=$1;}
+	| RPC {$$=$1;}
+	| RETURNS {$$=$1;}
+	| TO {$$=$1;}
+	| MAX {$$=$1;}
+	| REQUIRED {$$=$1;}
+	| OPTIONAL {$$=$1;}
+	| REPEATED {$$=$1;}
 	;
+// the following are excluded because they cause parser conflicts: "default:
 
-// But package names can have embedded '.''s
-packagename:
-	IDENTIFIER {$$=$1;}
-	;

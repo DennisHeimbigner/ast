@@ -59,6 +59,7 @@ class ProtobufLexer implements Lexer
 	"option",
 	"message",
 	"extend",
+	"extensions",
 	"enum",
 	"service",
 	"rpc",
@@ -94,6 +95,7 @@ class ProtobufLexer implements Lexer
 	OPTION,
 	MESSAGE,
 	EXTEND,
+	EXTENSIONS,
 	ENUM,
 	SERVICE,
 	RPC,
@@ -188,7 +190,7 @@ class ProtobufLexer implements Lexer
     {
         lookahead.insert(0, (char) c);
         charno--;
-	if(charno == 0) {lineno--; charno = 1;}
+	if(charno == 0 || charno == '\n') {lineno--; charno = 1;}
     }
 
     int
@@ -297,9 +299,9 @@ class ProtobufLexer implements Lexer
                         Long number = new Long(yytext.toString());
                         numberkind = INTCONST;
                     } catch (NumberFormatException nfe) {numberkind = FLOATCONST;}
-                    token = (isnumber?numberkind:IDENTIFIER);
+                    token = (isnumber?numberkind:NAME);
                 } else if(wordchars1.indexOf(c) >= 0) {
-                    /* we have an IDENTIFIER */
+                    /* we have a NAME */
                     yytext.append((char) c);
                     while ((c = read()) > 0) {
                         if(wordcharsn.indexOf(c) < 0) {
@@ -308,16 +310,16 @@ class ProtobufLexer implements Lexer
                         }
                         yytext.append((char) c);
                     }
-                    token = IDENTIFIER; // Default
+                    token = NAME; // Default
 		    // Check for googleoption
 		    String tokentext = yytext.toString();
 		    if(tokentext.startsWith("google.protobuf.")
 		       && tokentext.endsWith("Option")) 
 			token = GOOGLEOPTION;
 		    else {
-                        // check for keyword
+                        // check for keyword: treat as case sensitive
                         for(int i=0;i<keywords.length;i++) {
-                            if (keywords[i].equalsIgnoreCase(tokentext)) {
+                            if (keywords[i].equals(tokentext)) {
 			        token = keytokens[i];
                                 break;
 			    }
@@ -348,7 +350,7 @@ class ProtobufLexer implements Lexer
         case STRING:
             System.err.printf("TOKEN = |\"%s\"|\n", lval);
             break;
-        case IDENTIFIER:
+        case NAME:
         case INTCONST:
         case FLOATCONST:
             System.err.printf("TOKEN = |%s|\n", lval);

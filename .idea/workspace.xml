@@ -15,10 +15,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" readonly="true" id="b6e5da51-04fd-4a50-aa89-b93e0dc37ef8" name="Default" comment="" />
-    <ignored path="$USER_HOME_GRAILS$/" />
-    <ignored path="$USER_HOME_GRIFFON$/" />
-    <ignored path="ast.iws" />
     <ignored path=".idea/workspace.xml" />
+    <ignored path="$USER_HOME_GRIFFON$/" />
+    <ignored path="$USER_HOME_GRAILS$/" />
+    <ignored path="ast.iws" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -124,15 +124,6 @@
   <component name="FileColors" enabled="true" enabledForTabs="true" />
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="ProtobufActions.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufActions.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="23" column="13" selection-start="605" selection-end="605" vertical-scroll-proportion="0.94736844">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="ASTFactoryDefault.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/compiler/ASTFactoryDefault.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -163,7 +154,16 @@
       <file leaf-file-name="TestAST.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/TestAST.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="42" column="32" selection-start="2136" selection-end="2136" vertical-scroll-proportion="0.0">
+            <state line="68" column="16" selection-start="2643" selection-end="2643" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Main.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/compiler/Main.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="15" column="84" selection-start="394" selection-end="394" vertical-scroll-proportion="0.05835544">
               <folding />
             </state>
           </provider>
@@ -172,7 +172,7 @@
       <file leaf-file-name="TestFiles.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/TestFiles.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="62" column="6" selection-start="2759" selection-end="2759" vertical-scroll-proportion="0.0">
+            <state line="47" column="41" selection-start="2209" selection-end="2209" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -181,7 +181,7 @@
       <file leaf-file-name="ProtobufLexer.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufLexer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="477" column="0" selection-start="13147" selection-end="13147" vertical-scroll-proportion="0.0">
+            <state line="479" column="0" selection-start="13173" selection-end="13173" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -218,7 +218,6 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/src/ast/compiler/ASTFactoryDefault.java" />
         <option value="$PROJECT_DIR$/src/ast/compiler/AST.java" />
         <option value="$PROJECT_DIR$/src/ast/compiler/Debug.java" />
         <option value="$PROJECT_DIR$/src/ast/compiler/ProtobufActions.java" />
@@ -229,11 +228,12 @@
         <option value="$PROJECT_DIR$/src/compiler/Debug.java" />
         <option value="$PROJECT_DIR$/src/compiler/Util.java" />
         <option value="$PROJECT_DIR$/src/compiler/AST.java" />
-        <option value="$PROJECT_DIR$/src/test/TestAST.java" />
         <option value="$PROJECT_DIR$/src/compiler/Semantics.java" />
         <option value="$PROJECT_DIR$/src/ast/java/Java.java" />
-        <option value="$PROJECT_DIR$/src/test/TestFiles.java" />
         <option value="$PROJECT_DIR$/src/compiler/ProtobufParser.java" />
+        <option value="$PROJECT_DIR$/src/test/TestAST.java" />
+        <option value="$PROJECT_DIR$/src/test/TestFiles.java" />
+        <option value="$PROJECT_DIR$/src/compiler/Main.java" />
       </list>
     </option>
   </component>
@@ -274,6 +274,8 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="Scope" />
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -308,8 +310,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
-      <pane id="PackagesPane" />
       <pane id="Favorites" />
     </panes>
   </component>
@@ -556,7 +556,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="454" y="165" width="1445" height="979" extended-state="0" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -567,10 +567,10 @@
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.41296518" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3280116" sideWeight="0.38295317" order="1" side_tool="true" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3280116" sideWeight="0.50540215" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3280116" sideWeight="0.1872749" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3280116" sideWeight="0.015606242" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.46218488" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -630,6 +630,16 @@
         <state line="72" column="0" selection-start="3229" selection-end="3229" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufParser.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="482" column="99" selection-start="15491" selection-end="15491" vertical-scroll-proportion="0.3325359" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufActions.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="55" column="27" selection-start="1479" selection-end="1479" vertical-scroll-proportion="0.028608583" />
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/compiler/ASTFactoryDefault.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="53" column="0" selection-start="2751" selection-end="2751" vertical-scroll-proportion="0.0" />
@@ -647,17 +657,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/TestAST.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="42" column="32" selection-start="2136" selection-end="2136" vertical-scroll-proportion="0.0" />
+        <state line="68" column="16" selection-start="2643" selection-end="2643" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/TestFiles.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="62" column="6" selection-start="2759" selection-end="2759" vertical-scroll-proportion="0.0" />
+        <state line="47" column="41" selection-start="2209" selection-end="2209" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufLexer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="477" column="0" selection-start="13147" selection-end="13147" vertical-scroll-proportion="0.0" />
+        <state line="479" column="0" selection-start="13173" selection-end="13173" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/ast/java/Java.java">
@@ -670,18 +682,9 @@
         <state line="21" column="23" selection-start="774" selection-end="774" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufParser.java">
+    <entry file="file://$PROJECT_DIR$/src/compiler/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="482" column="99" selection-start="15491" selection-end="15491" vertical-scroll-proportion="0.3325359">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufActions.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="23" column="13" selection-start="605" selection-end="605" vertical-scroll-proportion="0.94736844">
+        <state line="15" column="84" selection-start="394" selection-end="394" vertical-scroll-proportion="0.05835544">
           <folding />
         </state>
       </provider>

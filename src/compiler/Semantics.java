@@ -377,6 +377,17 @@ pass6(List<AST> allnodes)
                 }
             }
             break;
+        case EXTENSIONS:
+            AST.Extensions astset = (AST.Extensions)node;
+            astset.setExtensionRanges(new ArrayList<AST.ExtensionRange>());
+            for(AST ast: astset.getChildren()) {
+                switch(ast.getSort()) {
+                case EXTENSIONRANGE:
+		    astset.getExtensionRanges().add((AST.ExtensionRange)ast); break;
+                default: assert(false) : "Illegal ast case"; break;
+                }
+            }
+            break;
         case FIELD:
             AST.Field astfield = (AST.Field)node;
             astfield.setOptions(new ArrayList<AST.Option>());
@@ -508,6 +519,7 @@ pass8(AST node, List<AST> newallnodes)
 	for(AST.Rpc r: s.getRpcs()) pass8(r,newallnodes);	    
 	} break;
     case ENUMFIELD:
+    case EXTENSIONS:
     case EXTENSIONRANGE:
     case FILE:
     case OPTION:

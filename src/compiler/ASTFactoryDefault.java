@@ -48,6 +48,8 @@ public class ASTFactoryDefault implements ASTFactory
 	{return new AST.EnumField(name, value);}
     public AST.Extend newExtend(String msgname)
 	{return new AST.Extend(msgname);}
+    public AST.Extensions newExtensions()
+	{return new AST.Extensions();}
     public AST.ExtensionRange newExtensionRange(int start, int stop)
 	{return new AST.ExtensionRange(start, stop);}
     public AST.Field newField(String name, AST.Cardinality cardinality, String fieldtype, int id)
