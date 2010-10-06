@@ -90,9 +90,20 @@ importlist:
 	;	
 
 importstmt:
-        IMPORT STRINGCONST ';' protobuffile
-	    {setLocation(yyloc);importstmt($2,$4);}
+	importprefix pushfile protobuffile popfile
+	    {setLocation(yyloc);$$=importstmt($1,$3);}
         ;
+        
+importprefix:
+        IMPORT STRINGCONST ';'
+	    {$$=importprefix($2);}
+
+pushfile: /*empty*/
+	    {if(!filepush()) {return YYABORT;};}
+
+
+popfile: /*empty*/
+	    {if(!filepop()) {return YYABORT;};}
 
 decllist:
 	  /*empty*/
@@ -244,11 +255,11 @@ extensionlist:
 
 extensionrange:
           INTCONST
-	    {setLocation(yyloc);if(($$=extensionrange($1,null)) == null) return YYABORT;}
+	    {if(($$=extensionrange($1,null)) == null) return YYABORT;}
         | INTCONST TO INTCONST
-	    {setLocation(yyloc);if(($$=extensionrange($1,$3)) == null) return YYABORT;}
+	    {if(($$=extensionrange($1,$3)) == null) return YYABORT;}
         | INTCONST TO MAX
-	    {setLocation(yyloc);if(($$=extensionrange($1,null)) == null) return YYABORT;}
+	    {if(($$=extensionrange($1,null)) == null) return YYABORT;}
         ;
 
 cardinality:

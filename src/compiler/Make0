@@ -1,6 +1,6 @@
 # Define how to build the parser(s)
 
-TEST=descriptor.proto
+TEST=t.proto
 
 PARSER=ProtobufParser.java
 
@@ -41,7 +41,7 @@ $(BUILDDIR):
 
 test: compile
 	javac -d $(BUILDDIR) -classpath $(BUILDDIR) Main.java
-	java -cp $(BUILDDIR) Main -D $(TEST)
+	java -cp $(BUILDDIR) Main $(TEST)
 
 fix::
 	for f in $(SRC) ; do \

@@ -1,12 +1,15 @@
-// See README.txt for information and build instructions.
+package t;
 
-package tutorial;
+import "t2.proto";
 
-message Person {
-  required string name = 1;
-  optional Phone phone = 2;
+message CodeGeneratorRequest {
+repeated FileDescriptorProto proto_file = 15;
 }
 
-message Phone {
-  required string number = 1;
+message CodeGeneratorResponse {
+optional string error = 1;
+message File {
+optional string name = 1;
+}
+repeated File file = 15;
 }

@@ -223,10 +223,9 @@ class ProtobufLexer implements Lexer
 
 	// Check if we need to pop file stack
 	if(fileeof) {
-	    if(!popFileStack()) {
+		if(!popFileStack()) lexerror("Could not pop file stack");
                 yytext.append("EOF");
 		return EOF;
-            }
 	}
 	
 	// Capture start pos
@@ -433,6 +432,10 @@ class ProtobufLexer implements Lexer
 	entry.lineno = endpos.lineno;
 	entry.charno = endpos.charno;
 	filestack.push(entry);
+	startpos.lineno = 1;
+        startpos.charno = 1;
+	endpos.lineno = 1;
+        endpos.charno = 1;
 	return true;
     }
 

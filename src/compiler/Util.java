@@ -38,6 +38,8 @@ import java.io.*;
 public class Util
 {
 
+static int uid = 0; // for generating unique ids.
+
 static String qualify(String relpath, AST node)
 {
     if(relpath.startsWith(".")) return relpath;
@@ -46,12 +48,15 @@ static String qualify(String relpath, AST node)
     return qname;
 }
 
-static public List<AST> findbyname(String qualname, List<AST> allnodes)
+static public List<AST> findbyname(String suffix, List<AST> allnodes)
 {
     List<AST> matches = new ArrayList<AST>();
+    // collect all nodes with matching names
+    // where the qualified name has suffix equal to suffix name
+    // Question: Should search be limited to only the current package?
     if(allnodes != null)
         for(AST ast : allnodes) {
-	    if(ast.qualifiedname != null && qualname.equals(ast.qualifiedname))
+	    if(issuffix(ast.qualifiedname,suffix))
 	        matches.add(ast);
         }
     return matches;
@@ -64,16 +69,32 @@ static List<AST.Type> findtypebyname(String typename, AST.Root root)
     List<AST.PrimitiveType> primitives = root.getPrimitiveTypes();
     for(AST.PrimitiveType pt: primitives) 
         if(typename.equals(pt.getName())) {matches.add(pt); return matches;}
-    // Otherwise collect all nodes with matching names
-    // where the node's qualified name has suffix equal to typename
-    for(AST ast : root.getAllNodes()) {
-	if(!(ast instanceof AST.Type)) continue;
-	String candidate = ast.getQualifiedName();
-        if(candidate == null) continue;
-        if(candidate.endsWith(typename)) matches.add((AST.Type)ast);
+        
+    // Find all names that match and pull out those that are types
+    List<AST> allmatches = findbyname(typename,root.getAllNodes());
+    for(AST ast : allmatches) {
+	if(ast instanceof AST.Type) matches.add((AST.Type)ast);
     }
     return matches;
 }    
+
+static boolean issuffix(String qualname, String suffix)
+{
+    if(qualname == null) return false;
+    if(suffix.charAt(0) == '.')
+        return suffix.equals(qualname); // suffix is absolute
+    // Test suffix against the segments of the qualname
+    String[] qualsegments = qualname.split("[.]");
+    String[] suffixsegments = suffix.split("[.]");
+    if(qualsegments.length < suffixsegments.length) return false;
+    int qlen = qualsegments.length;
+    int slen = suffixsegments.length;
+    for(int i=1;i<=slen;i++) {
+        if(!qualsegments[qlen-i].equals(suffixsegments[slen-i]))
+            return false;
+    }
+    return true;
+}
 
 static List<AST> concat(List<AST> list1, List<AST> list2)
 {
@@ -102,6 +123,21 @@ static String computequalifiedname(AST node)
     String qualname = node.getRoot().getQualifiedName();
     for(int i=1;i<path.size();i++)  // do not include root
         qualname = qualname + "." + path.get(i).getName();
+    // For some nodes, we need to modify the qualified name
+    switch (node.getSort()) {
+    // Following have special qualified names
+    case EXTEND:
+        qualname = qualname + ".extend." + (++uid);
+        break;
+    case EXTENSIONS:    
+        qualname = qualname + ".extensions." + (++uid);
+        break;
+    case OPTION:
+        qualname = qualname + ".option." + (++uid);
+        break;
+    default: break;
+    }
+
     return qualname;
 }
 

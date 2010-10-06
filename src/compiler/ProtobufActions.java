@@ -27,6 +27,7 @@ public abstract class ProtobufActions
     AST.Root ast = null; // root node of the AST
     String filename = null;
     List<AST.PrimitiveType> primitives = null;
+    String importfilename = null; // temporary storage    
 
 //////////////////////////////////////////////////
 // Constructors
@@ -131,6 +132,35 @@ importstmt(Object importname0, Object file0)
     file.setName((String)importname0);
     return file;
 }
+
+
+Object
+importprefix(Object filename0)
+{
+    // temporarily store the filename
+    importfilename = (String)filename0;
+    return filename0;
+}
+
+boolean
+filepush()
+{
+    // push file stack
+    boolean ok = true;
+    try {
+        ok = lexstate.pushFileStack(importfilename);
+    } catch (Exception e) {  ok = false; }
+    if(!ok) parseError("import file failure: "+importfilename);
+    importfilename = null;
+    return ok;
+}
+
+boolean
+filepop()
+{
+    return true; //lexstate.popFileStack();
+}
+
 
 Object
 decllist(Object list0, Object decl0)
@@ -294,16 +324,16 @@ Object
 extensions(Object list0)
 {
     AST.Extensions node = astfactory.newExtensions();
-    node.setChildren((List<AST>)list0);
+    node.setRanges((List<AST.Range>)list0);
     return node;
 }
 
 Object
 extensionlist(Object list0, Object decl0)
 {
-    List<AST.ExtensionRange> list = (List<AST.ExtensionRange>)list0;
-    if(list == null) list = new ArrayList<AST.ExtensionRange>();
-    if(decl0 != null) list.add((AST.ExtensionRange)decl0);
+    List<AST.Range> list = (List<AST.Range>)list0;
+    if(list == null) list = new ArrayList<AST.Range>();
+    if(decl0 != null) list.add((AST.Range)decl0);
     return list;
 }
 
@@ -335,9 +365,8 @@ extensionrange(Object start0, Object stop0)
        || (stop>= AST.MINGOOGLERANGE && stop <= AST.MAXGOOGLERANGE)) {
 	return parseError("Extension range overlaps google reserved range");
     }
-    AST.ExtensionRange node = astfactory.newExtensionRange(start,stop);
-    node.setPosition(position());
-    return node;
+    AST.Range range = new AST.Range(start,stop);
+    return range;
 }
 
 boolean

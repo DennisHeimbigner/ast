@@ -50,8 +50,6 @@ public class ASTFactoryDefault implements ASTFactory
 	{return new AST.Extend(msgname);}
     public AST.Extensions newExtensions()
 	{return new AST.Extensions();}
-    public AST.ExtensionRange newExtensionRange(int start, int stop)
-	{return new AST.ExtensionRange(start, stop);}
     public AST.Field newField(String name, AST.Cardinality cardinality, String fieldtype, int id)
 	{return new AST.Field(name, cardinality, fieldtype, id);}
     public AST.Message newMessage(String name)

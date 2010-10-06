@@ -11,7 +11,8 @@ public class Main
     static final String DFALTLANGUAGE = "java";
     static final String DFALTPACKAGE = "unidata.protobuf.compiler";
 
-    static final String testpath="../test/testdata1/";
+    //static final String testpath="../test/testdata1/";
+    static final String testpath="./";
 
     static public void main(String[] argv) throws Exception
     {

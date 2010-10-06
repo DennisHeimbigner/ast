@@ -122,14 +122,11 @@ static void printR(AST node, int depth,
     case EXTENSIONS:
 	AST.Extensions astextensions = (AST.Extensions)node;
 	writer.printf("%sextensions %s {\n",indent(depth),name);
-	for(AST subnode : astextensions.getExtensionRanges()) 
-	    printR(subnode,depth+1,writer,qualified);
+	for(AST.Range range : astextensions.getRanges()) {
+	    writer.printf("%sextensionrange %d to %d\n",indent(depth),
+		  	  range.start,range.stop);
+	}
 	writer.printf("%s}\n",indent(depth));
-	break;
-    case EXTENSIONRANGE:
-	AST.ExtensionRange astextensionrange = (AST.ExtensionRange)node;
-	writer.printf("%sextensionrange %d to %d\n",indent(depth),
-			astextensionrange.start,astextensionrange.stop);
 	break;
     case FIELD:
 	AST.Field astfield = (AST.Field)node;
@@ -259,11 +256,6 @@ static void printTreeR(AST node, int depth,
         if(f.getFilePackage() != null)
             writer.print(" filepackage="+f.getFilePackage().getName());
         break;
-    case EXTENSIONRANGE:
-	AST.ExtensionRange astextensionrange = (AST.ExtensionRange)node;
-	writer.printf(" start=%d stop=%d",
-			astextensionrange.start,astextensionrange.stop);
-	break;
     case FIELD:
 	AST.Field astfield = (AST.Field)node;
 	if(presemantic)
@@ -273,6 +265,13 @@ static void printTreeR(AST node, int depth,
 	writer.printf(" cardinality=%s type=%s id=%d",
 		      astfield.cardinality.getName(),
 		      typename,astfield.id);
+	break;
+    case EXTENSIONS:
+	AST.Extensions astextensions = (AST.Extensions)node;
+	for(AST.Range range: astextensions.getRanges()) {
+	    writer.printf(" start=%d stop=%d",
+			   range.start,range.stop);
+	}
 	break;
     case ENUMFIELD:
 	AST.EnumField astenumfield = (AST.EnumField)node;
@@ -352,8 +351,8 @@ static void printTreeR(AST node, int depth,
 	    for(AST subnode : m.getFields())
 	        printTreeR(subnode,depth+1,writer,presemantic);
         }
-        if(m.getExtensionRanges() != null) {
-	    for(AST subnode : m.getExtensionRanges())
+        if(m.getExtensions() != null) {
+	    for(AST subnode : m.getExtensions())
 	        printTreeR(subnode,depth+1,writer,presemantic);
         }
         if(m.getMessages() != null) {
@@ -390,13 +389,6 @@ static void printTreeR(AST node, int depth,
 	        printTreeR(subnode,depth+1,writer,presemantic);
         }
         break;
-    case EXTENSIONS:
-        AST.Extensions extensions = (AST.Extensions)node;
-          if(extensions.getExtensionRanges() != null) {
-	    for(AST subnode : extensions.getExtensionRanges())
-	        printTreeR(subnode,depth+1,writer,presemantic);
-        }
-        break;
     case FIELD:
           AST.Field field = (AST.Field)node;
           if(field.getOptions() != null) {
@@ -407,7 +399,6 @@ static void printTreeR(AST node, int depth,
     case RPC:
     // No children
     case ENUMFIELD:
-    case EXTENSIONRANGE:
     case OPTION:
     case PRIMITIVETYPE:
         break;

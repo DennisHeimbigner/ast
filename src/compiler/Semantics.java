@@ -188,7 +188,7 @@ pass4(List<AST> allnodes)
 	if(ast1.getSort() == AST.Sort.ROOT) continue;
         String qualname = Util.computequalifiedname(ast1);
         ast1.setQualifiedName(qualname);
-        if(ast1.getQualifiedName() == null) return false;
+        if(ast1.getQualifiedName() == null) continue;
         for(AST ast2 : allnodes) {
             if(ast2 == ast1 || ast2.qualifiedname == null) continue;
             if(ast2.qualifiedname.equals(ast1.qualifiedname)) {
@@ -222,8 +222,7 @@ pass5(AST.Root root)
 	    AST.Extend extender = (AST.Extend)node;
 	    String msgname = (String)extender.getAnnotation();
 	    extender.setAnnotation(null);
-	    qualname = Util.qualify(msgname,extender);
-	    matches = Util.findbyname(qualname,allnodes);
+	    matches = Util.findbyname(msgname,allnodes);
 	    found = false;
 	    for(AST ast : matches) {
 		if(ast instanceof AST.Message) {
@@ -234,7 +233,7 @@ pass5(AST.Root root)
 	    }
 	    if(!found) 
 	        return semerror(node,"Extend refers to undefined message: "
-				     + node.name);
+				     + msgname);
 	    break;
 
 	case FIELD:
@@ -331,7 +330,7 @@ pass6(List<AST> allnodes)
             msg.enums = new ArrayList<AST.Enum>();
             msg.messages = new ArrayList<AST.Message>();
             msg.extenders = new ArrayList<AST.Extend>();
-            msg.extensionranges = new ArrayList<AST.ExtensionRange>();
+            msg.extensions = new ArrayList<AST.Extensions>();
             msg.options = new ArrayList<AST.Option>();
             for(AST ast: msg.getChildren()) {
                 switch(ast.getSort()) {
@@ -339,6 +338,7 @@ pass6(List<AST> allnodes)
                 case ENUM: msg.enums.add((AST.Enum)ast); break;
                 case MESSAGE: msg.messages.add((AST.Message)ast); break;
                 case EXTEND: msg.extenders.add((AST.Extend)ast); break;
+                case EXTENSIONS: msg.extensions.add((AST.Extensions)ast); break;
                 case OPTION: msg.options.add((AST.Option)ast); break;
                 default: assert(false) : "Illegal ast case"; break;
                 }
@@ -377,17 +377,6 @@ pass6(List<AST> allnodes)
                 }
             }
             break;
-        case EXTENSIONS:
-            AST.Extensions astset = (AST.Extensions)node;
-            astset.setExtensionRanges(new ArrayList<AST.ExtensionRange>());
-            for(AST ast: astset.getChildren()) {
-                switch(ast.getSort()) {
-                case EXTENSIONRANGE:
-		    astset.getExtensionRanges().add((AST.ExtensionRange)ast); break;
-                default: assert(false) : "Illegal ast case"; break;
-                }
-            }
-            break;
         case FIELD:
             AST.Field astfield = (AST.Field)node;
             astfield.setOptions(new ArrayList<AST.Option>());
@@ -403,7 +392,7 @@ pass6(List<AST> allnodes)
         case ROOT:
         case FILE:
         case ENUMFIELD:
-        case EXTENSIONRANGE:
+        case EXTENSIONS:
         case OPTION:
         case RPC:
         case PRIMITIVETYPE:
@@ -520,7 +509,6 @@ pass8(AST node, List<AST> newallnodes)
 	} break;
     case ENUMFIELD:
     case EXTENSIONS:
-    case EXTENSIONRANGE:
     case FILE:
     case OPTION:
     case PRIMITIVETYPE:

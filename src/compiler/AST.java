@@ -62,7 +62,7 @@ abstract public class AST
     // Define the kinds of AST objects to avoid having to do instanceof.
     public enum Sort {
 	PACKAGE("package"), ENUM("enum"), ENUMFIELD("enumfield"),
-	EXTEND("extend"), EXTENSIONS("extensions"), EXTENSIONRANGE("extensionrange"),
+	EXTEND("extend"), EXTENSIONS("extensions"),
 	FIELD("field"), MESSAGE("message"),
 	OPTION("option"), RPC("rpc"), SERVICE("service"),
 	PRIMITIVETYPE("primitivetype"), FILE("file"), ROOT("root");
@@ -312,36 +312,26 @@ static public class Extend extends AST
 
 }
 
+
+// Helper class for storing stop-start pairs
+static public class Range
+{
+    int stop = 0;
+    int start = 0;
+    public Range(int start, int stop) {this.start=start; this.stop=stop;}
+}
+
 static public class Extensions extends AST
 {
-    List<AST.ExtensionRange> ranges = null;
+    List<Range> ranges = null;
 
     public Extensions()
     {
 	super(Sort.EXTENSIONS);
     }
 
-    public List<AST.ExtensionRange> getExtensionRanges() {return this.ranges;}
-    public void setExtensionRanges(List<AST.ExtensionRange> ranges) {this.ranges = ranges;}
-}
-
-static public class ExtensionRange extends AST
-{
-    int start;
-    int stop;
-
-    public ExtensionRange(int start, int stop)
-    {
-	super(Sort.EXTENSIONRANGE);
-	setStart(start);
-	setStop(stop);
-    }
-
-    public int getStart() {return this.start;}
-    public void setStart(int start) {this.start = start;}
-    public int getStop() {return this.stop;}
-    public void setStop(int stop) {this.stop = stop;}
-
+    public List<AST.Range> getRanges() {return this.ranges;}
+    public void setRanges(List<AST.Range> ranges) {this.ranges = ranges;}
 }
 
 static public class Field extends AST
@@ -377,7 +367,7 @@ static public class Message extends Type
     List<Enum> enums = null;
     List<Message> messages = null;
     List<Extend> extenders = null;
-    List<ExtensionRange> extensionranges = null;
+    List<Extensions> extensions = null;
     List<Option> options = null;
 
     public Message(String name)
@@ -394,8 +384,8 @@ static public class Message extends Type
     public void setMessages(List<Message> messages) {this.messages = messages;}
     public List<Extend> getExtenders() {return this.extenders;}
     public void setExtenders(List<Extend> extenders) {this.extenders = extenders;}
-    public List<ExtensionRange> getExtensionRanges() {return this.extensionranges;}
-    public void setExtensionRanges(List<ExtensionRange> extensionRanges) {this.extensionranges = extensionranges;}
+    public List<Extensions> getExtensions() {return this.extensions;}
+    public void setExtensions(List<Extensions> extension) {this.extensions = extensions;}
     public List<Option> getOptions() {return this.options;}
     public void setOptions(List<Option> options) {this.options = options;}
 }

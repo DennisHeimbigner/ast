@@ -43,7 +43,6 @@ public interface ASTFactory
     AST.EnumField newEnumField(String name, int value);
     AST.Extend newExtend(String msgname);
     AST.Extensions newExtensions();
-    AST.ExtensionRange newExtensionRange(int start, int stop);
     AST.Field newField(String name, AST.Cardinality cardinality, String fieldtype, int id);
     AST.Message newMessage(String name);
     AST.Option newOption(String name, String value);
