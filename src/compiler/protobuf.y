@@ -5,8 +5,6 @@
  * Bison 2.4.2 grammar file for Google Protocol Buffers .proto files
  */
 
-/* There appears to be a flaw in the current locations implementation */
-%locations
 %error-verbose
 %name-prefix "Protobuf"
 
@@ -47,7 +45,7 @@ import unidata.protobuf.compiler.AST.Position;
 
     public Object parseError(String s)
     {
-	yyerror(getLocation(),s);
+	yyerror(s);
 	return null;
     }
 }
@@ -69,47 +67,42 @@ import unidata.protobuf.compiler.AST.Position;
 %%
 
 root: protobuffile
-	    {setLocation(yyloc);protobufroot($1);}
+	    {protobufroot($1);}
 
 protobuffile:
-	packagedecl importlist decllist ENDFILE
-	    {setLocation(yyloc);$$=protobuffile($1,$2,$3);}
+	  importlist decllist ENDFILE
+	    {$$=protobuffile(null,$1,$2);}
+	| packagedecl importlist decllist ENDFILE
+	    {$$=protobuffile($1,$2,$3);}
 
 packagedecl:
-	  /*empty*/
-	    {setLocation(yyloc);$$=packagedecl(null);}
-	| PACKAGE packagename ';'
-	    {setLocation(yyloc);$$=packagedecl($2);}
+	PACKAGE packagename ';'
+	    {$$=packagedecl($2);}
 	;
 
 importlist:
 	  /*empty*/
-	    {setLocation(yyloc);$$=importlist(null,null);}
+	    {$$=importlist(null,null);}
 	| importlist importstmt
-	    {setLocation(yyloc);$$=importlist($1,$2);}
+	    {$$=importlist($1,$2);}
 	;	
 
 importstmt:
-	importprefix pushfile protobuffile popfile
-	    {setLocation(yyloc);$$=importstmt($1,$3);}
+	importprefix pushfile protobuffile 
+	    {$$=importstmt($1,$3);}
         ;
         
 importprefix:
         IMPORT STRINGCONST ';'
 	    {$$=importprefix($2);}
 
-pushfile: /*empty*/
-	    {if(!filepush()) {return YYABORT;};}
-
-
-popfile: /*empty*/
-	    {if(!filepop()) {return YYABORT;};}
+pushfile: /*empty*/ {if(!filepush()) {return YYABORT;};}
 
 decllist:
 	  /*empty*/
-	    {setLocation(yyloc);$$=decllist(null,null);}
+	    {$$=decllist(null,null);}
 	| decllist decl
-	    {setLocation(yyloc);$$=decllist($1,$2);}
+	    {$$=decllist($1,$2);}
 	;	
 
 decl:
@@ -125,65 +118,65 @@ optionstmt:
           OPTION option ';'
    	    {$$=$2;}
         | OPTION '(' option ')' ';'
-	    {setLocation(yyloc);$$=useroption($3);}
+	    {$$=useroption($3);}
         ;
 
 option:
 	name '=' constant
-   	    {setLocation(yyloc);$$=option($1,$3);}
+   	    {$$=option($1,$3);}
         ;
 
 message:
         MESSAGE name messagebody
-	    {setLocation(yyloc);$$=message($2,$3);}
+	    {$$=message($2,$3);}
         ;
 
 extend:
           EXTEND path '{' fieldlist '}'
-	    {setLocation(yyloc);$$=extend($2,$4);}
+	    {$$=extend($2,$4);}
         | EXTEND GOOGLEOPTION  '{' fieldlist '}'
 	    {$$=null; /* ignore */ }
         ;
 
 fieldlist:
 	  /*empty*/
-	    {setLocation(yyloc);$$=fieldlist(null,null);}
+	    {$$=fieldlist(null,null);}
 	| fieldlist field
-	    {setLocation(yyloc);$$=fieldlist($1,$2);}
+	    {$$=fieldlist($1,$2);}
 	| fieldlist ';'
 	    {$$=$1;}
 	;
 
 enumtype:
         ENUM name '{' enumlist '}'
-	    {setLocation(yyloc);$$=enumtype($2,$4);}
+	    {$$=enumtype($2,$4);}
         ;
 
 enumlist:
 	  /*empty*/
-	    {setLocation(yyloc);$$=enumlist(null,null);}
+	    {$$=enumlist(null,null);}
 	| enumlist optionstmt
-	    {setLocation(yyloc);$$=enumlist($1,$2);}
+	    {$$=enumlist($1,$2);}
 	| enumlist enumfield
-	    {setLocation(yyloc);$$=enumlist($1,$2);}
+	    {$$=enumlist($1,$2);}
 	| enumlist ';' {$$=$1;}
 	;
 
 enumfield:
         name '=' INTCONST
-	    {setLocation(yyloc);if(($$=enumfield($1,$3))==null) {return YYABORT;}}
+	    {if(($$=enumfield($1,$3))==null) {return YYABORT;}}
         ;
 
 service:
         SERVICE name '{' servicecaselist '}'
-	    {setLocation(yyloc);$$=service($2,$4);}
+	    {$$=service($2,$4);}
         ;
 
 servicecaselist:
 	  /*empty*/
-	    {setLocation(yyloc);$$=servicecaselist(null,null);}
+	    {$$=servicecaselist(null,null);}
 	| servicecaselist servicecase
-	    {setLocation(yyloc);$$=servicecaselist($1,$2);}
+	    {$$=servicecaselist($1,$2);}
 	;
 
 servicecase:
@@ -194,7 +187,7 @@ servicecase:
 
 rpc:
         RPC name '(' usertype ')' RETURNS '(' usertype ')' ';'
-	    {setLocation(yyloc);$$=rpc($2,$4,$8);}
+	    {$$=rpc($2,$4,$8);}
         ;
 
 messagebody:
@@ -204,9 +197,9 @@ messagebody:
 
 messageelementlist:
 	  /*empty*/
-	    {setLocation(yyloc);$$=messageelementlist(null,null);}
+	    {$$=messageelementlist(null,null);}
 	| messageelementlist messageelement
-	    {setLocation(yyloc);$$=messageelementlist($1,$2);}
+	    {$$=messageelementlist($1,$2);}
 	;
 
 messageelement:
@@ -222,35 +215,35 @@ messageelement:
 // tag number must be 2^28-1 or lower
 field:
 	  cardinality type name '=' INTCONST  ';'
-	    {setLocation(yyloc);$$=field($1,$2,$3,$5,null);}
+	    {$$=field($1,$2,$3,$5,null);}
 	| cardinality type name '=' INTCONST '[' fieldoptionlist ']'  ';'
-	    {setLocation(yyloc);$$=field($1,$2,$3,$5,$7);}
+	    {$$=field($1,$2,$3,$5,$7);}
         ;
 
 fieldoptionlist:
 	  fieldoption
-	    {setLocation(yyloc);$$=fieldoptionlist(null,$1);}
+	    {$$=fieldoptionlist(null,$1);}
 	| fieldoptionlist ',' fieldoption
-	    {setLocation(yyloc);$$=fieldoptionlist($1,$3);}
+	    {$$=fieldoptionlist($1,$3);}
 	;
 
 fieldoption:
           option
 	    {$$=$1;}
 	| DEFAULT '=' constant // treat like a special kind of option
-	    {setLocation(yyloc);$$=option(AST.DEFAULTNAME,$3);}
+	    {$$=option(AST.DEFAULTNAME,$3);}
         ;
 
 extensions:
 	EXTENSIONS extensionlist ';'
-	    {setLocation(yyloc); $$=extensions($2);}
+	    { $$=extensions($2);}
 	;
 
 extensionlist:
           extensionrange
-	    {setLocation(yyloc);$$=extensionlist(null,$1);}
+	    {$$=extensionlist(null,$1);}
         | extensions ',' extensionrange
-	    {setLocation(yyloc);$$=extensionlist($1,$3);}
+	    {$$=extensionlist($1,$3);}
         ;
 
 extensionrange:

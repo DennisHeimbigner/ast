@@ -1,15 +1,5 @@
-package t;
-
 import "t2.proto";
-
-message CodeGeneratorRequest {
-repeated FileDescriptorProto proto_file = 15;
+message m1 {
+required int32 field1 = 1;
 }
 
-message CodeGeneratorResponse {
-optional string error = 1;
-message File {
-optional string name = 1;
-}
-repeated File file = 15;
-}

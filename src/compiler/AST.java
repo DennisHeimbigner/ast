@@ -89,6 +89,13 @@ abstract public class AST
     }
 
     // Capture location in file if possible
+    static public class Location
+    {
+        public Location (Position loc) {}
+        public Location (Position begin, Position end) {}
+        public String toString () { return "<location>";}
+    }
+
     static public class Position
     {
 	int lineno = 0;
@@ -116,6 +123,11 @@ abstract public class AST
     }
 
     //////////////////////////////////////////////////
+    // Assign indices to all nodes
+    static int uid = 0;
+    static int primitiveuid = 0; // separate numbering for primitives
+    int index;
+    //////////////////////////////////////////////////
     // Instance variables
 
     Position position = null;
@@ -133,7 +145,10 @@ abstract public class AST
     {
 	this.sort = sort;
 	nodeset.add(this);
+	setuid();
     }
+
+    protected void setuid() {index = ++uid;}
 
     public List<AST> getChildren() {return this.children;}
     public void setChildren(List<AST> children) {this.children = children;}
@@ -459,6 +474,8 @@ static public class PrimitiveType extends Type
 	this.PrimitiveSort = PrimitiveSort;
         setName(PrimitiveSort.getName());
     }
+
+    protected void setuid() {index = --primitiveuid;}
 
     public PrimitiveSort getPrimitiveSort() {return this.PrimitiveSort;}
     public void setPrimitiveSort(PrimitiveSort PrimitiveSort) {this.PrimitiveSort = PrimitiveSort;}

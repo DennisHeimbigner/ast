@@ -182,8 +182,8 @@ private static String namefor(AST node)
 private static String namefor(AST node, boolean qualified)
 {
     if(node == null) return null;
-    if(qualified && node.qualifiedname != null)
-	    return node.qualifiedname;
+    if(qualified)
+        return node.qualifiedname;
     return node.name;
 }    
 
@@ -205,17 +205,7 @@ static public void printTree(AST.Root root, PrintWriter writer)
 
 static public void printTree(AST.Root root, PrintWriter writer, boolean presemantic)
 {
-    if(presemantic) {
-        printTreeR(root,0,writer,presemantic);
-    } else {
-        for(AST.File f: root.getAllFiles()) {
-            printTreeR(f,0,writer,presemantic);
-        }
-        for(AST.Package p: root.getAllPackages()) {
-            printTreeR(p,0,writer,presemantic);
-        }
-    }
-
+    printTreeR(root,0,writer,presemantic);
     writer.flush();
 }
 
@@ -226,7 +216,7 @@ static void printTreeR(AST node, int depth,
     String typename;
     String name;
 
-    writer.printf("[%s] %s%s ",depth,indent(depth),node.sort.getName());
+    writer.printf("[%s][%d] %s%s ",depth,node.index,indent(depth),node.sort.getName());
     name = namefor(node);
     if(name != null) writer.print("name="+name);
     name = namefor(node,true);
@@ -398,6 +388,7 @@ static void printTreeR(AST node, int depth,
         break;
     case RPC:
     // No children
+    case FILE:
     case ENUMFIELD:
     case OPTION:
     case PRIMITIVETYPE:

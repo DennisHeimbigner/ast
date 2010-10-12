@@ -9,7 +9,6 @@ import java.util.*;
 
 import static unidata.protobuf.compiler.ProtobufParser.*;
 import unidata.protobuf.compiler.AST.Position;
-import unidata.protobuf.compiler.ProtobufParser.Location;
 
 public abstract class ProtobufActions
 {
@@ -23,7 +22,6 @@ public abstract class ProtobufActions
     ProtobufLexer lexstate = null;
     ProtobufActions state = null; /* Slight kludge */
     ASTFactory astfactory = null;
-    ProtobufParser.Location currentlocation = null;
     AST.Root ast = null; // root node of the AST
     String filename = null;
     List<AST.PrimitiveType> primitives = null;
@@ -54,7 +52,6 @@ public void
 reset(String filename, Reader stream)
 {
     this.filename = filename;
-    this.currentlocation = new Location(new Position());
     lexstate.reset(state);
     lexstate.setStream(stream);
 }
@@ -62,9 +59,6 @@ reset(String filename, Reader stream)
 
 //////////////////////////////////////////////////
 // Get/set
-
-public void setLocation(ProtobufParser.Location loc) {currentlocation = loc;}
-public ProtobufParser.Location getLocation() {return currentlocation;}
 
 public AST.Root getAST() {return ast;}
 
@@ -83,12 +77,16 @@ abstract void setDebugLevel(int level);
 void
 protobufroot(Object file0)
 {
-    // Store in state
     AST.File file = (AST.File)file0;
     file.setName(filename);
     this.ast = astfactory.newRoot("");
     this.ast.setRootFile(file);
     this.ast.addChild(file);
+    // If the root file does not have a package, then create one
+    if(file.getFilePackage() == null) {
+	AST.Package p = astfactory.newPackage(filename);
+	file.setFilePackage(p);
+    }
     // Place the set of primitive type nodes in the root
     this.ast.setPrimitiveTypes(primitives);
 }
@@ -98,7 +96,7 @@ Object
 protobuffile(Object package0, Object imports0, Object decllist0)
 {
     AST.File f = astfactory.newFile(null);
-    f.setFilePackage((AST.Package)package0);
+    f.setFilePackage((AST.Package)package0); // may be null
     // concat for now; divide later
     f.addChildren((List<AST>)imports0);
     f.addChildren((List<AST>)decllist0);
@@ -382,9 +380,7 @@ illegalname(Object s)
 AST.Position
 position()
 {
-    ProtobufParser.Location loc = this.getLocation();
-    return loc.begin;
-    //return (loc == null ? null : loc.begin);
+    return new Position(lexstate.lineno,lexstate.charno);
 }
 
 

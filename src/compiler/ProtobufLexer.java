@@ -147,7 +147,7 @@ class ProtobufLexer implements Lexer
     Object lval = null;
     StringBuilder lookahead = null;
     Stack<FileEntry> filestack = null;
-    boolean fileeof = false;
+    boolean eof2 = false;
 
     /**
      * *********************************************
@@ -221,125 +221,132 @@ class ProtobufLexer implements Lexer
         token = 0;
         yytext.setLength(0);
 
-	// Check if we need to pop file stack
-	if(fileeof) {
-		if(!popFileStack()) lexerror("Could not pop file stack");
-                yytext.append("EOF");
-		return EOF;
-	}
-	
 	// Capture start pos
 	startpos = new Position(lineno,charno);
 
-            token = -1;
-            while(token < 0) {
-		c = read();
-		if(c == 0) {
-		    fileeof = true;
-                    yytext.append("EOF");
-		    return ENDFILE;
-                } else if(c <= ' ' || c == '\177') {
-                    /* whitespace: ignore */
-                } else if(c == '/' && peek() == '/') { // Comment
-		    do {c=read(); } while(c != '\0' && c != '\n');
-		    continue; // start over
-                } else if(c == '"' || c == '\'') {
-		    int quotemark = c;
-                    boolean more = true;
-                    while (more && (c = read()) > 0) {
-                        if(c == quotemark)
-                            more = false;
-                        else if(c == '\\') {
-                            c = read();
-                            if(c < 0) more = false;
-			    /* Handle the typical \r \n etc */
-			    else switch (c) {
-			    case 'n': c = '\n'; break;
-			    case 'r': c = '\r'; break;
-			    case 't': c = '\t'; break;
-                            case 'x': {
-				c = hexescape();
-	    			if(c < 0) {
-				    lexerror("Illegal hex escape character");
-				    more = false;
-				}
-			    } break;
-                            case '0': { // warning, might be less than four digits
-				c = octalescape();
-	    			if(c < 0) {
-				    lexerror("Illegal octal escape character");
-				    more = false;
-				}
-			    } break;
-                            default: break;
-			    }
-                        }
-                        if(more) yytext.append((char)c);
+        token = -1;
+        while(token < 0) {
+            c = read();
+            if(c == 0) {
+                // If stack is not empty, or this is the first eof
+                // then return ENDFILE otherwise return true eof
+                if(filestack.empty()) {
+                    if(eof2) {
+                        yytext.append("EOF");
+                        token = EOF;
+                    } else { // !eof2
+                        yytext.append("ENDFILE");
+                        token = ENDFILE;
+                        eof2 = true;
                     }
-                    token = STRINGCONST;
-                } else if(numchars1.indexOf(c) >= 0) {
-                    /* we might have a number: Float or INTCONST*/
-                    boolean isnumber;
-                    int numberkind;
-                    yytext.append((char) c);
-                    while ((c = read()) > 0) {
-                        if(numcharsn.indexOf(c) < 0) {
-                            pushback(c);
-                            break;
-                        }
-                        yytext.append((char) c);
-                    }
-                    /* See if this is a number, and if so, what kind */
-		    isnumber = true; numberkind = FLOATCONST;
-                    try {
-                        Double number = new Double(yytext.toString());
-                    } catch (NumberFormatException nfe) {isnumber=false;}
-                    try {
-                        Long number = new Long(yytext.toString());
-                        numberkind = INTCONST;
-                    } catch (NumberFormatException nfe) {numberkind = FLOATCONST;}
-                    token = (isnumber?numberkind:NAME);
-                } else if(wordchars1.indexOf(c) >= 0) {
-                    /* we have a NAME */
-                    yytext.append((char) c);
-                    while ((c = read()) > 0) {
-                        if(wordcharsn.indexOf(c) < 0) {
-                            pushback(c);
-                            break;
-                        }
-                        yytext.append((char) c);
-                    }
-                    token = NAME; // Default
-		    // Check for googleoption
-		    String tokentext = yytext.toString();
-		    if(tokentext.startsWith("google.protobuf.")
-		       && tokentext.endsWith("Option")) 
-			token = GOOGLEOPTION;
-		    else {
-                        // check for keyword: treat as case sensitive
-                        for(int i=0;i<keywords.length;i++) {
-                            if (keywords[i].equals(tokentext)) {
-			        token = keytokens[i];
-                                break;
-			    }
-                        }
-		    }
-                } else {
-                    /* we have a single char token */
-                    token = c;
-		    yytext.append((char)c);
+                } else { // !filestack.empty()
+                    if(!popFileStack())
+                        lexerror("Could not pop file stack");
+                    yytext.append("ENDFILE");
+                    token = ENDFILE;
                 }
-            }
-            if(token < 0) {
-                token = 0;
-                lval = null;
+            } else if(c <= ' ' || c == '\177') {
+                /* whitespace: ignore */
+            } else if(c == '/' && peek() == '/') { // Comment
+                do {c=read(); } while(c != '\0' && c != '\n');
+                continue; // start over
+            } else if(c == '"' || c == '\'') {
+                int quotemark = c;
+                boolean more = true;
+                while (more && (c = read()) > 0) {
+                    if(c == quotemark)
+                        more = false;
+                    else if(c == '\\') {
+                        c = read();
+                        if(c < 0) more = false;
+                        /* Handle the typical \r \n etc */
+                        else switch (c) {
+                        case 'n': c = '\n'; break;
+                        case 'r': c = '\r'; break;
+                        case 't': c = '\t'; break;
+                        case 'x': {
+                            c = hexescape();
+                            if(c < 0) {
+                                lexerror("Illegal hex escape character");
+                                more = false;
+                            }
+                        } break;
+                        case '0': { // warning, might be less than four digits
+                            c = octalescape();
+                            if(c < 0) {
+                                lexerror("Illegal octal escape character");
+                                more = false;
+                            }
+                        } break;
+                        default: break;
+                        }
+                    }
+                    if(more) yytext.append((char)c);
+                }
+                token = STRINGCONST;
+            } else if(numchars1.indexOf(c) >= 0) {
+                /* we might have a number: Float or INTCONST*/
+                boolean isnumber;
+                int numberkind;
+                yytext.append((char) c);
+                while ((c = read()) > 0) {
+                    if(numcharsn.indexOf(c) < 0) {
+                        pushback(c);
+                        break;
+                    }
+                    yytext.append((char) c);
+                }
+                /* See if this is a number, and if so, what kind */
+                isnumber = true; numberkind = FLOATCONST;
+                try {
+                    Double number = new Double(yytext.toString());
+                } catch (NumberFormatException nfe) {isnumber=false;}
+                try {
+                    Long number = new Long(yytext.toString());
+                    numberkind = INTCONST;
+                } catch (NumberFormatException nfe) {numberkind = FLOATCONST;}
+                token = (isnumber?numberkind:NAME);
+            } else if(wordchars1.indexOf(c) >= 0) {
+                /* we have a NAME */
+                yytext.append((char) c);
+                while ((c = read()) > 0) {
+                    if(wordcharsn.indexOf(c) < 0) {
+                        pushback(c);
+                        break;
+                    }
+                    yytext.append((char) c);
+                }
+                token = NAME; // Default
+                // Check for googleoption
+                String tokentext = yytext.toString();
+                if(tokentext.startsWith("google.protobuf.")
+                   && tokentext.endsWith("Option")) 
+                    token = GOOGLEOPTION;
+                else {
+                    // check for keyword: treat as case sensitive
+                    for(int i=0;i<keywords.length;i++) {
+                        if (keywords[i].equals(tokentext)) {
+                            token = keytokens[i];
+                            break;
+                        }
+                    }
+                }
             } else {
-                lval = (yytext.length() == 0 ? (String) null : yytext.toString());
+                /* we have a single char token */
+                token = c;
+                yytext.append((char)c);
             }
-            if(parsestate.getDebugLevel() > 0) dumptoken(token, (String) lval);
-	    // Capture end pos
-	    endpos = new Position(lineno,charno);
-            return token;       /* Return the type of the token.  */
+        }
+        if(token < 0) {
+            token = 0;
+            lval = null;
+        } else {
+            lval = (yytext.length() == 0 ? (String) null : yytext.toString());
+        }
+        if(parsestate.getDebugLevel() > 0) dumptoken(token, (String) lval);
+        // Capture end pos
+        endpos = new Position(lineno,charno);
+        return token;       /* Return the type of the token.  */
     }
 
     void
@@ -436,6 +443,7 @@ class ProtobufLexer implements Lexer
         startpos.charno = 1;
 	endpos.lineno = 1;
         endpos.charno = 1;
+        stream = fr;
 	return true;
     }
 
@@ -475,12 +483,11 @@ class ProtobufLexer implements Lexer
      * Entry point for error reporting.  Emits an error
      * in a user-defined way.
      *
-     * @param loc The location of the current token
      * @param s The string for the error message.
      */
-    public void yyerror(ProtobufParser.Location loc, String s)
+    public void yyerror(String s)
     {
-	System.err.println(String.format("yyerror %s : %s",loc.begin.toString(),s));
+	System.err.println(String.format("yyerror %s/%s : %s",lineno,charno,s));
         if(yytext.length() > 0)
             System.err.print("; near |"+ yytext + "|");
         System.err.println();
@@ -500,18 +507,5 @@ class ProtobufLexer implements Lexer
         ;
         System.out.printf("Lex error: %s; charno: %d: %s^%s\n", msg, charno, yytext, nextline);
     }
-
-    // Location processing
-
-
-    /**
-     * Method to retrieve the beginning position of the last scanned token.
-     * @return the position at which the last scanned token starts.  */
-    public Position getStartPos() {return startpos;}
-
-    /**
-     * Method to retrieve the ending position of the last scanned token.
-     * @return the first position beyond the last scanned token.  */
-    public Position getEndPos() {return endpos;}
 
 }
