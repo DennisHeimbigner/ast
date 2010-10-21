@@ -70,25 +70,17 @@ root: protobuffile
 	    {protobufroot($1);}
 
 protobuffile:
-	  importlist decllist ENDFILE
-	    {$$=protobuffile(null,$1,$2);}
-	| packagedecl importlist decllist ENDFILE
-	    {$$=protobuffile($1,$2,$3);}
+	decllist ENDFILE
+	    {$$=protobuffile($1);}
+	;
 
 packagedecl:
 	PACKAGE packagename ';'
 	    {$$=packagedecl($2);}
 	;
 
-importlist:
-	  /*empty*/
-	    {$$=importlist(null,null);}
-	| importlist importstmt
-	    {$$=importlist($1,$2);}
-	;	
-
 importstmt:
-	importprefix pushfile protobuffile 
+	importprefix pushfile protobuffile
 	    {$$=importstmt($1,$3);}
         ;
         
@@ -106,24 +98,26 @@ decllist:
 	;	
 
 decl:
-          message  {$$=$1;}
-	| extend   {$$=$1;}
-	| enumtype {$$=$1;}
-	| optionstmt   {$$=$1;}
-	| service  {$$=$1;}
-	| ';'      {$$=null;}
+          message       {$$=$1;}
+        | extend        {$$=$1;}
+        | enumtype      {$$=$1;}
+        | optionstmt    {$$=$1;}
+        | service       {$$=$1;}
+        | packagedecl   {$$=$1;}
+        | importstmt  {$$=$1;}
+        | /*empty*/ ';' {$$=null;}
         ;
 
 optionstmt:
-          OPTION option ';'
+        OPTION option ';'
    	    {$$=$2;}
-        | OPTION '(' option ')' ';'
-	    {$$=useroption($3);}
         ;
 
 option:
-	name '=' constant
+	  name '=' constant
    	    {$$=option($1,$3);}
+	| '(' name ')' '=' constant
+   	    {$$=useroption($2,$5);}
         ;
 
 message:

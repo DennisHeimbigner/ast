@@ -34,7 +34,7 @@
 
 package protobuf_unittest;
 
-import "google/protobuf/unittest_import_lite.proto";
+import "unittest_import_lite.proto";
 
 option optimize_for = LITE_RUNTIME;
 

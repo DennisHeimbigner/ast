@@ -33,7 +33,7 @@
 // A proto file which tests the java_multiple_files option.
 
 
-import "google/protobuf/unittest.proto";
+import "unittest.proto";
 
 package protobuf_unittest;
 

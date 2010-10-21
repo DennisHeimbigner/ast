@@ -38,7 +38,9 @@ import java.io.*;
 
 public class Semantics
 {
-    
+
+static boolean debug = false;
+
 //////////////////////////////////////////////////
 // Constructor
 public Semantics() {}
@@ -51,38 +53,54 @@ public boolean process(AST.Root root)
     Debug.printprops.qualified = true;
     Debug.printprops.useuid = true;
     if(!collectnodes(root,root)) return false;
-    w.println("\ncollectnodes:");
-    Debug.printTreeNodes(root,w);
+    if(debug) {
+        w.println("\ncollectnodes:");
+        Debug.printTreeNodes(root,w);        
+    }
     if(!setcontainers(root,null,null)) return false;
-    w.println("\nsetcontainers:");
-    Debug.printTreeNodes(root,w);
+    if(debug) {
+        w.println("\nsetcontainers:");
+	Debug.printTreeNodes(root,w);
+    }
     if(!groupbypackage(root)) return false;
-    w.println("\ngroupbypackages:");
-    Debug.printTreeNodes(root,w);
+    if(debug) {
+        w.println("\ngroupbypackages:");
+	Debug.printTreeNodes(root,w);
+    }
     if(!collectpackagenodesets(root)) return false;
-    w.println("\ncollectpackagenodesets:");
-    Debug.printTreeNodes(root,w);
+    if(debug) {
+        w.println("\ncollectpackagenodesets:");
+	Debug.printTreeNodes(root,w);
+    }
     if(!setnodegroups(root)) return false;
-    w.println("\nsetnodegroups:");
-    Debug.printTreeNodes(root,w);
+    if(debug) {
+        w.println("\nsetnodegroups:");
+	Debug.printTreeNodes(root,w);
+    }
     if(!qualifynames(root)) return false;
     Debug.printprops.useuid = false;
-    w.println("\nqualifynames:");
-    Debug.printTreeNodes(root,w);
+    if(debug) {
+        w.println("\nqualifynames:");
+	Debug.printTreeNodes(root,w);
+    }
     if(!dereference(root)) return false;
-    w.println("\ndereference:");
-    Debug.printTreeNodes(root,w);
+    if(debug) {
+        w.println("\ndereference:");
+	Debug.printTreeNodes(root,w);
+    }
     if(!checkduplicates(root.getNodeSet())) return false;
     Debug.resetprintprops();
-
-    if(true) {
-    // Print two ways
-    System.err.println("-------------------------");
-    Debug.printTree(root,w);
-    w.flush();
-    System.err.println("-------------------------");
-    Debug.print(root,w);
-    w.flush();
+    
+    if(debug) {
+        // Print two ways
+        System.err.println("-------------------------");
+        System.err.println("Tree Format:");
+	Debug.printTree(root,w);
+        w.flush();
+        System.err.println("-------------------------");
+        System.err.println("Proto Format:");
+        Debug.print(root,w);
+        w.flush();
     }
 
     return true;
@@ -150,8 +168,8 @@ collectnodes(AST node, AST.Root root)
  * - Link package and file
  *
  * @param node The current node being walked
- * @param root The AST tree root
- * @param srcfile The current srcfile we are traversing
+ * @param currentfile The currently enclosing file
+ * @param currentpackage The currently enclosing package
  * @return true if the processing succeeded.
 */
 
@@ -254,7 +272,7 @@ collectpackagenodesets(AST.Root root)
  * Pass does the following:
  * - Fill in various fields for each node type
  *
- * @param allnodes The set of all collected nodes
+ * @param root The ast tree root
  * @return true if the processing succeeded.
 */
 
@@ -520,18 +538,20 @@ checkduplicates(List<AST> allnodes)
                 for(AST.EnumField field2: ((AST.Enum)node).getEnumFields()) {
                     if(field1 == field2) continue;
                     if(field1.value == field2.value) {
-                        return semerror(node,"Duplicate enum field numbers: "+field1.value);
+                        semerror(node,"Duplicate enum field numbers: "+field1.value);
+                        break;
                     }
                 }
             }
             break;
         case MESSAGE:
             // check for duplicates
-            for(AST.Field field1: ((AST.Message)node).fields) {
-                for(AST.Field field2: ((AST.Message)node).fields) {
+           for(AST.Field field1: ((AST.Message)node).fields) {
+               for(AST.Field field2: ((AST.Message)node).fields) {
                     if(field1 == field2) continue;
                     if(field1.id == field2.id) {
-                        return semerror(node,"Duplicate message field numbers: "+field1.id);
+                        semerror(node,"Duplicate message field numbers: "+field1.id);
+                        break;
                     }
                 }
             }
@@ -541,7 +561,7 @@ checkduplicates(List<AST> allnodes)
             // Check legality of field number
             AST.Field field = (AST.Field)node;
             if(field.id < 0 || field.id >= AST.MAXFIELDID)
-                return semerror(node,"Illegal message field id"+field.id);
+                semerror(node,"Illegal message field id"+field.id);
             break;
         default:
 	    break;

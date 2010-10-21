@@ -101,7 +101,7 @@ protobufroot(Object file0)
 
 
 Object
-protobuffile(Object package0, Object imports0, Object decllist0)
+protobuffile(Object options0, Object imports0, Object package0, Object decllist0)
 {
     AST.Package p;
     AST.File f = astfactory.newFile(null);
@@ -115,6 +115,7 @@ protobuffile(Object package0, Object imports0, Object decllist0)
     f.setFilePackage(p);
     // concat for now; divide later
     f.getChildSet().add(p);
+    f.getChildSet().addAll((List<AST>)options0);
     f.getChildSet().addAll((List<AST>)imports0);
     f.getChildSet().addAll((List<AST>)decllist0);
     f.setPosition(position());
@@ -186,6 +187,15 @@ decllist(Object list0, Object decl0)
 }
 
 Object
+optionstmtlist(Object list0, Object optionstmt0)
+{
+    List<AST> list = (List<AST>)list0;
+    if(list == null) list = new ArrayList<AST>();
+    if(optionstmt0 != null) list.add((AST)optionstmt0);
+    return list;
+}
+
+Object
 option(Object name0, Object value0)
 {
     AST.Option node = astfactory.newOption((String)name0,(String)value0);
@@ -194,11 +204,12 @@ option(Object name0, Object value0)
 }
 
 Object
-useroption(Object option0)
+useroption(Object name0, Object value0)
 {
-    AST.Option option = (AST.Option)option0;
-    option.setUserDefined(true);
-    return option;
+    AST.Option node = astfactory.newOption((String)name0,(String)value0);
+    node.setPosition(position());
+    node.setUserDefined(true);
+    return node;
 }
 
 Object

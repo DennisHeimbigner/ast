@@ -97,6 +97,7 @@ public class TestFiles extends TestCase
 
     // define the xfails
     static String[] xfailtests= {
+        "test-full"
     };
 
     //////////////////////////////////////////////////
