@@ -81,25 +81,42 @@ protobufroot(Object file0)
     file.setName(filename);
     this.ast = astfactory.newRoot("");
     this.ast.setRootFile(file);
-    this.ast.addChild(file);
-    // If the root file does not have a package, then create one
-    if(file.getFilePackage() == null) {
-	AST.Package p = astfactory.newPackage(filename);
-	file.setFilePackage(p);
-    }
+    this.ast.getChildSet().add(file);
     // Place the set of primitive type nodes in the root
     this.ast.setPrimitiveTypes(primitives);
+    // If the file's package has no name, then make it
+    // have basename of the file (i.e. without any trailing extension).
+    // If the file name has no extension, add .proto to the package name
+    if(file.getFilePackage().getName() == null) {
+	String basename;
+	int index = filename.lastIndexOf('.');
+	if(index < 0) { // no extension
+	    basename = filename + ".proto";
+	} else {
+	    basename = filename.substring(0,index);
+	}
+        file.getFilePackage().setName(basename);
+    }
 }
 
 
 Object
 protobuffile(Object package0, Object imports0, Object decllist0)
 {
+    AST.Package p;
     AST.File f = astfactory.newFile(null);
-    f.setFilePackage((AST.Package)package0); // may be null
+    // If there is no package, then create a fake one
+    if(package0 == null) {
+        p = astfactory.newPackage(null);
+        p.setPosition(position());
+    } else
+	p = (AST.Package)package0;
+    // Save the package reference
+    f.setFilePackage(p);
     // concat for now; divide later
-    f.addChildren((List<AST>)imports0);
-    f.addChildren((List<AST>)decllist0);
+    f.getChildSet().add(p);
+    f.getChildSet().addAll((List<AST>)imports0);
+    f.getChildSet().addAll((List<AST>)decllist0);
     f.setPosition(position());
     return f;
 }
@@ -108,7 +125,6 @@ Object
 packagedecl(Object name0)
 {
     String name = (String)name0;
-    if(name == null) name = "";
     AST.Package node = astfactory.newPackage(name);
     node.setPosition(position());
     return node;
@@ -189,7 +205,7 @@ Object
 message(Object name0, Object body0)
 {
     AST.Message node = astfactory.newMessage((String)name0);
-    node.addChildren((List<AST>)body0);
+    node.getChildSet().addAll((List<AST>)body0);
     node.setPosition(position());
     return node;
 }
@@ -198,7 +214,7 @@ Object
 extend(Object type0, Object fieldlist0)
 {
     AST.Extend node = astfactory.newExtend((String)type0);
-    node.addChildren((List<AST>)fieldlist0);
+    node.getChildSet().addAll((List<AST>)fieldlist0);
     node.setPosition(position());
     return node;
 }
@@ -216,7 +232,7 @@ Object
 enumtype(Object name0, Object enumlist0)
 {
     AST.Enum node = astfactory.newEnum((String)name0);
-    node.addChildren((List<AST>)enumlist0);
+    node.getChildSet().addAll((List<AST>)enumlist0);
     node.setPosition(position());
     return node;
 }
@@ -249,7 +265,7 @@ Object
 service(Object name0, Object caselist0)
 {
     AST.Service node = astfactory.newService((String)name0);
-    node.addChildren((List<AST>)caselist0);
+    node.getChildSet().addAll((List<AST>)caselist0);
     node.setPosition(position());
     return node;
 }
@@ -304,7 +320,7 @@ field(Object cardinality0, Object type0, Object name0, Object id0, Object option
 			cardinality,
 			(String)type0,
 			id);
-    node.addChildren((List<AST>)options0);
+    node.getChildSet().addAll((List<AST>)options0);
     node.setPosition(position());
     return node;
 }

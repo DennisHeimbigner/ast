@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1998 - 2010. University Corporation for Atmospheric Research/Unidata
+* Copyright (c) 1998 - 2010. University Corporation for Atmospheric Research/Unidata
  * Portions of this software were developed by the Unidata Program at the
  * University Corporation for Atmospheric Research.
  *
@@ -38,11 +38,6 @@ import java.util.*;
 
 abstract public class AST
 {
-    // Verify that pass1 of semantics is catching all created AST nodes
-    static List<AST> nodeset = new ArrayList<AST>();
-    boolean visited = false; // for debugging
-
-
     static final int MAXEXTENSION = 536870911 ; //0x1FFFFFFF
 
     static final int MAXFIELDID = MAXEXTENSION;
@@ -127,6 +122,7 @@ abstract public class AST
     static int uid = 0;
     static int primitiveuid = 0; // separate numbering for primitives
     int index;
+
     //////////////////////////////////////////////////
     // Instance variables
 
@@ -136,36 +132,35 @@ abstract public class AST
     File srcfile = null; // immediately containing src file node
     Package packageroot = null; // immediately containing package
     AST parent = null;
-    List<AST> children = null;
     String name = null;
     String qualifiedname = null;
     Object annotation = null;
+    List<AST> childset= null; // immediate children
+    List<AST> nodeset = null; // All nodes under this node;
+			      // null except for root and packages
+
+    int refcount = 0;
 
     AST(Sort sort)
     {
 	this.sort = sort;
-	nodeset.add(this);
-	setuid();
+	if(nodeset == null) nodeset = new ArrayList<AST>();
+        if(childset == null) childset = new ArrayList<AST>();
+        setuid();
     }
 
     protected void setuid() {index = ++uid;}
+    public int getId() {return index;}
 
-    public List<AST> getChildren() {return this.children;}
-    public void setChildren(List<AST> children) {this.children = children;}
-    public void addChildren(List<AST> children)
-    {
-        if(this.children == null)
-            this.children = children;
-        else
-           this.children.addAll(children);
-    }
+    public int setRefCount(int n)
+	{int old = refcount ; refcount = n; return old;}
+    public void addRefCount(int n) {refcount += n;}
 
-    public void addChild(AST child)
-    {
-        if(this.children == null)
-	    this.children = new ArrayList<AST>();
-        this.children.add(child);
-    }
+    public List<AST> getChildSet() {return this.childset;}
+    public void setChildSet(List<AST> children) {this.childset = children;}
+
+    public List<AST> getNodeSet() {return this.nodeset;}
+    public void setNodeSet(List<AST> nodeset) {this.nodeset = nodeset;}
 
     public Position getPosition() {return position;}
     public void setPosition(Position position) {this.position = position;}
@@ -196,9 +191,8 @@ static public class Type extends AST
 // An instance of this is the root of the AST tree
 static public class Root extends AST 
 {
-    List<AST> allnodes = null; // pre-order set of all nodes in the AST tree
-    List<Package> allpackages = null;
-    List<File> allfiles = null;
+    List<Package> packageset = null;
+    List<File> fileset = null;
     List<PrimitiveType> primitivetypes = null;
     File rootfile = null;
 
@@ -206,22 +200,18 @@ static public class Root extends AST
     {
 	super(Sort.ROOT);
 	setName("");
-	setQualifiedName("");
         setPackage(null);
         setSrcFile(null);
-	setAllNodes(new ArrayList<AST>());
-	setAllPackages(new ArrayList<Package>());
-	setAllFiles(new ArrayList<File>());
+	setNodeSet(new ArrayList<AST>());
+	setPackageSet(new ArrayList<Package>());
+	setFileSet(new ArrayList<File>());
     }
 
-    public List<AST> getAllNodes() {return this.allnodes;}
-    public void setAllNodes(List<AST> allnodes) {this.allnodes = allnodes;}
+    public List<File> getFileSet() {return this.fileset;}
+    public void setFileSet(List<File> fileset) {this.fileset = fileset;}
 
-    public List<File> getAllFiles() {return this.allfiles;}
-    public void setAllFiles(List<File> allfiles) {this.allfiles = allfiles;}
-
-    public List<Package> getAllPackages() {return this.allpackages;}
-    public void setAllPackages(List<Package> allpackages) {this.allpackages = allpackages;}
+    public List<Package> getPackageSet() {return this.packageset;}
+    public void setPackageSet(List<Package> packageset) {this.packageset = packageset;}
 
     public List<PrimitiveType> getPrimitiveTypes() {return this.primitivetypes;}
     public void setPrimitiveTypes(List<PrimitiveType> primitivetypes) {this.primitivetypes = primitivetypes;}

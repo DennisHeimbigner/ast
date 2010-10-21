@@ -71,7 +71,7 @@ static List<AST.Type> findtypebyname(String typename, AST.Root root)
         if(typename.equals(pt.getName())) {matches.add(pt); return matches;}
         
     // Find all names that match and pull out those that are types
-    List<AST> allmatches = findbyname(typename,root.getAllNodes());
+    List<AST> allmatches = findbyname(typename,root.getNodeSet());
     for(AST ast : allmatches) {
 	if(ast instanceof AST.Type) matches.add((AST.Type)ast);
     }
@@ -140,6 +140,5 @@ static String computequalifiedname(AST node)
 
     return qualname;
 }
-
 } // class Util
 

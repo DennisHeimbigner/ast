@@ -37,11 +37,27 @@ import java.util.*;
 
 public class Debug
 {
+    static class PrintProps {
+        int stdindent = 2;
+        boolean presemantic = false;
+        boolean qualified = true;
+	boolean useuid = false;
+    };
+
+    static PrintProps printprops = new PrintProps();
+
+    static void resetprintprops() {setprintprops(null);}
+
+    static void setprintprops(PrintProps newprops)
+    {
+	Debug.printprops = (newprops == null? new PrintProps() : newprops);
+    }
+
+    // Non print properties
     static int debuglevel = 0;
     static void setLevel(int level) {Debug.debuglevel = level;}
     static int getLevel() {return Debug.debuglevel;}
     
-    static int stdindent = 2;
 
 
 /**
@@ -50,30 +66,22 @@ public class Debug
  * Result is not quite same as original imput.
  */
 
-
 static public void print(AST.Root root, PrintWriter writer)
 {
-    print(root,writer,false);
-}
-
-static public void print(AST.Root root, PrintWriter writer, boolean qualified)
-{
-    for(AST.File f: root.getAllFiles()) {
-        printR(f,0,writer,qualified);
+    for(AST.File f: root.getFileSet()) {
+        printR(f,0,writer);
     }
-    for(AST.Package p: root.getAllPackages()) {
-        printR(p,0,writer,qualified);
+    for(AST.Package p: root.getPackageSet()) {
+        printR(p,0,writer);
     }
 }
 
-static void printR(AST node, int depth,
-			 PrintWriter writer,
-			 boolean qualified)
+static void printR(AST node, int depth, PrintWriter writer)
 {
     String typename;
     String name;
 
-    name = namefor(node,qualified);
+    name = qualnamefor(node);
     switch (node.sort) {
     case FILE:
 	AST.File astfile = (AST.File)node;
@@ -84,28 +92,28 @@ static void printR(AST node, int depth,
     case PACKAGE:
 	AST.Package astpackage = (AST.Package)node;
 	writer.printf("%spackage %s;\n",indent(depth),name);
-	for(AST subnode : astpackage.getChildren()) 
-	    printR(subnode,depth,writer,qualified);
+	for(AST subnode : astpackage.getChildSet()) 
+	    printR(subnode,depth,writer);
 	break;
     case MESSAGE:
 	AST.Message astmessage = (AST.Message)node;
 	writer.printf("%smessage %s {\n",indent(depth),name);
-	for(AST subnode : astmessage.children)
-	    printR(subnode,depth+1,writer,qualified);
+	for(AST subnode : astmessage.getChildSet())
+	    printR(subnode,depth+1,writer);
 	writer.printf("%s}\n",indent(depth));
 	break;
     case SERVICE:
 	AST.Service astservice = (AST.Service)node;
 	writer.printf("%sservice %s {\n",indent(depth),name);
-	for(AST subnode : astservice.children) 
-	    printR(subnode,depth+1,writer,qualified);
+	for(AST subnode : astservice.getChildSet()) 
+	    printR(subnode,depth+1,writer);
 	writer.printf("%s}\n",indent(depth));
 	break;
     case ENUM:
 	AST.Enum astenum = (AST.Enum)node;
 	writer.printf("%senum %s {\n",indent(depth),name);
 	for(int i=0;i<astenum.enumfields.size();i++)
-	    printR(astenum.enumfields.get(i),depth+1,writer,qualified);
+	    printR(astenum.enumfields.get(i),depth+1,writer);
 	writer.printf("%s}\n",indent(depth));
 	break;
     case ENUMFIELD:
@@ -116,7 +124,7 @@ static void printR(AST node, int depth,
 	AST.Extend astextend = (AST.Extend)node;
 	writer.printf("%sextend %s {\n",indent(depth),name);
 	for(AST subnode : astextend.fields) 
-	    printR(subnode,depth+1,writer,qualified);
+	    printR(subnode,depth+1,writer);
 	writer.printf("%s}\n",indent(depth));
 	break;
     case EXTENSIONS:
@@ -130,7 +138,7 @@ static void printR(AST node, int depth,
 	break;
     case FIELD:
 	AST.Field astfield = (AST.Field)node;
-	typename = namefor(astfield.fieldtype,qualified);
+	typename = qualnamefor(astfield.fieldtype);
 	writer.printf("%s%s %s %s = %d",indent(depth),
 		      astfield.cardinality.getName(),typename,name,astfield.id);
 	// Special case handling
@@ -154,8 +162,8 @@ static void printR(AST node, int depth,
 	break;
     case RPC:
 	AST.Rpc astrpc = (AST.Rpc)node;
-	String argtype = namefor(astrpc.argtype,qualified);
-	String returntype = namefor(astrpc.returntype,qualified);
+	String argtype = qualnamefor(astrpc.argtype);
+	String returntype = qualnamefor(astrpc.returntype);
 	writer.printf("%srpc %s (%s) returns (%s);\n",indent(depth),name,argtype,returntype);
 	break;
     default: // ignore
@@ -174,30 +182,20 @@ private static void printSimpleOption(String name, AST.Option option, PrintWrite
 }
 
 
-private static String namefor(AST node)
+// Print an indented tree representation of the AST Tree.
+// 2 methods.
+
+// Method 1: print all nodes non-recursively
+static public void printTreeNodes(AST.Root root, PrintWriter writer)
 {
-    return namefor(node,false);
+    for(AST ast: root.getNodeSet())  {
+	printTreeNode(ast,-1,writer); // use same level for all
+        writer.flush();
+    }
+    writer.flush();
 }
 
-private static String namefor(AST node, boolean qualified)
-{
-    if(node == null) return null;
-    if(qualified)
-        return node.qualifiedname;
-    return node.name;
-}    
-
-private static String indent(int depth)
-{
-    String indentation = "";
-    depth *= stdindent;
-    while(depth-- > 0) indentation += " ";
-    return indentation;
-}
-
-
-// Print an indented tree representation of the AST Tree
-
+// Method 2: print all nodes recursively
 static public void printTree(AST.Root root, PrintWriter writer)
 {
     printTree(root,writer,false);
@@ -209,49 +207,165 @@ static public void printTree(AST.Root root, PrintWriter writer, boolean preseman
     writer.flush();
 }
 
+
 static void printTreeR(AST node, int depth,
 			 PrintWriter writer,
                          boolean presemantic)
 {
+    printTreeNode(node,depth,writer);
+    // Recurse to dump children
+    if(presemantic) {
+        if(node.getChildSet() != null) {
+	    for(AST subnode : node.getChildSet())
+	        printTreeR(subnode,depth+1,writer,presemantic);
+        }
+    } else {// Dump per-package
+        switch (node.sort) {
+        case ROOT:
+            AST.Root root = (AST.Root)node;
+            if(root.getPackageSet() != null) {
+                for(AST subnode : root.getPackageSet())
+                    printTreeR(subnode,depth+1,writer,presemantic);
+            } break;
+        case PACKAGE:
+            AST.Package p = (AST.Package)node;
+            if(p.getOptions() != null) {
+                for(AST subnode : p.getOptions())
+                    printTreeR(subnode,depth+1,writer,presemantic);
+            }
+            if(p.getEnums() != null) {
+                for(AST subnode : p.getEnums())
+                    printTreeR(subnode,depth+1,writer,presemantic);
+            }
+            if(p.getMessages() != null) {
+                for(AST subnode : p.getMessages())
+                    printTreeR(subnode,depth+1,writer,presemantic);
+            }
+            if(p.getExtenders() != null) {
+                for(AST subnode : p.getExtenders())
+                    printTreeR(subnode,depth+1,writer,presemantic);
+            }
+            if(p.getServices() != null) {
+                for(AST subnode : p.getServices())
+                    printTreeR(subnode,depth+1,writer,presemantic);
+            }
+            break;
+        case MESSAGE:
+            AST.Message m = (AST.Message)node;
+            if(m.getOptions() != null) {
+                for(AST subnode : m.getOptions())
+                    printTreeR(subnode,depth+1,writer,presemantic);
+            }
+            if(m.getEnums() != null) {
+                for(AST subnode : m.getEnums())
+                    printTreeR(subnode,depth+1,writer,presemantic);
+            }
+            if(m.getFields() != null) {
+                for(AST subnode : m.getFields())
+                    printTreeR(subnode,depth+1,writer,presemantic);
+            }
+            if(m.getExtensions() != null) {
+                for(AST subnode : m.getExtensions())
+                    printTreeR(subnode,depth+1,writer,presemantic);
+            }
+            if(m.getMessages() != null) {
+                for(AST subnode : m.getMessages())
+                    printTreeR(subnode,depth+1,writer,presemantic);
+            }
+            if(m.getExtenders() != null) {
+                for(AST subnode : m.getExtenders())
+                    printTreeR(subnode,depth+1,writer,presemantic);
+            }
+            break;
+        case SERVICE:
+            AST.Service svc = (AST.Service)node;
+            if(svc.getOptions() != null) {
+                for(AST subnode : svc.getOptions())
+                    printTreeR(subnode,depth+1,writer,presemantic);
+            }
+            if(svc.getRpcs() != null) {
+                for(AST subnode : svc.getRpcs())
+                    printTreeR(subnode,depth+1,writer,presemantic);
+            }
+            break;
+        case ENUM:
+            AST.Enum e = (AST.Enum)node;
+              if(e.getEnumFields() != null) {
+                for(AST subnode : e.getEnumFields())
+                    printTreeR(subnode,depth+1,writer,presemantic);
+            }
+            break;
+        case EXTEND:
+            AST.Extend extender = (AST.Extend)node;
+              if(extender.getFields() != null) {
+                for(AST subnode : extender.getFields())
+                    printTreeR(subnode,depth+1,writer,presemantic);
+            }
+            break;
+        case FIELD:
+              AST.Field field = (AST.Field)node;
+              if(field.getOptions() != null) {
+                for(AST subnode : field.getOptions())
+                    printTreeR(subnode,depth+1,writer,presemantic);
+            }
+            break;
+        case RPC:
+        // No children
+        case FILE:
+        case ENUMFIELD:
+        case OPTION:
+        case PRIMITIVETYPE:
+            break;
+        }
+    
+    }
+    
+}
+    
+// Print a single tree node
+static void printTreeNode(AST node, int depth,PrintWriter writer)
+{
     String typename;
     String name;
+    String qname;
 
-    writer.printf("[%s][%d] %s%s ",depth,node.index,indent(depth),node.sort.getName());
+    if(depth >= 0) writer.printf("[%s]",depth);
+    writer.printf("[%d] %s%s",node.index,indent(depth),node.sort.getName());
+    qname = qualnamefor(node);
     name = namefor(node);
-    if(name != null) writer.print("name="+name);
-    name = namefor(node,true);
-    if(name != null) writer.print(" qualifiedname="+name);
+    writer.printf(" name=|%s|",name);
+    writer.printf(" qualifiedname=|%s|",qname);
     // print container, file, package pointers
     if(node.getParent() != null) {
-	name = namefor(node.getParent());
-	if(name != null) writer.print(" parent="+name);
+	qname = qualnamefor(node.getParent());
+	writer.printf(" parent=|%s|",qname);
     }
     if(node.getSrcFile() != null) {
-	name = namefor(node.getSrcFile());
-	if(name != null) writer.print(" file="+name);
+	qname = qualnamefor(node.getSrcFile());
+	writer.printf(" file=|%s|",qname);
     }
     if(node.getPackage() != null) {
-	name = namefor(node.getPackage());
-	if(name != null) writer.print(" package="+name);
+	qname = qualnamefor(node.getPackage());
+	writer.printf(" package=|%s|",qname);
     }
 
     // switch to print any additional parameters
     switch (node.sort) {
     case ROOT:
         AST.Root root = (AST.Root)node;
-        writer.print(" rootfile="+root.getRootFile().getName());
+        writer.printf(" rootfile=|%s|",root.getRootFile().getName());
         break;
     case FILE:
         AST.File f = (AST.File)node;
         if(f.getFilePackage() != null)
-            writer.print(" filepackage="+f.getFilePackage().getName());
+            writer.printf(" filepackage=|%s|",f.getFilePackage().getName());
         break;
     case FIELD:
 	AST.Field astfield = (AST.Field)node;
-	if(presemantic)
+	if(astfield.getAnnotation() != null)
             typename = (String)astfield.getAnnotation();
         else
-            typename = namefor(astfield.fieldtype);
+            typename = qualnamefor(astfield.fieldtype);
 	writer.printf(" cardinality=%s type=%s id=%d",
 		      astfield.cardinality.getName(),
 		      typename,astfield.id);
@@ -269,137 +383,56 @@ static void printTreeR(AST node, int depth,
 	break;
     case OPTION: // Option statement
 	AST.Option astoption = (AST.Option)node;
-        writer.printf(" value=%s ",astoption.getValue());
+        writer.printf(" value=|%s| ",astoption.getValue());
 	writer.println(";");
 	break;
     case RPC:
 	AST.Rpc astrpc = (AST.Rpc)node;
         String argtype;
         String returntype;
-        if(presemantic) {
+        if(astrpc.getAnnotation() != null) {
 	    argtype = ((String[])astrpc.getAnnotation())[0];
 	    returntype = ((String[])astrpc.getAnnotation())[1];
 	} else {
             argtype = astrpc.argtype.getQualifiedName();
             returntype = astrpc.returntype.getQualifiedName();
 	}
-	writer.printf(" argtype=%s returntype=%s", argtype, returntype);
+	writer.printf(" argtype=|%s| returntype=|%s|", argtype, returntype);
 	break;
     default: // ignore
 	break;
     }
     writer.println();
+}
+    
 
-    // Recurse to dump children
-    if(presemantic) {
-        if(node.getChildren() != null) {
-	    for(AST subnode : node.getChildren())
-	        printTreeR(subnode,depth+1,writer,presemantic);
-        }
-    } else {// Dump under the packages, not the files
-    switch (node.sort) {
-    case ROOT:
-        AST.Root root = (AST.Root)node;
-        if(root.getAllPackages() != null) {
-            for(AST subnode : root.getAllPackages())
-                printTreeR(subnode,depth+1,writer,presemantic);
-        } break;
-    case PACKAGE:
-	AST.Package p = (AST.Package)node;
-        if(p.getOptions() != null) {
-            for(AST subnode : p.getOptions())
-                printTreeR(subnode,depth+1,writer,presemantic);
-        }
-        if(p.getEnums() != null) {
-            for(AST subnode : p.getEnums())
-                printTreeR(subnode,depth+1,writer,presemantic);
-        }
-        if(p.getMessages() != null) {
-            for(AST subnode : p.getMessages())
-                printTreeR(subnode,depth+1,writer,presemantic);
-        }
-        if(p.getExtenders() != null) {
-            for(AST subnode : p.getExtenders())
-                printTreeR(subnode,depth+1,writer,presemantic);
-        }
-        if(p.getServices() != null) {
-            for(AST subnode : p.getServices())
-                printTreeR(subnode,depth+1,writer,presemantic);
-        }
-        break;
-    case MESSAGE:
-        AST.Message m = (AST.Message)node;
-        if(m.getOptions() != null) {
-	    for(AST subnode : m.getOptions())
-	        printTreeR(subnode,depth+1,writer,presemantic);
-        }
-        if(m.getEnums() != null) {
-	    for(AST subnode : m.getEnums())
-	        printTreeR(subnode,depth+1,writer,presemantic);
-        }
-        if(m.getFields() != null) {
-	    for(AST subnode : m.getFields())
-	        printTreeR(subnode,depth+1,writer,presemantic);
-        }
-        if(m.getExtensions() != null) {
-	    for(AST subnode : m.getExtensions())
-	        printTreeR(subnode,depth+1,writer,presemantic);
-        }
-        if(m.getMessages() != null) {
-	    for(AST subnode : m.getMessages())
-	        printTreeR(subnode,depth+1,writer,presemantic);
-        }
-        if(m.getExtenders() != null) {
-	    for(AST subnode : m.getExtenders())
-	        printTreeR(subnode,depth+1,writer,presemantic);
-        }
-        break;
-    case SERVICE:
-        AST.Service svc = (AST.Service)node;
-        if(svc.getOptions() != null) {
-	    for(AST subnode : svc.getOptions())
-	        printTreeR(subnode,depth+1,writer,presemantic);
-        }
-        if(svc.getRpcs() != null) {
-	    for(AST subnode : svc.getRpcs())
-	        printTreeR(subnode,depth+1,writer,presemantic);
-        }
-        break;
-    case ENUM:
-        AST.Enum e = (AST.Enum)node;
-          if(e.getEnumFields() != null) {
-	    for(AST subnode : e.getEnumFields())
-	        printTreeR(subnode,depth+1,writer,presemantic);
-        }
-        break;
-    case EXTEND:
-        AST.Extend extender = (AST.Extend)node;
-          if(extender.getFields() != null) {
-	    for(AST subnode : extender.getFields())
-	        printTreeR(subnode,depth+1,writer,presemantic);
-        }
-        break;
-    case FIELD:
-          AST.Field field = (AST.Field)node;
-          if(field.getOptions() != null) {
-	    for(AST subnode : field.getOptions())
-	        printTreeR(subnode,depth+1,writer,presemantic);
-        }
-        break;
-    case RPC:
-    // No children
-    case FILE:
-    case ENUMFIELD:
-    case OPTION:
-    case PRIMITIVETYPE:
-        break;
-    }
-
-    }
-
+private static String indent(int depth)
+{
+    String indentation = "";
+    depth *= printprops.stdindent;
+    while(depth-- > 0) indentation += " ";
+    return indentation;
 }
 
+private static String namefor(AST node)
+{
+    if(node == null) return null;
+    if(printprops.useuid)
+	return String.format("[%d]",node.getId());
+    if(node.name != null)
+        return node.name;
+    return String.format("[?%d]",node.getId());
+}    
 
-
+private static String qualnamefor(AST node)
+{
+    if(node == null) return null;
+    if(!printprops.useuid
+       && printprops.qualified
+       && node.qualifiedname != null)
+        return node.qualifiedname;
+    return namefor(node);
+}    
 } // class Debug
-
+    
+    
