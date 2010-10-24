@@ -181,6 +181,11 @@ abstract public class AST
     public Object getAnnotation() {return annotation;}
     public void setAnnotation(Object annotation) {this.annotation = annotation;}
 
+    public String toString() {
+        if(getQualifiedName() != null) return getQualifiedName();
+        if(getName() != null) return getName();
+        return super.toString();
+    }
 
 // Convenience grouping class
 static public class Type extends AST 

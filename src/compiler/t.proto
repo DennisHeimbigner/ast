@@ -1,5 +1,2 @@
-import "t2.proto";
-message m1 {
-required int32 field1 = 1;
-}
+option x = 1;
 

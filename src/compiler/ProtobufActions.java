@@ -53,7 +53,7 @@ reset(String filename, Reader stream)
 {
     this.filename = filename;
     lexstate.reset(state);
-    lexstate.setStream(stream);
+    lexstate.setStream(filename,stream);
 }
 
 
@@ -61,6 +61,11 @@ reset(String filename, Reader stream)
 // Get/set
 
 public AST.Root getAST() {return ast;}
+
+public List<String> getIncludePaths() {return (lexstate==null?null:lexstate.includepaths);}
+
+public void setIncludePaths(List<String> paths)
+    {if(lexstate != null) lexstate.includepaths = paths;}
 
 //////////////////////////////////////////////////
 // Access into the DapParser for otherwise inaccessible fiels
@@ -84,6 +89,14 @@ protobufroot(Object file0)
     this.ast.getChildSet().add(file);
     // Place the set of primitive type nodes in the root
     this.ast.setPrimitiveTypes(primitives);
+
+    // Create, if necessary, a pseudo-package for root file
+    if(file.getFilePackage() == null) {
+        AST.Package  p = astfactory.newPackage(null);
+        p.setPosition(position());
+	file.getChildSet().add(0,p);
+	file.setFilePackage(p);
+    }
     // If the file's package has no name, then make it
     // have basename of the file (i.e. without any trailing extension).
     // If the file name has no extension, add .proto to the package name
@@ -95,30 +108,30 @@ protobufroot(Object file0)
 	} else {
 	    basename = filename.substring(0,index);
 	}
-        file.getFilePackage().setName(basename);
+        // Escape the resulting name to convert dots to underscores
+        file.getFilePackage().setName(Util.escapedname(basename));
     }
 }
 
-
 Object
-protobuffile(Object options0, Object imports0, Object package0, Object decllist0)
+protobuffile(Object decllist0)
 {
-    AST.Package p;
     AST.File f = astfactory.newFile(null);
-    // If there is no package, then create a fake one
-    if(package0 == null) {
-        p = astfactory.newPackage(null);
-        p.setPosition(position());
-    } else
-	p = (AST.Package)package0;
-    // Save the package reference
-    f.setFilePackage(p);
-    // concat for now; divide later
-    f.getChildSet().add(p);
-    f.getChildSet().addAll((List<AST>)options0);
-    f.getChildSet().addAll((List<AST>)imports0);
     f.getChildSet().addAll((List<AST>)decllist0);
     f.setPosition(position());
+    AST.Package p = null;
+    // See if the file has a package declaration (must be top level)
+    // If so, then capture it and move to be first element in the decllist
+    for(AST ast: f.getChildSet()) {
+	if(ast.getSort() == AST.Sort.PACKAGE && p == null) {// First found is chosen package
+	    p = (AST.Package)ast;
+	}
+    }
+    if(p != null) { // move package to the front of the decl list
+        f.getChildSet().remove(p);
+	f.getChildSet().add(0,p);
+    }
+    f.setFilePackage(p);
     return f;
 }
 

@@ -34,6 +34,8 @@ package unidata.protobuf.compiler;
 
 import java.io.*;
 import java.util.Stack;
+import java.util.List;
+import java.util.ArrayList;
 	
 import unidata.protobuf.compiler.AST.Position;
 import static unidata.protobuf.compiler.ProtobufParser.*;
@@ -51,7 +53,9 @@ class ProtobufLexer implements Lexer
     /* Number characters, but see below for handling leading '.' */
     static final String numchars1 = ".+-0123456789";
     static final String numcharsn = ".+-0123456789Ee";
-
+    // Following are used for hex and octal integers only
+    static final String hexcharsn = "0123456789abcdefABCDEF";
+    static final String octcharsn = "01234567";
 
     static String[] keywords = new String[]{
 	"import",
@@ -128,6 +132,7 @@ class ProtobufLexer implements Lexer
     // structure for file stack
     static class FileEntry
     {
+	String filename;
 	Reader stream;
 	int lineno;
 	int charno;
@@ -137,6 +142,7 @@ class ProtobufLexer implements Lexer
     /* Per-lexer state */
 
     ProtobufActions parsestate = null;
+    String filename = null;
     Reader stream = null;
     StringBuilder input = null;
     StringBuilder yytext = null;
@@ -148,6 +154,7 @@ class ProtobufLexer implements Lexer
     StringBuilder lookahead = null;
     Stack<FileEntry> filestack = null;
     boolean eof2 = false;
+    List<String> includepaths = null;
 
     /**
      * *********************************************
@@ -174,8 +181,12 @@ class ProtobufLexer implements Lexer
 
 
     /* Get/Set */
-    
-    void setStream(Reader stream) {this.stream = stream;}
+
+    public void setStream(String filename, Reader stream)
+    {
+	this.filename = filename;
+	this.stream = stream;
+    }
 
     int
     peek() throws IOException
@@ -285,27 +296,17 @@ class ProtobufLexer implements Lexer
                 }
                 token = STRINGCONST;
             } else if(numchars1.indexOf(c) >= 0) {
-                /* we might have a number: Float or INTCONST*/
-                boolean isnumber;
-                int numberkind;
-                yytext.append((char) c);
-                while ((c = read()) > 0) {
-                    if(numcharsn.indexOf(c) < 0) {
-                        pushback(c);
-                        break;
-                    }
-                    yytext.append((char) c);
-                }
-                /* See if this is a number, and if so, what kind */
-                isnumber = true; numberkind = FLOATCONST;
-                try {
-                    Double number = new Double(yytext.toString());
-                } catch (NumberFormatException nfe) {isnumber=false;}
-                try {
-                    Long number = new Long(yytext.toString());
-                    numberkind = INTCONST;
-                } catch (NumberFormatException nfe) {numberkind = FLOATCONST;}
-                token = (isnumber?numberkind:NAME);
+		// Special check for single char "+-."
+		int cp = peek();
+		if("+-.".indexOf(c) >= 0 && numcharsn.indexOf(c) < 0) {
+		    // single char sign token
+		    yytext.append((char)c);
+		    token = c;
+		} else {		
+                    // probably a number
+                    token = parsenumber(c);
+		    if(token == 0) token = NAME; // Name, not a number
+		}
             } else if(wordchars1.indexOf(c) >= 0) {
                 /* we have a NAME */
                 yytext.append((char) c);
@@ -347,6 +348,51 @@ class ProtobufLexer implements Lexer
         // Capture end pos
         endpos = new Position(lineno,charno);
         return token;       /* Return the type of the token.  */
+    }
+
+    int
+    parsenumber(int c) throws IOException
+    {
+	int radix = 10;
+        if(c == '0') {// Hex or octal integer
+            yytext.append((char) c);
+            int c1 = read();
+            if(c1 == 'x' || c1 == 'X') {
+	        int c2 = peek();
+		if(hexcharsn.indexOf(c2) >= 0) radix = 16;
+		else pushback(c1); // encountered 0x... that is 0 followed by a name
+            } else if(octcharsn.indexOf(c) >= 0) radix = 8;
+            else radix = 10;
+        }  else
+            yytext.append((char) c);
+        boolean more = true;
+        while(more) {
+            c = read();
+            if(radix == 16) more = (hexcharsn.indexOf(c) >= 0);
+            else if(radix == 8) more = (octcharsn.indexOf(c) >= 0);
+            else if(radix == 10) more = (numcharsn.indexOf(c) >= 0);
+            else more = false;
+            if(more) yytext.append((char)c);
+        }
+        pushback(c); 
+	int numberkind = 0;
+        if(radix == 10) { // decimal int constant or float constant
+            // Should be either a decimal integer or decimal float 
+            try {
+		long number = Long.parseLong(yytext.toString());
+                numberkind = INTCONST;
+            } catch (NumberFormatException nfe) {};
+            if(numberkind == 0) try {
+                double number = Double.parseDouble(yytext.toString());
+		numberkind = FLOATCONST;
+            } catch (NumberFormatException nfe) {};
+        } else {// radix == 16 || radix == 8
+            try {
+                long number = Long.parseLong(yytext.toString(),radix);
+                numberkind = INTCONST;
+            } catch (NumberFormatException nfe) {}
+	}
+	return numberkind;
     }
 
     void
@@ -431,10 +477,12 @@ class ProtobufLexer implements Lexer
     public boolean pushFileStack(String importfile)
 	throws IOException
     {
+	importfile = Util.locatefile(importfile,includepaths); // use include paths
 	File f = new File(importfile);
 	if(!f.canRead()) return false;
 	FileReader fr = new FileReader(f);
 	FileEntry entry = new FileEntry();
+	entry.filename = filename;
 	entry.stream = stream;
 	entry.lineno = endpos.lineno;
 	entry.charno = endpos.charno;
@@ -444,17 +492,23 @@ class ProtobufLexer implements Lexer
 	endpos.lineno = 1;
         endpos.charno = 1;
         stream = fr;
+        if(parsestate.getDebugLevel() > 0)
+	    System.err.println("Importing file: "+importfile);
 	return true;
     }
+
 
     public boolean popFileStack()
     {
 	if(filestack.empty()) return false;
 	try {stream.close();} catch (IOException ioe) {};
 	FileEntry entry = filestack.pop();
+	filename = entry.filename;
 	stream = entry.stream;
 	startpos.lineno = (endpos.lineno = entry.lineno);
 	startpos.charno = (endpos.charno = entry.charno);
+        if(parsestate.getDebugLevel() > 0)
+	    System.err.println("Return to file: "+filename);
 	return true;
     }
 
@@ -487,7 +541,8 @@ class ProtobufLexer implements Lexer
      */
     public void yyerror(String s)
     {
-	System.err.println(String.format("yyerror %s/%s : %s",lineno,charno,s));
+	System.err.println(String.format("yyerror %s:%s.%s ; %s",
+			   filename,lineno,charno,s));
         if(yytext.length() > 0)
             System.err.print("; near |"+ yytext + "|");
         System.err.println();
@@ -504,8 +559,8 @@ class ProtobufLexer implements Lexer
             }
         } catch (IOException ioe) {
         }
-        ;
-        System.out.printf("Lex error: %s; charno: %d: %s^%s\n", msg, charno, yytext, nextline);
+        System.out.printf("Lex error: %s; at %s:%d.%d; %s |%s|\n",
+			  msg, filename,lineno,charno, yytext, nextline);
     }
 
 }

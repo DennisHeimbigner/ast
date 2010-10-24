@@ -140,5 +140,28 @@ static String computequalifiedname(AST node)
 
     return qualname;
 }
+
+static public String locatefile(String suffix, List<String> includepaths)
+{
+    suffix = suffix.trim();
+    if(suffix.charAt(0) == '/') return suffix;
+    for(int i=0;i<includepaths.size();i++) {
+        String path = includepaths.get(i)+"/"+suffix;
+	File f = new File(path);
+	if(f.canRead()) return path;
+    }
+    // Try raw suffix as last resort
+    File f = new File(suffix);
+    if(f.canRead()) return suffix;
+    return null;
+}
+
+// Replace '.' characters with '_'
+static public String escapedname(String name)
+{
+    return name.replace('.','_');
+}
+
+
 } // class Util
 

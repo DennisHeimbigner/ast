@@ -1,5 +1,5 @@
 
-import jargs.gnu.CmdLineParser;
+import gnu.getopt.Getopt;
 import unidata.protobuf.compiler.*;
 
 import java.util.*;
@@ -11,36 +11,79 @@ public class Main
     static final String DFALTLANGUAGE = "java";
     static final String DFALTPACKAGE = "unidata.protobuf.compiler";
 
-    //static final String testpath="../test/testdata1/";
-    static final String testpath="./";
+    static List<String> includePaths = new ArrayList<String>();
+    static List<String> defines = new ArrayList<String>();
+    static List<String> arglist = new ArrayList<String>();
+    static String optionLanguage = null;
+    static boolean optionVerbose = false;
+    static boolean optionDebug = false;
+    static boolean optionParseDebug = false;
+    static boolean optionTreeDebug = false;
 
     static public void main(String[] argv) throws Exception
     {
-	    CmdLineParser cmdline = new CmdLineParser();
-        CmdLineParser.Option optDebug = cmdline.addBooleanOption('D', "Debug");
-        CmdLineParser.Option optVerbose = cmdline.addBooleanOption('V', "Verbose");
-        CmdLineParser.Option optLanguage = cmdline.addStringOption('l', "language");
-	try {
-	    cmdline.parse(argv);
-        } catch ( CmdLineParser.OptionException e ) {
-	    System.err.println("Illegal cmd line option: "+e);
-	    System.exit(1);
+	int c;
+	Getopt g = new Getopt("Main",argv,"-:D:I:L:X:V",null);
+	while ((c = g.getopt()) != -1) {
+            switch (c) {
+	    case 1: // intermixed non-option
+		arglist.add(g.getOptarg());
+		break;		
+	    case 'D':
+		String def = g.getOptarg();
+		if(def.length() > 0) defines.add(def);
+		break;	
+	    case 'I':
+		String path = g.getOptarg();
+		if(path.length() > 0) includePaths.add(path);
+		break;	
+	    case 'L':
+		String optionLanguage = g.getOptarg();
+		break;
+	    case 'X':
+		String xvalue = g.getOptarg();
+		for(char x: xvalue.toCharArray()) {
+		    switch (x) {
+		    case 'd': optionDebug = true; break;
+		    case 'p': optionParseDebug = true; break;
+		    case 't': optionTreeDebug = true; break;
+		    default: break;
+		    }
+		}
+		break;
+	    case 'V':
+		optionVerbose = true;		
+		break;
+	    case ':':
+	        System.err.println("Command line option requires argument "+g.getOptopt());
+	        System.exit(1);
+	    case '?':
+	        System.err.println("Illegal cmd line option: "+g.getOptopt());
+	        System.exit(1);
+	    default:
+	        System.err.println("Unexpected getopt tag: "+c);
+	        System.exit(1);
+	    }
         }
-        Boolean debugValue = (Boolean)cmdline.getOptionValue(optDebug);
-	if(debugValue == null) debugValue = Boolean.FALSE;
-        String languageValue = (String)cmdline.getOptionValue(optLanguage);
-	if(languageValue == null) languageValue = DFALTLANGUAGE;
+	if(optionLanguage == null) optionLanguage = DFALTLANGUAGE;
 	// Canonicalize the language name: all lower case except first character
-	languageValue = languageValue.substring(0,1).toUpperCase() + languageValue.substring(1).toLowerCase();
+	optionLanguage = optionLanguage.substring(0,1).toUpperCase()
+                         + optionLanguage.substring(1).toLowerCase();
 
-        String[] arglist = cmdline.getRemainingArgs();
-
-	if(arglist.length == 0) {
+	if(arglist.size() == 0) {
 	    System.err.println("No input file specified");
 	    System.exit(1);
 	}
 
-	File inputfile = new File(testpath + arglist[0]);
+	String rawfilename = arglist.get(0);
+	String escapedfilename = Util.escapedname(rawfilename);
+	String inputfilename = Util.locatefile(rawfilename,includePaths);
+
+	if(inputfilename == null) {
+	    System.err.println("Cannot locate input file: "+rawfilename);
+	    System.exit(1);
+	}
+	File inputfile = new File(inputfilename);
 	if(!inputfile.canRead()) {
 	    System.err.println("Cannot read input file: "+inputfile.toString());
 	    System.exit(1);
@@ -48,15 +91,17 @@ public class Main
 	FileReader rdr = new FileReader(inputfile);
 
         ProtobufParser parser = new ProtobufParser();
-	if(debugValue) parser.setDebugLevel(1);
+	parser.setIncludePaths(includePaths);
+	if(optionParseDebug) parser.setDebugLevel(1);
 
-	boolean pass = parser.parse(arglist[0],rdr);
+	boolean pass = parser.parse(rawfilename,rdr);
 	if(!pass) {
 	    System.err.println("Parse failed");
 	    System.exit(1);
 	}
 
 	// Semantic Processing
+	if(optionTreeDebug) Semantics.debug = true;
 	Semantics sem = new Semantics();
 	pass = sem.process(parser.getAST());
 	if(!pass) {
@@ -65,12 +110,12 @@ public class Main
 	}
 
 	// Try to locate the language specific Generator using reflection
-	String generatorclassname = DFALTPACKAGE + "."+languageValue;
+	String generatorclassname = DFALTPACKAGE + "."+optionLanguage;
         ClassLoader classLoader = Main.class.getClassLoader();
         try {
             Class generatorclass = Class.forName(generatorclassname);
 	    Generator generator = (Generator)generatorclass.newInstance();
-	    generator.generate(arglist,parser.getAST());
+	    generator.generate(arglist.toArray(new String[arglist.size()]),parser.getAST());
         } catch (ClassNotFoundException e) {
 	    System.err.println("Generator class not found: "+generatorclassname);
 	    System.exit(1);

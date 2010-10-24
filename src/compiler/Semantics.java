@@ -39,7 +39,7 @@ import java.io.*;
 public class Semantics
 {
 
-static boolean debug = false;
+static public boolean debug = false;
 
 //////////////////////////////////////////////////
 // Constructor
@@ -57,7 +57,12 @@ public boolean process(AST.Root root)
         w.println("\ncollectnodes:");
         Debug.printTreeNodes(root,w);        
     }
-    if(!setcontainers(root,null,null)) return false;
+    if(!setfilelink(root,null)) return false;
+    if(debug) {
+        w.println("\nsetcontainers:");
+	Debug.printTreeNodes(root,w);
+    }
+    if(!setpackagelink(root,null)) return false;
     if(debug) {
         w.println("\nsetcontainers:");
 	Debug.printTreeNodes(root,w);
@@ -134,7 +139,7 @@ void verify(AST.Root root)
  * @return true if the processing succeeded.
 */
 
-static boolean
+boolean
 collectnodes(AST node, AST.Root root)
 {
     if(node == null) return true;
@@ -164,51 +169,80 @@ collectnodes(AST node, AST.Root root)
 
 /**
  * Pass does the following:
- * - Link subnodes to src file and to package
- * - Link package and file
+ * - Link subnodes to src file
+ * - Verify that each file has at most one package 
  *
  * @param node The current node being walked
  * @param currentfile The currently enclosing file
+ * @return true if the processing succeeded.
+*/
+
+boolean
+setfilelink(AST node, AST.File currentfile)
+{
+    node.setSrcFile(currentfile);
+    switch (node.getSort()) {
+    case FILE:
+	AST.File f = (AST.File)node;
+	// Check the child set for multiple packages
+	if(f.getChildSet() != null) {
+	    AST p = null;
+	    for(AST ast: f.getChildSet()) {
+		if(ast.getSort() == AST.Sort.PACKAGE) {
+		    if(p != null) {
+                        semerror(f,"File: "+f.getName()+"; multiple package declarations");
+		    }
+		    p = ast;
+		}
+	    }
+	}
+	f.setSrcFile(currentfile); 
+        currentfile = f; // Make this the current file
+	break;
+    default: break;
+    }
+
+    // Recurse on child set 
+    if(node.getChildSet() != null) {
+        // Recurse on child set
+        for(AST subnode: node.getChildSet()) {
+            if(!setfilelink(subnode,currentfile)) return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * Pass does the following:
+ * - Link subnodes to package
+ * - Link package and file
+ *
+ * @param node The current node being walked
  * @param currentpackage The currently enclosing package
  * @return true if the processing succeeded.
 */
 
-static boolean
-setcontainers(AST node, AST.File currentfile, AST.Package currentpackage)
+boolean
+setpackagelink(AST node, AST.Package currentpackage)
 {
-    node.setSrcFile(currentfile);
+    AST.Root root = node.getRoot();
     node.setPackage(currentpackage);
     if(node.getSort() == AST.Sort.FILE) {
-	AST.Package p = null;
 	AST.File f = (AST.File)node;
-	// The file's package decl, if any, should be the first
-	// element in the child set.
-	if(f.getChildSet().size() > 0) {
-  	    AST pp = f.getChildSet().get(0);
-	    if(pp.getSort() == AST.Sort.PACKAGE) {
-		p = (AST.Package)pp;
-		f.getChildSet().remove(0); // remove package as file's child
-	    }
-	}
+	AST.Package p = f.getFilePackage();
 	// Set the linkages properly for the file and its package
 	if(p != null) {
-	    p.setSrcFile(currentfile);
 	    p.setPackage(currentpackage);
             currentpackage = p; // Make this the current package
 	    // Cross link file and the package
 	    p.setPackageFile(f);
-	    f.setFilePackage(p);
-        }
-	f.setPackage(currentpackage);
-	f.setSrcFile(currentfile); 
-        currentfile = f; // Make this the current file
+	}
     }
-
-    // Recurse on child set, except the package , if any
+    // Recurse on child set
     if(node.getChildSet() != null) {
         // Recurse on child set
         for(AST subnode: node.getChildSet()) {
-            if(!setcontainers(subnode,currentfile,currentpackage)) return false;
+            if(!setpackagelink(subnode,currentpackage)) return false;
         }
     }
     return true;
@@ -217,7 +251,7 @@ setcontainers(AST node, AST.File currentfile, AST.Package currentpackage)
 /**
  * Pass does the following:
  * - move packages to be the children of the root
- * - move file children to be children of the package
+ * - move file children to be children of the file's package
  *
  * @param root The AST tree root
  * @return true if the processing succeeded.
@@ -241,7 +275,9 @@ groupbypackage(AST.Root root)
     // Make each file's children to be children of the containing package
     for(AST.File file: root.getFileSet()) {
 	AST.Package p = file.getPackage();
+        if(p == null) continue;
 	for(AST fnode: file.getChildSet()) {
+	    if(p.getChildSet() == null) p.setChildSet(new ArrayList<AST>());
 	    p.getChildSet().add(fnode);
 	    fnode.setParent(p);
 	}

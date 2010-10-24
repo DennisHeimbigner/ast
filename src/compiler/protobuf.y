@@ -38,8 +38,6 @@ import unidata.protobuf.compiler.AST.Position;
     public boolean parse(String filename, Reader stream) throws IOException
     {
 	reset(filename,stream);
-        //((ProtobufLexer)yylexer).reset(state);
-        //((ProtobufLexer)yylexer).setStream(stream);
         return parse();
     }
 
@@ -276,7 +274,7 @@ type:
 
 // user types are simple non-dotted names
 usertype: 
-	name {$$=$1;}	
+	symbol {$$=$1;}	
 	;
 
 // Package names can have embedded '.''s
