@@ -40,21 +40,15 @@ import java.io.*;
 public class TestFiles extends TestCase
 {
 
-    static int debug = 0;
+    // path to test directory; assumes we are running in ast/src/test/testdata1
+    static String testpath = ".";
 
-    // path to test directory
-    static String testpath = "src/test";
+    static String xtestpath = ".";
 
-    static String xtestpath = "src/test";
-
-    // Base line test data location relative to root ast directory
-    static String testdata1path = testpath + "/testdata1";
-
-    // Comparison test data location relative to root directory
-    static String expectedpath = testpath + "/testdata1";
+    static String expectedpath = testpath;
 
     // Storage of test case outputs relative to root directory
-    static String resultspath = testpath + "/results";
+    static String resultspath = testpath + "../results";
 
     //////////////////////////////////////////////////
     // Define the test data basenames
@@ -62,7 +56,7 @@ public class TestFiles extends TestCase
 
     // For single file experiments
     static String[] xtestfiles = {
-	//"test"
+	//"plugin"
     };
 
 
@@ -101,13 +95,10 @@ public class TestFiles extends TestCase
     };
 
     //////////////////////////////////////////////////
-    String testdir = null;
 
-    public TestFiles(String name, String testdir)
+    public TestFiles(String name)
     {
         super(name);
-        if (testdir == null) testdir = testdata1path;
-        this.testdir = testdir;
     }
 
 }

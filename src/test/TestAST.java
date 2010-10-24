@@ -52,12 +52,15 @@ public class TestAST extends TestFiles
 
     boolean generate = true;
 
+    String testdir = null;
+    String[] tests = null;
+
     //////////////////////////////////////////////////                           
     // Constructors + etc.
 
     public TestAST(String name)
     {
-        super(name,null);
+        super(name);
     }
 
     protected void setUp()
@@ -68,13 +71,21 @@ public class TestAST extends TestFiles
 
     public void testAST() throws Exception
     {
+        if(xtestfiles.length > 0) {
+	    tests = xtestfiles;
+            testdir= xtestpath;
+	    System.err.println("Using experimental test set");
+	} else {
+	    tests = testfiles;
+            testdir = testpath;
+        }
         if(generate) dogenerate();
         else dotests();
     }
 
     void dotests() throws Exception
     {
-	System.out.println("*** treeTest: Testing Tree output");
+        System.out.println("*** treeTest: Testing Tree output");
 	treeTest();
 	System.out.println("*** astTest: Testing Protobuf output");
 	protobufTest();
@@ -89,14 +100,7 @@ public class TestAST extends TestFiles
 	boolean pass = true;
 	boolean isxfail;
 	int ntests;
-	String[] tests = null;
 
-	if(xtestfiles.length > 0) {
-	    tests = xtestfiles;
-        testdir= xtestpath;
-	    System.err.println("Using experimental test set");
-	} else
-	    tests = testfiles;
         ntests = tests.length;
 
         for(int i = 0; i < ntests && pass; i++) {
@@ -175,12 +179,7 @@ public class TestAST extends TestFiles
 	boolean pass = true;
 	boolean isxfail;
 	int ntests;
-	String[] tests = null;
-
-	if(xtestfiles.length > 0)
-	    tests = xtestfiles;
-	else
-	    tests = testfiles;
+	
         ntests = tests.length;
 
         for(int i = 0; i < ntests && pass; i++) {
@@ -257,15 +256,7 @@ public class TestAST extends TestFiles
         FileWriter content;
         PrintWriter pw;
         int ntests;
-	String[] tests;
 
-	if(xtestfiles.length > 0) {
-	    tests = xtestfiles;
-        testdir= xtestpath;        
-	    System.err.println("Using experimental test set");
-	} else {
-	    tests = testfiles;
-	}
         ntests = tests.length;
 
         for(int i = 0; i < ntests; i++) {
@@ -283,6 +274,7 @@ public class TestAST extends TestFiles
 	    // Capture the pretty print output
             FileReader rdr = new FileReader(file);
 	    ProtobufParser parser = new ProtobufParser();
+            if(debug) parser.setDebugLevel(1);
 	    boolean pass = parser.parse(protopath,rdr);
 	    if(!pass) {System.err.println("Parse Failure: "+protopath); continue;}
 	    pass = new Semantics().process(parser.getAST());
