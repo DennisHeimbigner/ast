@@ -101,7 +101,7 @@ public class Main
 	}
 
 	// Semantic Processing
-	if(optionTreeDebug) Semantics.debug = true;
+	if(optionTreeDebug) Debug.setTag("trace");
 	Semantics sem = new Semantics();
 	pass = sem.process(parser.getAST());
 	if(!pass) {

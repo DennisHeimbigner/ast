@@ -359,6 +359,13 @@ fieldoptionlist(Object list0, Object decl0)
 }
 
 Object
+group(Object cardinality0, Object name0, Object id0, Object msgbody)
+{
+    parseError("Groups not implemented; ignored");
+    return null;
+}
+
+Object
 extensions(Object list0)
 {
     AST.Extensions node = astfactory.newExtensions();
@@ -423,6 +430,8 @@ position()
     return new Position(lexstate.lineno,lexstate.charno);
 }
 
+public void startsymbol() {lexstate.forceidentifier = true;}
+public void endsymbol()   {lexstate.forceidentifier = false;}
 
 void notimplemented(String s)
 {

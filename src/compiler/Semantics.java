@@ -39,8 +39,6 @@ import java.io.*;
 public class Semantics
 {
 
-static public boolean debug = false;
-
 //////////////////////////////////////////////////
 // Constructor
 public Semantics() {}
@@ -53,50 +51,50 @@ public boolean process(AST.Root root)
     Debug.printprops.qualified = true;
     Debug.printprops.useuid = true;
     if(!collectnodes(root,root)) return false;
-    if(debug) {
+    if(Debug.enabled("trace.semantics")) {
         w.println("\ncollectnodes:");
         Debug.printTreeNodes(root,w);        
     }
     if(!setfilelink(root,null)) return false;
-    if(debug) {
+    if(Debug.enabled("trace.semantics")) {
         w.println("\nsetcontainers:");
 	Debug.printTreeNodes(root,w);
     }
     if(!setpackagelink(root,null)) return false;
-    if(debug) {
+    if(Debug.enabled("trace.semantics")) {
         w.println("\nsetcontainers:");
 	Debug.printTreeNodes(root,w);
     }
     if(!groupbypackage(root)) return false;
-    if(debug) {
+    if(Debug.enabled("trace.semantics")) {
         w.println("\ngroupbypackages:");
 	Debug.printTreeNodes(root,w);
     }
     if(!collectpackagenodesets(root)) return false;
-    if(debug) {
+    if(Debug.enabled("trace.semantics")) {
         w.println("\ncollectpackagenodesets:");
 	Debug.printTreeNodes(root,w);
     }
     if(!setnodegroups(root)) return false;
-    if(debug) {
+    if(Debug.enabled("trace.semantics")) {
         w.println("\nsetnodegroups:");
 	Debug.printTreeNodes(root,w);
     }
     if(!qualifynames(root)) return false;
     Debug.printprops.useuid = false;
-    if(debug) {
+    if(Debug.enabled("trace.semantics")) {
         w.println("\nqualifynames:");
 	Debug.printTreeNodes(root,w);
     }
     if(!dereference(root)) return false;
-    if(debug) {
+    if(Debug.enabled("trace.semantics")) {
         w.println("\ndereference:");
 	Debug.printTreeNodes(root,w);
     }
     if(!checkduplicates(root.getNodeSet())) return false;
     Debug.resetprintprops();
     
-    if(debug) {
+    if(Debug.enabled("trace.semantics")) {
         // Print two ways
         System.err.println("-------------------------");
         System.err.println("Tree Format:");

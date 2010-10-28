@@ -46,7 +46,7 @@ public class TestAST extends TestFiles
     static final String TITLE = "AST construction Tests";
 
     //////////////////////////////////////////////////
-    boolean debug = false;
+    boolean debug = true;
 
     boolean qualified = false;
 
@@ -71,6 +71,9 @@ public class TestAST extends TestFiles
 
     public void testAST() throws Exception
     {
+        //Debug.setTag("trace.semantics");
+        Debug.setTag("trace.imports");
+        Debug.setTag("trace.parse");
         if(xtestfiles.length > 0) {
 	    tests = xtestfiles;
             testdir= xtestpath;
@@ -123,7 +126,7 @@ public class TestAST extends TestFiles
 		    }
 		    FileReader rdr = new FileReader(path);
         	    ProtobufParser parser = new ProtobufParser();
-	            if(debug) parser.setDebugLevel(1);
+                    if(Debug.enabled("trace.parse")) parser.setDebugLevel(1);
 	   	    pass = parser.parse(path,rdr);
 		    if(!pass) {
 	    		System.err.println("Parse failed");
@@ -274,7 +277,7 @@ public class TestAST extends TestFiles
 	    // Capture the pretty print output
             FileReader rdr = new FileReader(file);
 	    ProtobufParser parser = new ProtobufParser();
-            if(debug) parser.setDebugLevel(1);
+            if(Debug.enabled("trace.parse")) parser.setDebugLevel(1);
 	    boolean pass = parser.parse(protopath,rdr);
 	    if(!pass) {System.err.println("Parse Failure: "+protopath); continue;}
 	    pass = new Semantics().process(parser.getAST());

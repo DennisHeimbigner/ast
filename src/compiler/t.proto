@@ -1,2 +1,5 @@
-option x = 1;
+message m1 {
+required group x = 1 {required int y=2;};
+};
+
 

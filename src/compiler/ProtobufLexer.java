@@ -74,6 +74,7 @@ class ProtobufLexer implements Lexer
 	"required",
 	"optional",
 	"repeated",
+	"group",
 	"double",
 	"float",
 	"int32",
@@ -110,6 +111,7 @@ class ProtobufLexer implements Lexer
 	REQUIRED,
 	OPTIONAL,
 	REPEATED,
+	GROUP,
 	DOUBLE,
 	FLOAT,
 	INT32,
@@ -155,6 +157,7 @@ class ProtobufLexer implements Lexer
     Stack<FileEntry> filestack = null;
     boolean eof2 = false;
     List<String> includepaths = null;
+    boolean forceidentifier = false;
 
     /**
      * *********************************************
@@ -236,7 +239,8 @@ class ProtobufLexer implements Lexer
 	startpos = new Position(lineno,charno);
 
         token = -1;
-        while(token < 0) {
+
+	while(token < 0) {
             c = read();
             if(c == 0) {
                 // If stack is not empty, or this is the first eof
@@ -323,7 +327,7 @@ class ProtobufLexer implements Lexer
                 if(tokentext.startsWith("google.protobuf.")
                    && tokentext.endsWith("Option")) 
                     token = GOOGLEOPTION;
-                else {
+                else if(!forceidentifier) {
                     // check for keyword: treat as case sensitive
                     for(int i=0;i<keywords.length;i++) {
                         if (keywords[i].equals(tokentext)) {
@@ -332,6 +336,7 @@ class ProtobufLexer implements Lexer
                         }
                     }
                 }
+                forceidentifier = false;
             } else {
                 /* we have a single char token */
                 token = c;
@@ -403,11 +408,20 @@ class ProtobufLexer implements Lexer
             System.err.printf("TOKEN = |\"%s\"|\n", lval);
             break;
         case NAME:
+            System.err.printf("TOKEN = |%s|\n", lval);
+            break;
         case INTCONST:
         case FLOATCONST:
             System.err.printf("TOKEN = |%s|\n", lval);
             break;
         default:
+            // See if this is a keyword
+            for(int i=0;i<keytokens.length;i++) {
+                if(keytokens[i] == token) {
+                    System.err.printf("TOKEN = |%s|\n",keywords[i]);
+                    return;
+                }
+            }
             System.err.printf("TOKEN = |%c|\n", (char)token);
             break;
         }
@@ -492,8 +506,8 @@ class ProtobufLexer implements Lexer
 	endpos.lineno = 1;
         endpos.charno = 1;
         stream = fr;
-        if(parsestate.getDebugLevel() > 0)
-	    System.err.println("Importing file: "+importfile);
+        if(Debug.enabled("trace.imports"))
+	    System.err.printf("[%d] enter: %s ",filestack.size()-1,filename);
 	return true;
     }
 
@@ -507,8 +521,8 @@ class ProtobufLexer implements Lexer
 	stream = entry.stream;
 	startpos.lineno = (endpos.lineno = entry.lineno);
 	startpos.charno = (endpos.charno = entry.charno);
-        if(parsestate.getDebugLevel() > 0)
-	    System.err.println("Return to file: "+filename);
+        if(Debug.enabled("trace.imports"))
+	    System.err.printf("[%d] re-enter: %s ",filestack.size(),filename);
 	return true;
     }
 

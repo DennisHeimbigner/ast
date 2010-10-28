@@ -44,6 +44,10 @@ public class Debug
 	boolean useuid = false;
     };
 
+    static class ParseProps {
+        boolean trace = false;
+    }
+
     static PrintProps printprops = new PrintProps();
 
     static void resetprintprops() {setprintprops(null);}
@@ -55,8 +59,21 @@ public class Debug
 
     // Non print properties
     static int debuglevel = 0;
-    static void setLevel(int level) {Debug.debuglevel = level;}
-    static int getLevel() {return Debug.debuglevel;}
+    static public void setLevel(int level) {Debug.debuglevel = level;}
+    static public int getLevel() {return Debug.debuglevel;}
+
+    static HashSet<String> tags = new HashSet<String>();
+    static public void setTag(String tag)
+        {tags.add(tag);}
+    static public void setTag(String... taglist)
+        {for(String tag: taglist) tags.add(tag);}
+    static public boolean enabled(String tag)
+    {
+        for(String s: tags) {
+            if(tag.equals(s)) return true;
+        };
+        return false;
+    }
     
 
 

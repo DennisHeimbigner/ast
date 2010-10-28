@@ -49,7 +49,7 @@ import unidata.protobuf.compiler.AST.Position;
 }
 
 %token IMPORT PACKAGE OPTION MESSAGE EXTEND EXTENSIONS
-%token ENUM SERVICE RPC RETURNS
+%token ENUM SERVICE RPC RETURNS GROUP
 %token DEFAULT TO MAX REQUIRED OPTIONAL REPEATED
 %token DOUBLE FLOAT INT32 INT64 UINT32 UINT64
 %token SINT32 SINT64 FIXED32 FIXED64 SFIXED32 SFIXED64
@@ -135,6 +135,8 @@ fieldlist:
 	    {$$=fieldlist(null,null);}
 	| fieldlist field
 	    {$$=fieldlist($1,$2);}
+	| fieldlist group
+	    {$$=$1;} /* ignore groups */
 	| fieldlist ';'
 	    {$$=$1;}
 	;
@@ -210,6 +212,11 @@ field:
 	    {$$=field($1,$2,$3,$5,null);}
 	| cardinality type name '=' INTCONST '[' fieldoptionlist ']'  ';'
 	    {$$=field($1,$2,$3,$5,$7);}
+	;
+
+group:
+	cardinality GROUP name '=' INTCONST  messagebody ';'
+	    {$$=group($1,$3,$5,$7);}
         ;
 
 fieldoptionlist:
@@ -270,11 +277,10 @@ type:
 	| STRING   {$$=$1;}
 	| BYTES    {$$=$1;}
 	| usertype {$$=$1;}
-	;
 
-// user types are simple non-dotted names
-usertype: 
-	symbol {$$=$1;}	
+
+usertype:
+	symbolnotgroup {$$=$1;} /* user defined type */
 	;
 
 // Package names can have embedded '.''s
@@ -305,6 +311,11 @@ constant:
 
 // Some keywords are legal as symbols
 symbol:
+	  symbolnotgroup {$$=$1;}
+	| GROUP {$$=$1;}
+	;
+
+symbolnotgroup:
 	  NAME {$$=$1;}
 	| IMPORT {$$=$1;}
 	| PACKAGE {$$=$1;}
@@ -322,5 +333,6 @@ symbol:
 	| OPTIONAL {$$=$1;}
 	| REPEATED {$$=$1;}
 	;
+
 // the following are excluded because they cause parser conflicts: "default:
 
