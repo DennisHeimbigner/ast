@@ -1,5 +1,5 @@
 message m1 {
-required group x = 1 {required int y=2;};
+  optional  int32 small_int32  = 4 [default = -0x7FFFFFFF];
 };
 
 

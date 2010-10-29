@@ -81,7 +81,7 @@
       </breakpoint>
     </exception_breakpoints>
     <line_breakpoints>
-      <breakpoint url="file://$PROJECT_DIR$/src/compiler/ProtobufActions.java" line="149" class="unidata.protobuf.compiler.ProtobufActions" package="unidata.protobuf.compiler">
+      <breakpoint url="file://$PROJECT_DIR$/src/compiler/Semantics.java" line="690" class="unidata.protobuf.compiler.Semantics" package="unidata.protobuf.compiler">
         <option name="ENABLED" value="false" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -94,8 +94,8 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/compiler/Semantics.java" line="690" class="unidata.protobuf.compiler.Semantics" package="unidata.protobuf.compiler">
-        <option name="ENABLED" value="false" />
+      <breakpoint url="file://$PROJECT_DIR$/src/compiler/ProtobufLexer.java" line="303" class="unidata.protobuf.compiler.ProtobufLexer" package="unidata.protobuf.compiler">
+        <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
         <option name="SUSPEND_POLICY" value="SuspendAll" />
@@ -155,8 +155,8 @@
       <property name="field_breakpoints_groupByClasses" value="true" />
       <property name="method_breakpoints_groupByClasses" value="true" />
       <property name="exception_breakpoints_viewId" value="TABLE" />
-      <property name="field_breakpoints_viewId" value="TABLE" />
       <property name="exception_breakpoints_groupByClasses" value="true" />
+      <property name="field_breakpoints_viewId" value="TABLE" />
       <property name="method_breakpoints_groupByMethods" value="false" />
     </ui_properties>
   </component>
@@ -170,37 +170,19 @@
   <component name="FileColors" enabled="true" enabledForTabs="true" />
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="ProtobufActions.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="ProtobufActions.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufActions.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="132" column="42" selection-start="3947" selection-end="3947" vertical-scroll-proportion="0.06137184">
+            <state line="149" column="0" selection-start="4214" selection-end="4214" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ProtobufParser.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufParser.java">
+      <file leaf-file-name="ProtobufLexer.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufLexer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="1539" column="0" selection-start="34754" selection-end="34754" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="unittest_import.proto" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/compiler/testdata1/unittest_import.proto">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="18" column="9" selection-start="867" selection-end="868" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Util.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/compiler/Util.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="160" column="86" selection-start="5881" selection-end="5881" vertical-scroll-proportion="0.0">
+            <state line="311" column="34" selection-start="8857" selection-end="8857" vertical-scroll-proportion="0.6706349">
               <folding />
             </state>
           </provider>
@@ -209,7 +191,7 @@
       <file leaf-file-name="TestAST.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/TestAST.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="73" column="39" selection-start="2764" selection-end="2764" vertical-scroll-proportion="0.0">
+            <state line="75" column="8" selection-start="2817" selection-end="2817" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -261,7 +243,6 @@
         <option value="$PROJECT_DIR$/src/ast/compiler/ASTFactory.java" />
         <option value="$PROJECT_DIR$/src/test/Main.java" />
         <option value="$PROJECT_DIR$/src/ast/java/Java.java" />
-        <option value="$PROJECT_DIR$/src/compiler/ProtobufParser.java" />
         <option value="$PROJECT_DIR$/src/compiler/AST.java" />
         <option value="$PROJECT_DIR$/src/compiler/ProtobufActions.java" />
         <option value="$PROJECT_DIR$/src/test/TestFiles.java" />
@@ -269,8 +250,9 @@
         <option value="$PROJECT_DIR$/src/compiler/Main.java" />
         <option value="$PROJECT_DIR$/src/compiler/Util.java" />
         <option value="$PROJECT_DIR$/src/compiler/Debug.java" />
-        <option value="$PROJECT_DIR$/src/test/TestAST.java" />
         <option value="$PROJECT_DIR$/src/compiler/testdata1/unittest.proto" />
+        <option value="$PROJECT_DIR$/src/test/TestAST.java" />
+        <option value="$PROJECT_DIR$/src/compiler/ProtobufParser.java" />
         <option value="$PROJECT_DIR$/src/compiler/ProtobufLexer.java" />
       </list>
     </option>
@@ -312,9 +294,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
-      <pane id="Scope" />
-      <pane id="Favorites" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -381,6 +360,9 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
+      <pane id="PackagesPane" />
+      <pane id="Favorites" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -399,8 +381,8 @@
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
-    <property name="GoToClass.includeLibraries" value="false" />
     <property name="GenerateAntBuildDialog.backupFiles" value="true" />
+    <property name="GoToClass.includeLibraries" value="false" />
     <property name="dynamic.classpath" value="false" />
   </component>
   <component name="RecentsManager">
@@ -411,7 +393,7 @@
       <recent name="unidata.protobuf.ast" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.TestAST">
+  <component name="RunManager" selected="Application.Main">
     <configuration default="true" type="Remote" factoryName="Remote">
       <option name="USE_SOCKET_TRANSPORT" value="true" />
       <option name="SERVER_MODE" value="false" />
@@ -636,10 +618,10 @@
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.41204438" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.23084886" sideWeight="0.49286845" order="1" side_tool="true" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.23084886" sideWeight="0.4675119" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.23084886" sideWeight="0.025356578" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.23084886" sideWeight="0.011093502" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.45958796" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -721,28 +703,6 @@
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufParser.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="1539" column="0" selection-start="34754" selection-end="34754" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/compiler/testdata1/unittest_import.proto">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="18" column="9" selection-start="867" selection-end="868" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/compiler/Util.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="160" column="86" selection-start="5881" selection-end="5881" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/TestAST.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="73" column="39" selection-start="2764" selection-end="2764" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/TestFiles.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="58" column="17" selection-start="2614" selection-end="2614" vertical-scroll-proportion="0.0" />
@@ -758,16 +718,44 @@
         <state line="314" column="12" selection-start="15396" selection-end="15396" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufLexer.java">
+    <entry file="file://$PROJECT_DIR$/src/test/TestAST.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="338" column="40" selection-start="9974" selection-end="9974" vertical-scroll-proportion="0.06719368">
+        <state line="75" column="8" selection-start="2817" selection-end="2817" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/compiler/Util.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="160" column="86" selection-start="5881" selection-end="5881" vertical-scroll-proportion="0.14079422">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufParser.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1544" column="0" selection-start="34950" selection-end="34950" vertical-scroll-proportion="0.06538462">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/compiler/testdata1/unittest_import.proto">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="18" column="9" selection-start="867" selection-end="868" vertical-scroll-proportion="0.06137184">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufActions.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="132" column="42" selection-start="3947" selection-end="3947" vertical-scroll-proportion="0.06137184">
+        <state line="149" column="0" selection-start="4214" selection-end="4214" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufLexer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="311" column="34" selection-start="8857" selection-end="8857" vertical-scroll-proportion="0.6706349">
           <folding />
         </state>
       </provider>

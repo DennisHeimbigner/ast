@@ -592,8 +592,8 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 27)
     
 /* Line 354 of lalr1.java  */
-/* Line 141 of "protobuf.y"  */
-    {yyval=((yystack.valueAt (2-(1))));};
+/* Line 144 of "protobuf.y"  */
+    {yyval=enumtype(((yystack.valueAt (5-(2)))),((yystack.valueAt (5-(4)))));};
   break;
     
 
@@ -601,8 +601,8 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 28)
     
 /* Line 354 of lalr1.java  */
-/* Line 146 of "protobuf.y"  */
-    {yyval=enumtype(((yystack.valueAt (5-(2)))),((yystack.valueAt (5-(4)))));};
+/* Line 149 of "protobuf.y"  */
+    {yyval=enumlist(null,null);};
   break;
     
 
@@ -611,7 +611,7 @@ public class ProtobufParser extends ProtobufActions
     
 /* Line 354 of lalr1.java  */
 /* Line 151 of "protobuf.y"  */
-    {yyval=enumlist(null,null);};
+    {yyval=enumlist(((yystack.valueAt (2-(1)))),((yystack.valueAt (2-(2)))));};
   break;
     
 
@@ -628,8 +628,8 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 31)
     
 /* Line 354 of lalr1.java  */
-/* Line 155 of "protobuf.y"  */
-    {yyval=enumlist(((yystack.valueAt (2-(1)))),((yystack.valueAt (2-(2)))));};
+/* Line 154 of "protobuf.y"  */
+    {yyval=((yystack.valueAt (2-(1))));};
   break;
     
 
@@ -637,8 +637,8 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 32)
     
 /* Line 354 of lalr1.java  */
-/* Line 156 of "protobuf.y"  */
-    {yyval=((yystack.valueAt (2-(1))));};
+/* Line 159 of "protobuf.y"  */
+    {if((yyval=enumfield(((yystack.valueAt (3-(1)))),((yystack.valueAt (3-(3))))))==null) {return YYABORT;}};
   break;
     
 
@@ -646,8 +646,8 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 33)
     
 /* Line 354 of lalr1.java  */
-/* Line 161 of "protobuf.y"  */
-    {if((yyval=enumfield(((yystack.valueAt (3-(1)))),((yystack.valueAt (3-(3))))))==null) {return YYABORT;}};
+/* Line 164 of "protobuf.y"  */
+    {yyval=service(((yystack.valueAt (5-(2)))),((yystack.valueAt (5-(4)))));};
   break;
     
 
@@ -655,8 +655,8 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 34)
     
 /* Line 354 of lalr1.java  */
-/* Line 166 of "protobuf.y"  */
-    {yyval=service(((yystack.valueAt (5-(2)))),((yystack.valueAt (5-(4)))));};
+/* Line 169 of "protobuf.y"  */
+    {yyval=servicecaselist(null,null);};
   break;
     
 
@@ -665,7 +665,7 @@ public class ProtobufParser extends ProtobufActions
     
 /* Line 354 of lalr1.java  */
 /* Line 171 of "protobuf.y"  */
-    {yyval=servicecaselist(null,null);};
+    {yyval=servicecaselist(((yystack.valueAt (2-(1)))),((yystack.valueAt (2-(2)))));};
   break;
     
 
@@ -673,8 +673,8 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 36)
     
 /* Line 354 of lalr1.java  */
-/* Line 173 of "protobuf.y"  */
-    {yyval=servicecaselist(((yystack.valueAt (2-(1)))),((yystack.valueAt (2-(2)))));};
+/* Line 175 of "protobuf.y"  */
+    {yyval=((yystack.valueAt (1-(1))));};
   break;
     
 
@@ -682,7 +682,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 37)
     
 /* Line 354 of lalr1.java  */
-/* Line 177 of "protobuf.y"  */
+/* Line 176 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -691,8 +691,8 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 38)
     
 /* Line 354 of lalr1.java  */
-/* Line 178 of "protobuf.y"  */
-    {yyval=((yystack.valueAt (1-(1))));};
+/* Line 177 of "protobuf.y"  */
+    {yyval=null;};
   break;
     
 
@@ -700,8 +700,8 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 39)
     
 /* Line 354 of lalr1.java  */
-/* Line 179 of "protobuf.y"  */
-    {yyval=null;};
+/* Line 182 of "protobuf.y"  */
+    {yyval=rpc(((yystack.valueAt (10-(2)))),((yystack.valueAt (10-(4)))),((yystack.valueAt (10-(8)))));};
   break;
     
 
@@ -709,8 +709,8 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 40)
     
 /* Line 354 of lalr1.java  */
-/* Line 184 of "protobuf.y"  */
-    {yyval=rpc(((yystack.valueAt (10-(2)))),((yystack.valueAt (10-(4)))),((yystack.valueAt (10-(8)))));};
+/* Line 187 of "protobuf.y"  */
+    {yyval=((yystack.valueAt (3-(2))));};
   break;
     
 
@@ -718,8 +718,8 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 41)
     
 /* Line 354 of lalr1.java  */
-/* Line 189 of "protobuf.y"  */
-    {yyval=((yystack.valueAt (3-(2))));};
+/* Line 192 of "protobuf.y"  */
+    {yyval=messageelementlist(null,null);};
   break;
     
 
@@ -728,7 +728,7 @@ public class ProtobufParser extends ProtobufActions
     
 /* Line 354 of lalr1.java  */
 /* Line 194 of "protobuf.y"  */
-    {yyval=messageelementlist(null,null);};
+    {yyval=messageelementlist(((yystack.valueAt (2-(1)))),((yystack.valueAt (2-(2)))));};
   break;
     
 
@@ -736,8 +736,8 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 43)
     
 /* Line 354 of lalr1.java  */
-/* Line 196 of "protobuf.y"  */
-    {yyval=messageelementlist(((yystack.valueAt (2-(1)))),((yystack.valueAt (2-(2)))));};
+/* Line 198 of "protobuf.y"  */
+    {yyval=((yystack.valueAt (1-(1))));};
   break;
     
 
@@ -745,7 +745,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 44)
     
 /* Line 354 of lalr1.java  */
-/* Line 200 of "protobuf.y"  */
+/* Line 199 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -754,7 +754,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 45)
     
 /* Line 354 of lalr1.java  */
-/* Line 201 of "protobuf.y"  */
+/* Line 200 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -763,7 +763,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 46)
     
 /* Line 354 of lalr1.java  */
-/* Line 202 of "protobuf.y"  */
+/* Line 201 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -772,7 +772,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 47)
     
 /* Line 354 of lalr1.java  */
-/* Line 203 of "protobuf.y"  */
+/* Line 202 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -781,7 +781,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 48)
     
 /* Line 354 of lalr1.java  */
-/* Line 204 of "protobuf.y"  */
+/* Line 203 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -790,8 +790,8 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 49)
     
 /* Line 354 of lalr1.java  */
-/* Line 205 of "protobuf.y"  */
-    {yyval=((yystack.valueAt (1-(1))));};
+/* Line 204 of "protobuf.y"  */
+    {yyval=null;};
   break;
     
 
@@ -799,8 +799,8 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 50)
     
 /* Line 354 of lalr1.java  */
-/* Line 206 of "protobuf.y"  */
-    {yyval=null;};
+/* Line 209 of "protobuf.y"  */
+    {yyval=((yystack.valueAt (1-(1))));};
   break;
     
 
@@ -808,7 +808,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 51)
     
 /* Line 354 of lalr1.java  */
-/* Line 212 of "protobuf.y"  */
+/* Line 211 of "protobuf.y"  */
     {yyval=field(((yystack.valueAt (6-(1)))),((yystack.valueAt (6-(2)))),((yystack.valueAt (6-(3)))),((yystack.valueAt (6-(5)))),null);};
   break;
     
@@ -817,7 +817,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 52)
     
 /* Line 354 of lalr1.java  */
-/* Line 214 of "protobuf.y"  */
+/* Line 213 of "protobuf.y"  */
     {yyval=field(((yystack.valueAt (9-(1)))),((yystack.valueAt (9-(2)))),((yystack.valueAt (9-(3)))),((yystack.valueAt (9-(5)))),((yystack.valueAt (9-(7)))));};
   break;
     
@@ -826,8 +826,8 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 53)
     
 /* Line 354 of lalr1.java  */
-/* Line 219 of "protobuf.y"  */
-    {yyval=group(((yystack.valueAt (7-(1)))),((yystack.valueAt (7-(3)))),((yystack.valueAt (7-(5)))),((yystack.valueAt (7-(7)))));};
+/* Line 218 of "protobuf.y"  */
+    {yyval=group(((yystack.valueAt (6-(1)))),((yystack.valueAt (6-(3)))),((yystack.valueAt (6-(5)))),((yystack.valueAt (6-(6)))));};
   break;
     
 
@@ -835,7 +835,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 54)
     
 /* Line 354 of lalr1.java  */
-/* Line 224 of "protobuf.y"  */
+/* Line 222 of "protobuf.y"  */
     {yyval=fieldoptionlist(null,((yystack.valueAt (1-(1)))));};
   break;
     
@@ -844,7 +844,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 55)
     
 /* Line 354 of lalr1.java  */
-/* Line 226 of "protobuf.y"  */
+/* Line 224 of "protobuf.y"  */
     {yyval=fieldoptionlist(((yystack.valueAt (3-(1)))),((yystack.valueAt (3-(3)))));};
   break;
     
@@ -853,7 +853,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 56)
     
 /* Line 354 of lalr1.java  */
-/* Line 231 of "protobuf.y"  */
+/* Line 229 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -862,7 +862,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 57)
     
 /* Line 354 of lalr1.java  */
-/* Line 233 of "protobuf.y"  */
+/* Line 231 of "protobuf.y"  */
     {yyval=option(AST.DEFAULTNAME,((yystack.valueAt (3-(3)))));};
   break;
     
@@ -871,7 +871,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 58)
     
 /* Line 354 of lalr1.java  */
-/* Line 238 of "protobuf.y"  */
+/* Line 236 of "protobuf.y"  */
     { yyval=extensions(((yystack.valueAt (3-(2)))));};
   break;
     
@@ -880,7 +880,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 59)
     
 /* Line 354 of lalr1.java  */
-/* Line 243 of "protobuf.y"  */
+/* Line 241 of "protobuf.y"  */
     {yyval=extensionlist(null,((yystack.valueAt (1-(1)))));};
   break;
     
@@ -889,7 +889,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 60)
     
 /* Line 354 of lalr1.java  */
-/* Line 245 of "protobuf.y"  */
+/* Line 243 of "protobuf.y"  */
     {yyval=extensionlist(((yystack.valueAt (3-(1)))),((yystack.valueAt (3-(3)))));};
   break;
     
@@ -898,7 +898,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 61)
     
 /* Line 354 of lalr1.java  */
-/* Line 250 of "protobuf.y"  */
+/* Line 248 of "protobuf.y"  */
     {if((yyval=extensionrange(((yystack.valueAt (1-(1)))),null)) == null) return YYABORT;};
   break;
     
@@ -907,7 +907,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 62)
     
 /* Line 354 of lalr1.java  */
-/* Line 252 of "protobuf.y"  */
+/* Line 250 of "protobuf.y"  */
     {if((yyval=extensionrange(((yystack.valueAt (3-(1)))),((yystack.valueAt (3-(3)))))) == null) return YYABORT;};
   break;
     
@@ -916,7 +916,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 63)
     
 /* Line 354 of lalr1.java  */
-/* Line 254 of "protobuf.y"  */
+/* Line 252 of "protobuf.y"  */
     {if((yyval=extensionrange(((yystack.valueAt (3-(1)))),null)) == null) return YYABORT;};
   break;
     
@@ -925,7 +925,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 64)
     
 /* Line 354 of lalr1.java  */
-/* Line 258 of "protobuf.y"  */
+/* Line 256 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -934,7 +934,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 65)
     
 /* Line 354 of lalr1.java  */
-/* Line 259 of "protobuf.y"  */
+/* Line 257 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -943,7 +943,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 66)
     
 /* Line 354 of lalr1.java  */
-/* Line 260 of "protobuf.y"  */
+/* Line 258 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -952,7 +952,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 67)
     
 /* Line 354 of lalr1.java  */
-/* Line 264 of "protobuf.y"  */
+/* Line 262 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -961,7 +961,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 68)
     
 /* Line 354 of lalr1.java  */
-/* Line 265 of "protobuf.y"  */
+/* Line 263 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -970,7 +970,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 69)
     
 /* Line 354 of lalr1.java  */
-/* Line 266 of "protobuf.y"  */
+/* Line 264 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -979,7 +979,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 70)
     
 /* Line 354 of lalr1.java  */
-/* Line 267 of "protobuf.y"  */
+/* Line 265 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -988,7 +988,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 71)
     
 /* Line 354 of lalr1.java  */
-/* Line 268 of "protobuf.y"  */
+/* Line 266 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -997,7 +997,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 72)
     
 /* Line 354 of lalr1.java  */
-/* Line 269 of "protobuf.y"  */
+/* Line 267 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1006,7 +1006,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 73)
     
 /* Line 354 of lalr1.java  */
-/* Line 270 of "protobuf.y"  */
+/* Line 268 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1015,7 +1015,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 74)
     
 /* Line 354 of lalr1.java  */
-/* Line 271 of "protobuf.y"  */
+/* Line 269 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1024,7 +1024,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 75)
     
 /* Line 354 of lalr1.java  */
-/* Line 272 of "protobuf.y"  */
+/* Line 270 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1033,7 +1033,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 76)
     
 /* Line 354 of lalr1.java  */
-/* Line 273 of "protobuf.y"  */
+/* Line 271 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1042,7 +1042,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 77)
     
 /* Line 354 of lalr1.java  */
-/* Line 274 of "protobuf.y"  */
+/* Line 272 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1051,7 +1051,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 78)
     
 /* Line 354 of lalr1.java  */
-/* Line 275 of "protobuf.y"  */
+/* Line 273 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1060,7 +1060,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 79)
     
 /* Line 354 of lalr1.java  */
-/* Line 276 of "protobuf.y"  */
+/* Line 274 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1069,7 +1069,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 80)
     
 /* Line 354 of lalr1.java  */
-/* Line 277 of "protobuf.y"  */
+/* Line 275 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1078,7 +1078,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 81)
     
 /* Line 354 of lalr1.java  */
-/* Line 278 of "protobuf.y"  */
+/* Line 276 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1087,7 +1087,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 82)
     
 /* Line 354 of lalr1.java  */
-/* Line 279 of "protobuf.y"  */
+/* Line 277 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1096,7 +1096,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 83)
     
 /* Line 354 of lalr1.java  */
-/* Line 283 of "protobuf.y"  */
+/* Line 281 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1105,7 +1105,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 84)
     
 /* Line 354 of lalr1.java  */
-/* Line 288 of "protobuf.y"  */
+/* Line 286 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1114,7 +1114,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 85)
     
 /* Line 354 of lalr1.java  */
-/* Line 293 of "protobuf.y"  */
+/* Line 291 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1123,7 +1123,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 86)
     
 /* Line 354 of lalr1.java  */
-/* Line 299 of "protobuf.y"  */
+/* Line 297 of "protobuf.y"  */
     {if(illegalname(((yystack.valueAt (1-(1)))))) {return YYABORT;}; yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1132,7 +1132,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 87)
     
 /* Line 354 of lalr1.java  */
-/* Line 304 of "protobuf.y"  */
+/* Line 302 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1141,7 +1141,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 88)
     
 /* Line 354 of lalr1.java  */
-/* Line 305 of "protobuf.y"  */
+/* Line 303 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1150,7 +1150,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 89)
     
 /* Line 354 of lalr1.java  */
-/* Line 306 of "protobuf.y"  */
+/* Line 304 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1159,7 +1159,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 90)
     
 /* Line 354 of lalr1.java  */
-/* Line 307 of "protobuf.y"  */
+/* Line 305 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1168,7 +1168,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 91)
     
 /* Line 354 of lalr1.java  */
-/* Line 308 of "protobuf.y"  */
+/* Line 306 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1177,7 +1177,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 92)
     
 /* Line 354 of lalr1.java  */
-/* Line 309 of "protobuf.y"  */
+/* Line 307 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1186,7 +1186,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 93)
     
 /* Line 354 of lalr1.java  */
-/* Line 314 of "protobuf.y"  */
+/* Line 312 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1195,7 +1195,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 94)
     
 /* Line 354 of lalr1.java  */
-/* Line 315 of "protobuf.y"  */
+/* Line 313 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1204,7 +1204,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 95)
     
 /* Line 354 of lalr1.java  */
-/* Line 319 of "protobuf.y"  */
+/* Line 317 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1213,7 +1213,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 96)
     
 /* Line 354 of lalr1.java  */
-/* Line 320 of "protobuf.y"  */
+/* Line 318 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1222,7 +1222,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 97)
     
 /* Line 354 of lalr1.java  */
-/* Line 321 of "protobuf.y"  */
+/* Line 319 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1231,7 +1231,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 98)
     
 /* Line 354 of lalr1.java  */
-/* Line 322 of "protobuf.y"  */
+/* Line 320 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1240,7 +1240,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 99)
     
 /* Line 354 of lalr1.java  */
-/* Line 323 of "protobuf.y"  */
+/* Line 321 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1249,7 +1249,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 100)
     
 /* Line 354 of lalr1.java  */
-/* Line 324 of "protobuf.y"  */
+/* Line 322 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1258,7 +1258,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 101)
     
 /* Line 354 of lalr1.java  */
-/* Line 325 of "protobuf.y"  */
+/* Line 323 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1267,7 +1267,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 102)
     
 /* Line 354 of lalr1.java  */
-/* Line 326 of "protobuf.y"  */
+/* Line 324 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1276,7 +1276,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 103)
     
 /* Line 354 of lalr1.java  */
-/* Line 327 of "protobuf.y"  */
+/* Line 325 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1285,7 +1285,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 104)
     
 /* Line 354 of lalr1.java  */
-/* Line 328 of "protobuf.y"  */
+/* Line 326 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1294,7 +1294,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 105)
     
 /* Line 354 of lalr1.java  */
-/* Line 329 of "protobuf.y"  */
+/* Line 327 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1303,7 +1303,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 106)
     
 /* Line 354 of lalr1.java  */
-/* Line 330 of "protobuf.y"  */
+/* Line 328 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1312,7 +1312,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 107)
     
 /* Line 354 of lalr1.java  */
-/* Line 331 of "protobuf.y"  */
+/* Line 329 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1321,7 +1321,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 108)
     
 /* Line 354 of lalr1.java  */
-/* Line 332 of "protobuf.y"  */
+/* Line 330 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1330,7 +1330,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 109)
     
 /* Line 354 of lalr1.java  */
-/* Line 333 of "protobuf.y"  */
+/* Line 331 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1339,7 +1339,7 @@ public class ProtobufParser extends ProtobufActions
   if (yyn == 110)
     
 /* Line 354 of lalr1.java  */
-/* Line 334 of "protobuf.y"  */
+/* Line 332 of "protobuf.y"  */
     {yyval=((yystack.valueAt (1-(1))));};
   break;
     
@@ -1700,27 +1700,27 @@ public class ProtobufParser extends ProtobufActions
 
   /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
      STATE-NUM.  */
-  private static final short yypact_ninf_ = -155;
+  private static final short yypact_ninf_ = -118;
   private static final short yypact_[] =
   {
-      -155,    12,  -155,    28,  -155,    10,   319,   157,   319,   284,
-     319,   319,  -155,  -155,  -155,  -155,  -155,  -155,  -155,  -155,
-    -155,  -155,  -155,     8,  -155,  -155,  -155,  -155,  -155,  -155,
-    -155,  -155,  -155,  -155,  -155,  -155,  -155,  -155,  -155,  -155,
-    -155,    17,  -155,  -155,   319,    27,    -4,  -155,    25,    26,
-      33,  -155,    34,    35,  -155,  -155,  -155,    37,  -155,   174,
-    -155,  -155,  -155,  -155,  -155,  -155,  -155,    40,  -155,  -155,
-    -155,  -155,  -155,  -155,  -155,    60,    44,    83,    11,    -1,
-     174,     1,  -155,  -155,  -155,  -155,  -155,  -155,  -155,  -155,
-    -155,  -155,  -155,  -155,   249,  -155,  -155,  -155,  -155,   214,
-    -155,   157,  -155,  -155,  -155,  -155,    41,   319,  -155,  -155,
-    -155,  -155,  -155,  -155,    73,    38,    47,  -155,  -155,  -155,
-    -155,  -155,  -155,  -155,  -155,  -155,  -155,  -155,  -155,  -155,
-    -155,  -155,  -155,   319,  -155,  -155,   319,    53,    48,    20,
-      56,  -155,    51,    52,  -155,   336,  -155,  -155,  -155,    59,
-      61,    81,     0,    25,    86,  -155,   106,    62,    84,    63,
-    -155,    -5,  -155,  -155,   336,   174,    85,   106,    88,  -155,
-    -155,  -155,    89,  -155
+      -118,     4,  -118,   106,  -118,     0,   188,   128,   188,   246,
+     188,   188,  -118,  -118,  -118,  -118,  -118,  -118,  -118,  -118,
+    -118,  -118,  -118,    -1,  -118,  -118,  -118,  -118,  -118,  -118,
+    -118,  -118,  -118,  -118,  -118,  -118,  -118,  -118,  -118,  -118,
+    -118,     9,  -118,  -118,   188,    13,    18,  -118,    21,    23,
+      25,  -118,    26,    30,  -118,  -118,  -118,    32,  -118,   171,
+    -118,  -118,  -118,  -118,  -118,  -118,  -118,    35,  -118,  -118,
+    -118,  -118,  -118,  -118,  -118,    28,    12,   105,     6,    15,
+     171,    19,  -118,  -118,  -118,  -118,  -118,  -118,  -118,  -118,
+    -118,  -118,  -118,  -118,  -118,   211,  -118,  -118,  -118,  -118,
+     128,  -118,  -118,  -118,  -118,    36,   188,  -118,  -118,  -118,
+    -118,  -118,  -118,    44,    31,    38,  -118,   188,  -118,  -118,
+    -118,  -118,  -118,  -118,  -118,  -118,  -118,  -118,  -118,  -118,
+    -118,  -118,  -118,   188,  -118,  -118,    45,    57,   -10,    66,
+    -118,    61,    62,  -118,   281,  -118,  -118,  -118,    69,    70,
+      71,    21,    -5,   108,  -118,  -118,    82,    73,    77,  -118,
+      16,  -118,   281,   171,    83,    82,    79,  -118,  -118,  -118,
+      85,  -118
   };
 
   /* YYDEFACT[S] -- default rule to reduce with in state S when YYTABLE
@@ -1734,27 +1734,27 @@ public class ProtobufParser extends ProtobufActions
      102,   103,   104,   105,    94,   106,   107,   108,   109,   110,
       95,     0,    84,    93,     0,     0,     0,    86,     0,     0,
        0,    85,     0,     0,     8,     6,     4,     0,    18,     0,
-      42,    21,    24,    24,    29,    35,     5,     0,    88,    89,
+      41,    21,    24,    24,    28,    34,     5,     0,    88,    89,
       90,    91,    92,    19,    87,     0,     0,     0,     0,     0,
-       0,     0,    64,    65,    66,    50,    41,    49,    46,    47,
-      45,    43,    44,    48,     0,    27,    23,    25,    26,     0,
-      22,    98,    32,    28,    30,    31,     0,     0,    39,    34,
-      37,    36,    38,    20,    61,     0,     0,    59,    67,    68,
+       0,     0,    64,    65,    66,    49,    40,    48,    45,    46,
+      44,    42,    43,    50,    47,     0,    26,    23,    25,    22,
+      98,    31,    27,    29,    30,     0,     0,    38,    33,    36,
+      35,    37,    20,    61,     0,     0,    59,     0,    67,    68,
       69,    70,    71,    72,    73,    74,    75,    76,    77,    78,
       79,    80,    81,     0,    82,    83,     0,     0,     0,     0,
-       0,    58,     0,     0,    33,     0,    63,    62,    60,     0,
-       0,     0,     0,     0,     0,    51,     0,     0,     0,     0,
-      56,     0,    54,    53,     0,     0,     0,     0,     0,    57,
-      52,    55,     0,    40
+      58,     0,     0,    32,     0,    63,    62,    60,     0,     0,
+       0,     0,     0,     0,    53,    51,     0,     0,     0,    56,
+       0,    54,     0,     0,     0,     0,     0,    57,    52,    55,
+       0,    39
   };
 
   /* YYPGOTO[NTERM-NUM].  */
-  private static final short yypgoto_[] =
+  private static final byte yypgoto_[] =
   {
-      -155,  -155,    82,  -155,  -155,  -155,  -155,  -155,  -155,   -23,
-    -154,    31,    64,    72,    65,  -155,  -155,  -155,  -155,  -155,
-    -155,   -16,  -155,  -155,    66,  -155,  -155,   -29,    67,  -155,
-       2,    69,  -155,  -120,  -155,  -155,    -3,   -79,    -6,   -88
+      -118,  -118,    75,  -118,  -118,  -118,  -118,  -118,  -118,   -14,
+    -117,    76,    80,    87,    81,  -118,  -118,  -118,  -118,  -118,
+    -118,     1,  -118,  -118,    84,  -118,  -118,   -11,    86,  -118,
+      22,  -118,  -118,  -112,  -118,  -118,    -3,   -79,    -6,   -93
   };
 
   /* YYDEFGOTO[NTERM-NUM].  */
@@ -1762,9 +1762,9 @@ public class ProtobufParser extends ProtobufActions
   yydefgoto_[] =
   {
         -1,     1,     2,    14,    15,    16,    54,     3,    17,    18,
-      45,    19,    20,    76,    21,    78,   105,    22,    79,   111,
-     112,    61,    75,    91,    97,    98,   161,   162,    93,   116,
-     117,    99,   133,   134,    41,    50,    46,    73,    47,    43
+      45,    19,    20,    76,    21,    78,   104,    22,    79,   110,
+     111,    61,    75,    91,    98,    93,   160,   161,    94,   115,
+     116,    95,   133,   134,    41,    50,    46,    73,    47,    43
   };
 
   /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -1774,88 +1774,76 @@ public class ProtobufParser extends ProtobufActions
   private static final short
   yytable_[] =
   {
-        42,   113,   160,    51,     7,    48,   135,    52,    53,    81,
-     107,   135,     4,   160,    24,    25,   101,    27,    28,    29,
-      30,    31,    32,    33,    34,   151,    35,    36,    37,    38,
-      39,     5,     6,     7,     8,     9,   146,    10,    11,   114,
-      59,    57,   108,   155,   168,   166,   167,   109,    40,   156,
-      23,    55,    87,    74,   102,   104,   110,   135,   147,   103,
-      56,    82,    83,    84,    12,     7,     8,     9,    81,    10,
-      58,    13,    60,    62,    74,   106,   135,    82,    83,    84,
-      63,    64,    65,    67,    80,   137,   169,    95,   139,   140,
-     141,   144,    96,   145,   114,   149,   150,   152,   158,   153,
-      82,    83,    84,    85,   138,   163,    88,   165,    86,    24,
+        42,   112,   135,    51,     4,    48,   145,    52,    53,    24,
+      25,   100,    27,    28,    29,    30,    31,    32,    33,    34,
+       7,    35,    36,    37,    38,    39,   106,    81,   146,    82,
+      83,    84,   150,     7,     8,     9,    81,    10,   155,   159,
+      23,    57,    55,    40,   156,    82,    83,    84,   159,   101,
+     166,   135,    56,    74,   102,    96,    58,   113,   107,   138,
+      97,    87,    59,   108,   103,   109,   164,   165,    60,   135,
+      62,    85,    63,    64,    74,   105,    86,    65,    67,    80,
+     136,   140,   139,   143,   167,    24,    25,    26,    27,    28,
+      29,    30,    31,    32,    33,    34,   158,    35,    36,    37,
+      38,    39,   144,   137,   113,   148,   149,   151,   152,     5,
+       6,     7,     8,     9,   141,    10,    11,   153,   162,    40,
+     157,   163,    82,    83,    84,   170,   168,    44,   171,    66,
+     142,    24,    25,    26,    27,    28,    29,    30,    31,    32,
+      33,    34,    12,    35,    36,    37,    38,    39,    96,    13,
+      77,    88,   154,    99,   169,    89,    90,    74,     0,    92,
+       0,   147,     0,     0,     0,    40,     0,   114,     0,     0,
+       0,     0,     0,    44,    24,    25,    26,    27,    28,    29,
+      30,    31,    32,    33,    34,     0,    35,    36,    37,    38,
+      39,    24,    25,    26,    27,    28,    29,    30,    31,    32,
+      33,    34,     0,    35,    36,    37,    38,    39,    40,    68,
+      69,    70,    71,    72,    24,    25,    26,    27,    28,    29,
+      30,    31,    32,    33,   117,    40,    35,    36,    37,    38,
+      39,   118,   119,   120,   121,   122,   123,   124,   125,   126,
+     127,   128,   129,   130,   131,   132,     0,     0,    40,    24,
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
-     159,    35,    36,    37,    38,    39,    95,   154,   170,   164,
-     142,   100,   173,   143,   172,    77,    66,   157,   171,    89,
-      90,    92,   148,    40,    94,     0,     0,     0,   115,     0,
-       0,    44,     0,     0,     0,     0,     0,     0,     0,    74,
-      24,    25,    26,    27,    28,    29,    30,    31,    32,    33,
-      34,     0,    35,    36,    37,    38,    39,    24,    25,    26,
-      27,    28,    29,    30,    31,    32,    33,    34,     0,    35,
-      36,    37,    38,    39,    40,     0,     0,     0,     0,     0,
-       0,     0,    44,     0,     0,     0,     0,     0,     0,     0,
-       0,    40,    68,    69,    70,    71,    72,    24,    25,    26,
-      27,    28,    29,    30,    31,    32,    33,   136,     0,    35,
-      36,    37,    38,    39,   118,   119,   120,   121,   122,   123,
-     124,   125,   126,   127,   128,   129,   130,   131,   132,     0,
-       0,    40,    24,    25,    26,    27,    28,    29,    30,    31,
-      32,    33,     0,     0,    35,    36,    37,    38,    39,   118,
-     119,   120,   121,   122,   123,   124,   125,   126,   127,   128,
-     129,   130,   131,   132,     0,     0,    40,    24,    25,    26,
-      27,    28,    29,    30,    31,    32,    33,    34,     0,    35,
-      36,    37,    38,    39,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,    49,
-       0,    40,    24,    25,    26,    27,    28,    29,    30,    31,
-      32,    33,    34,     0,    35,    36,    37,    38,    39,    24,
-      25,    26,    27,    28,    29,    30,    31,    32,    33,     0,
-       0,    35,    36,    37,    38,    39,    40,     0,     0,     0,
+       0,    35,    36,    37,    38,    39,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,    40
+       0,    49,     0,    40,    24,    25,    26,    27,    28,    29,
+      30,    31,    32,    33,     0,     0,    35,    36,    37,    38,
+      39,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,    40
   };
 
   /* YYCHECK.  */
   private static final short
   yycheck_[] =
   {
-         6,    80,   156,     9,     5,     8,    94,    10,    11,     8,
-      11,    99,     0,   167,     3,     4,     5,     6,     7,     8,
-       9,    10,    11,    12,    13,   145,    15,    16,    17,    18,
-      19,     3,     4,     5,     6,     7,    16,     9,    10,    38,
-      44,    44,    43,    43,   164,    50,    51,    48,    37,    49,
-      40,    43,    75,    59,    43,    78,    79,   145,    38,    48,
-      43,    17,    18,    19,    36,     5,     6,     7,     8,     9,
-      43,    43,    47,    47,    80,    78,   164,    17,    18,    19,
-      47,    47,    47,    46,    44,    44,   165,    43,    15,    51,
-      43,    38,    48,    45,    38,    44,    44,    38,    12,    38,
-      17,    18,    19,    43,   107,    43,    75,    44,    48,     3,
+         6,    80,    95,     9,     0,     8,    16,    10,    11,     3,
        4,     5,     6,     7,     8,     9,    10,    11,    12,    13,
-      14,    15,    16,    17,    18,    19,    43,    46,    43,    45,
-     133,    48,    43,   136,    46,    63,    54,   153,   167,    75,
-      75,    75,   140,    37,    75,    -1,    -1,    -1,    81,    -1,
-      -1,    45,    -1,    -1,    -1,    -1,    -1,    -1,    -1,   165,
-       3,     4,     5,     6,     7,     8,     9,    10,    11,    12,
-      13,    -1,    15,    16,    17,    18,    19,     3,     4,     5,
-       6,     7,     8,     9,    10,    11,    12,    13,    -1,    15,
-      16,    17,    18,    19,    37,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    45,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    37,    38,    39,    40,    41,    42,     3,     4,     5,
-       6,     7,     8,     9,    10,    11,    12,    13,    -1,    15,
-      16,    17,    18,    19,    20,    21,    22,    23,    24,    25,
-      26,    27,    28,    29,    30,    31,    32,    33,    34,    -1,
-      -1,    37,     3,     4,     5,     6,     7,     8,     9,    10,
-      11,    12,    -1,    -1,    15,    16,    17,    18,    19,    20,
-      21,    22,    23,    24,    25,    26,    27,    28,    29,    30,
-      31,    32,    33,    34,    -1,    -1,    37,     3,     4,     5,
-       6,     7,     8,     9,    10,    11,    12,    13,    -1,    15,
-      16,    17,    18,    19,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    35,
-      -1,    37,     3,     4,     5,     6,     7,     8,     9,    10,
-      11,    12,    13,    -1,    15,    16,    17,    18,    19,     3,
-       4,     5,     6,     7,     8,     9,    10,    11,    12,    -1,
-      -1,    15,    16,    17,    18,    19,    37,    -1,    -1,    -1,
+       5,    15,    16,    17,    18,    19,    11,     8,    38,    17,
+      18,    19,   144,     5,     6,     7,     8,     9,    43,   156,
+      40,    44,    43,    37,    49,    17,    18,    19,   165,    43,
+     162,   144,    43,    59,    48,    43,    43,    38,    43,    15,
+      48,    75,    44,    48,    78,    79,    50,    51,    47,   162,
+      47,    43,    47,    47,    80,    78,    48,    47,    46,    44,
+      44,    43,    51,    38,   163,     3,     4,     5,     6,     7,
+       8,     9,    10,    11,    12,    13,    14,    15,    16,    17,
+      18,    19,    45,   106,    38,    44,    44,    38,    38,     3,
+       4,     5,     6,     7,   117,     9,    10,    46,    45,    37,
+      12,    44,    17,    18,    19,    46,    43,    45,    43,    54,
+     133,     3,     4,     5,     6,     7,     8,     9,    10,    11,
+      12,    13,    36,    15,    16,    17,    18,    19,    43,    43,
+      63,    75,   151,    48,   165,    75,    75,   163,    -1,    75,
+      -1,   139,    -1,    -1,    -1,    37,    -1,    81,    -1,    -1,
+      -1,    -1,    -1,    45,     3,     4,     5,     6,     7,     8,
+       9,    10,    11,    12,    13,    -1,    15,    16,    17,    18,
+      19,     3,     4,     5,     6,     7,     8,     9,    10,    11,
+      12,    13,    -1,    15,    16,    17,    18,    19,    37,    38,
+      39,    40,    41,    42,     3,     4,     5,     6,     7,     8,
+       9,    10,    11,    12,    13,    37,    15,    16,    17,    18,
+      19,    20,    21,    22,    23,    24,    25,    26,    27,    28,
+      29,    30,    31,    32,    33,    34,    -1,    -1,    37,     3,
+       4,     5,     6,     7,     8,     9,    10,    11,    12,    13,
+      -1,    15,    16,    17,    18,    19,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    37
+      -1,    35,    -1,    37,     3,     4,     5,     6,     7,     8,
+       9,    10,    11,    12,    -1,    -1,    15,    16,    17,    18,
+      19,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    37
   };
 
   /* STOS_[STATE-NUM] -- The (internal number of the) accessing
@@ -1872,15 +1860,15 @@ public class ProtobufParser extends ProtobufActions
       47,    73,    47,    47,    47,    47,    54,    46,    38,    39,
       40,    41,    42,    89,    90,    74,    65,    65,    67,    70,
       44,     8,    17,    18,    19,    43,    48,    61,    63,    64,
-      66,    75,    76,    80,    83,    43,    48,    76,    77,    83,
-      48,     5,    43,    48,    61,    68,    88,    11,    43,    48,
-      61,    71,    72,    89,    38,    80,    81,    82,    20,    21,
+      66,    75,    76,    77,    80,    83,    43,    48,    76,    48,
+       5,    43,    48,    61,    68,    88,    11,    43,    48,    61,
+      71,    72,    89,    38,    80,    81,    82,    13,    20,    21,
       22,    23,    24,    25,    26,    27,    28,    29,    30,    31,
-      32,    33,    34,    84,    85,    91,    13,    44,    88,    15,
-      51,    43,    88,    88,    38,    45,    16,    38,    82,    44,
-      44,    85,    38,    38,    46,    43,    49,    73,    12,    14,
-      62,    78,    79,    43,    45,    44,    50,    51,    85,    89,
-      43,    79,    46,    43
+      32,    33,    34,    84,    85,    91,    44,    88,    15,    51,
+      43,    88,    88,    38,    45,    16,    38,    82,    44,    44,
+      85,    38,    38,    46,    73,    43,    49,    12,    14,    62,
+      78,    79,    45,    44,    50,    51,    85,    89,    43,    79,
+      46,    43
   };
 
   /* TOKEN_NUMBER_[YYLEX-NUM] -- Internal symbol number corresponding
@@ -1902,10 +1890,10 @@ public class ProtobufParser extends ProtobufActions
   {
          0,    52,    53,    54,    55,    56,    57,    58,    59,    59,
       60,    60,    60,    60,    60,    60,    60,    60,    61,    62,
-      62,    63,    64,    64,    65,    65,    65,    65,    66,    67,
-      67,    67,    67,    68,    69,    70,    70,    71,    71,    71,
-      72,    73,    74,    74,    75,    75,    75,    75,    75,    75,
-      75,    76,    76,    77,    78,    78,    79,    79,    80,    81,
+      62,    63,    64,    64,    65,    65,    65,    66,    67,    67,
+      67,    67,    68,    69,    70,    70,    71,    71,    71,    72,
+      73,    74,    74,    75,    75,    75,    75,    75,    75,    75,
+      76,    76,    76,    77,    78,    78,    79,    79,    80,    81,
       81,    82,    82,    82,    83,    83,    83,    84,    84,    84,
       84,    84,    84,    84,    84,    84,    84,    84,    84,    84,
       84,    84,    84,    85,    86,    87,    88,    89,    89,    89,
@@ -1920,10 +1908,10 @@ public class ProtobufParser extends ProtobufActions
   {
          0,     2,     1,     2,     3,     3,     3,     0,     0,     2,
        1,     1,     1,     1,     1,     1,     1,     1,     3,     3,
-       5,     3,     5,     5,     0,     2,     2,     2,     5,     0,
-       2,     2,     2,     3,     5,     0,     2,     1,     1,     1,
-      10,     3,     0,     2,     1,     1,     1,     1,     1,     1,
-       1,     6,     9,     7,     1,     3,     1,     3,     3,     1,
+       5,     3,     5,     5,     0,     2,     2,     5,     0,     2,
+       2,     2,     3,     5,     0,     2,     1,     1,     1,    10,
+       3,     0,     2,     1,     1,     1,     1,     1,     1,     1,
+       1,     6,     9,     6,     1,     3,     1,     3,     3,     1,
        3,     1,     3,     3,     1,     1,     1,     1,     1,     1,
        1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
        1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
@@ -1963,30 +1951,29 @@ public class ProtobufParser extends ProtobufActions
       -1,     5,    62,    43,    -1,    88,    44,    89,    -1,    45,
       88,    46,    44,    89,    -1,     6,    88,    73,    -1,     7,
       87,    47,    65,    48,    -1,     7,    35,    47,    65,    48,
-      -1,    -1,    65,    76,    -1,    65,    77,    -1,    65,    43,
-      -1,     9,    88,    47,    67,    48,    -1,    -1,    67,    61,
-      -1,    67,    68,    -1,    67,    43,    -1,    88,    44,    38,
-      -1,    10,    88,    47,    70,    48,    -1,    -1,    70,    71,
-      -1,    61,    -1,    72,    -1,    43,    -1,    11,    88,    45,
-      85,    46,    12,    45,    85,    46,    43,    -1,    47,    74,
-      48,    -1,    -1,    74,    75,    -1,    76,    -1,    66,    -1,
-      63,    -1,    64,    -1,    80,    -1,    61,    -1,    43,    -1,
-      83,    84,    88,    44,    38,    43,    -1,    83,    84,    88,
-      44,    38,    49,    78,    50,    43,    -1,    83,    13,    88,
-      44,    38,    73,    43,    -1,    79,    -1,    78,    51,    79,
-      -1,    62,    -1,    14,    44,    89,    -1,     8,    81,    43,
-      -1,    82,    -1,    80,    51,    82,    -1,    38,    -1,    38,
-      15,    38,    -1,    38,    15,    16,    -1,    17,    -1,    18,
-      -1,    19,    -1,    20,    -1,    21,    -1,    22,    -1,    23,
-      -1,    24,    -1,    25,    -1,    26,    -1,    27,    -1,    28,
-      -1,    29,    -1,    30,    -1,    31,    -1,    32,    -1,    33,
-      -1,    34,    -1,    85,    -1,    91,    -1,    90,    -1,    90,
-      -1,    90,    -1,    90,    -1,    38,    -1,    39,    -1,    40,
-      -1,    41,    -1,    42,    -1,    91,    -1,    13,    -1,    37,
-      -1,     3,    -1,     4,    -1,     5,    -1,     6,    -1,     7,
-      -1,     8,    -1,     9,    -1,    10,    -1,    11,    -1,    12,
-      -1,    15,    -1,    16,    -1,    17,    -1,    18,    -1,    19,
-      -1
+      -1,    -1,    65,    76,    -1,    65,    43,    -1,     9,    88,
+      47,    67,    48,    -1,    -1,    67,    61,    -1,    67,    68,
+      -1,    67,    43,    -1,    88,    44,    38,    -1,    10,    88,
+      47,    70,    48,    -1,    -1,    70,    71,    -1,    61,    -1,
+      72,    -1,    43,    -1,    11,    88,    45,    85,    46,    12,
+      45,    85,    46,    43,    -1,    47,    74,    48,    -1,    -1,
+      74,    75,    -1,    76,    -1,    66,    -1,    63,    -1,    64,
+      -1,    80,    -1,    61,    -1,    43,    -1,    77,    -1,    83,
+      84,    88,    44,    38,    43,    -1,    83,    84,    88,    44,
+      38,    49,    78,    50,    43,    -1,    83,    13,    88,    44,
+      38,    73,    -1,    79,    -1,    78,    51,    79,    -1,    62,
+      -1,    14,    44,    89,    -1,     8,    81,    43,    -1,    82,
+      -1,    80,    51,    82,    -1,    38,    -1,    38,    15,    38,
+      -1,    38,    15,    16,    -1,    17,    -1,    18,    -1,    19,
+      -1,    20,    -1,    21,    -1,    22,    -1,    23,    -1,    24,
+      -1,    25,    -1,    26,    -1,    27,    -1,    28,    -1,    29,
+      -1,    30,    -1,    31,    -1,    32,    -1,    33,    -1,    34,
+      -1,    85,    -1,    91,    -1,    90,    -1,    90,    -1,    90,
+      -1,    90,    -1,    38,    -1,    39,    -1,    40,    -1,    41,
+      -1,    42,    -1,    91,    -1,    13,    -1,    37,    -1,     3,
+      -1,     4,    -1,     5,    -1,     6,    -1,     7,    -1,     8,
+      -1,     9,    -1,    10,    -1,    11,    -1,    12,    -1,    15,
+      -1,    16,    -1,    17,    -1,    18,    -1,    19,    -1
   };
 
   /* YYPRHS[YYN] -- Index of the first RHS symbol of rule number YYN in
@@ -1995,16 +1982,16 @@ public class ProtobufParser extends ProtobufActions
   {
          0,     0,     3,     5,     8,    12,    16,    20,    21,    22,
       25,    27,    29,    31,    33,    35,    37,    39,    41,    45,
-      49,    55,    59,    65,    71,    72,    75,    78,    81,    87,
-      88,    91,    94,    97,   101,   107,   108,   111,   113,   115,
-     117,   128,   132,   133,   136,   138,   140,   142,   144,   146,
-     148,   150,   157,   167,   175,   177,   181,   183,   187,   191,
-     193,   197,   199,   203,   207,   209,   211,   213,   215,   217,
-     219,   221,   223,   225,   227,   229,   231,   233,   235,   237,
-     239,   241,   243,   245,   247,   249,   251,   253,   255,   257,
-     259,   261,   263,   265,   267,   269,   271,   273,   275,   277,
-     279,   281,   283,   285,   287,   289,   291,   293,   295,   297,
-     299
+      49,    55,    59,    65,    71,    72,    75,    78,    84,    85,
+      88,    91,    94,    98,   104,   105,   108,   110,   112,   114,
+     125,   129,   130,   133,   135,   137,   139,   141,   143,   145,
+     147,   149,   156,   166,   173,   175,   179,   181,   185,   189,
+     191,   195,   197,   201,   205,   207,   209,   211,   213,   215,
+     217,   219,   221,   223,   225,   227,   229,   231,   233,   235,
+     237,   239,   241,   243,   245,   247,   249,   251,   253,   255,
+     257,   259,   261,   263,   265,   267,   269,   271,   273,   275,
+     277,   279,   281,   283,   285,   287,   289,   291,   293,   295,
+     297
   };
 
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
@@ -2012,16 +1999,16 @@ public class ProtobufParser extends ProtobufActions
   {
          0,    67,    67,    71,    76,    81,    86,    89,    93,    94,
       99,   100,   101,   102,   103,   104,   105,   106,   110,   115,
-     117,   122,   127,   129,   135,   136,   138,   140,   145,   151,
-     152,   154,   156,   160,   165,   171,   172,   177,   178,   179,
-     183,   188,   194,   195,   200,   201,   202,   203,   204,   205,
-     206,   211,   213,   218,   223,   225,   230,   232,   237,   242,
-     244,   249,   251,   253,   258,   259,   260,   264,   265,   266,
-     267,   268,   269,   270,   271,   272,   273,   274,   275,   276,
-     277,   278,   279,   283,   288,   293,   298,   304,   305,   306,
-     307,   308,   309,   314,   315,   319,   320,   321,   322,   323,
-     324,   325,   326,   327,   328,   329,   330,   331,   332,   333,
-     334
+     117,   122,   127,   129,   135,   136,   138,   143,   149,   150,
+     152,   154,   158,   163,   169,   170,   175,   176,   177,   181,
+     186,   192,   193,   198,   199,   200,   201,   202,   203,   204,
+     209,   210,   212,   217,   221,   223,   228,   230,   235,   240,
+     242,   247,   249,   251,   256,   257,   258,   262,   263,   264,
+     265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
+     275,   276,   277,   281,   286,   291,   296,   302,   303,   304,
+     305,   306,   307,   312,   313,   317,   318,   319,   320,   321,
+     322,   323,   324,   325,   326,   327,   328,   329,   330,   331,
+     332
   };
 
   // Report on the debug stream that the rule yyrule is going to be reduced.
@@ -2086,7 +2073,7 @@ public class ProtobufParser extends ProtobufActions
       return yyundef_token_;
   }
 
-  private static final int yylast_ = 373;
+  private static final int yylast_ = 318;
   private static final int yynnts_ = 40;
   private static final int yyempty_ = -2;
   private static final int yyfinal_ = 4;
@@ -2133,7 +2120,7 @@ public class ProtobufParser extends ProtobufActions
 
 
 /* Line 876 of lalr1.java  */
-/* Line 2137 of "./tmp"  */
+/* Line 2124 of "./tmp"  */
 
 }
 

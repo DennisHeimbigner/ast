@@ -302,10 +302,11 @@ class ProtobufLexer implements Lexer
             } else if(numchars1.indexOf(c) >= 0) {
 		// Special check for single char "+-."
 		int cp = peek();
-		if("+-.".indexOf(c) >= 0 && numcharsn.indexOf(c) < 0) {
+                if("+-.".indexOf(c) >= 0 && numcharsn.indexOf(cp) < 0) {
 		    // single char sign token
 		    yytext.append((char)c);
 		    token = c;
+                    read();
 		} else {		
                     // probably a number
                     token = parsenumber(c);
@@ -359,6 +360,10 @@ class ProtobufLexer implements Lexer
     parsenumber(int c) throws IOException
     {
 	int radix = 10;
+	if(c == '-') { // we know this is followed by a digit
+	    yytext.append((char)c))
+	    c = read(c);
+	}
         if(c == '0') {// Hex or octal integer
             yytext.append((char) c);
             int c1 = read();

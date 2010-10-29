@@ -135,8 +135,6 @@ fieldlist:
 	    {$$=fieldlist(null,null);}
 	| fieldlist field
 	    {$$=fieldlist($1,$2);}
-	| fieldlist group
-	    {$$=$1;} /* ignore groups */
 	| fieldlist ';'
 	    {$$=$1;}
 	;
@@ -208,16 +206,16 @@ messageelement:
 
 // tag number must be 2^28-1 or lower
 field:
-	  cardinality type name '=' INTCONST  ';'
+	   group {$$=$1;}
+	| cardinality type name '=' INTCONST  ';'
 	    {$$=field($1,$2,$3,$5,null);}
 	| cardinality type name '=' INTCONST '[' fieldoptionlist ']'  ';'
 	    {$$=field($1,$2,$3,$5,$7);}
-	;
+        ;
 
 group:
-	cardinality GROUP name '=' INTCONST  messagebody ';'
-	    {$$=group($1,$3,$5,$7);}
-        ;
+	  cardinality GROUP name '=' INTCONST  messagebody 
+	    {$$=group($1,$3,$5,$6);}
 
 fieldoptionlist:
 	  fieldoption

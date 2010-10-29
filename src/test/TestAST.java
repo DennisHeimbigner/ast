@@ -72,7 +72,7 @@ public class TestAST extends TestFiles
     public void testAST() throws Exception
     {
         //Debug.setTag("trace.semantics");
-        Debug.setTag("trace.imports");
+        //Debug.setTag("trace.imports");
         Debug.setTag("trace.parse");
         if(xtestfiles.length > 0) {
 	    tests = xtestfiles;

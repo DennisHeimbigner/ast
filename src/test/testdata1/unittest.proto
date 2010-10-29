@@ -387,8 +387,8 @@ message TestMutualRecursionB {
 // in protobuf_unittest_proto.
 message TestDupFieldNumber {                        // NO_PROTO1
   optional int32 a = 1;                             // NO_PROTO1
-  optional group Foo = 2 { optional int32 a = 1; }  // NO_PROTO1
-  optional group Bar = 3 { optional int32 a = 1; }  // NO_PROTO1
+//  optional group Foo = 2 { optional int32 a = 1; }  // NO_PROTO1
+//  optional group Bar = 3 { optional int32 a = 1; }  // NO_PROTO1
 }                                                   // NO_PROTO1
 
 
