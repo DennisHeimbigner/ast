@@ -1,5 +1,3 @@
 message m1 {
-  optional  int32 small_int32  = 4 [default = -0x7FFFFFFF];
+  optional float zero_float = 7 [default = 0];
 };
-
-

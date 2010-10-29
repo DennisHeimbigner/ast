@@ -42,7 +42,7 @@ abstract public class AST
 
     static final int MAXFIELDID = MAXEXTENSION;
 
-    static final String DEFAULTNAME = ".DEFAULT";
+    static final String DEFAULTNAME = "$DEFAULT";
 
     static final int MINGOOGLERANGE = 19000;
     static final int MAXGOOGLERANGE = 19999;

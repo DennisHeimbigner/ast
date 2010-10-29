@@ -57,6 +57,8 @@ class ProtobufLexer implements Lexer
     static final String hexcharsn = "0123456789abcdefABCDEF";
     static final String octcharsn = "01234567";
 
+    static String GROUPKEYWORD = "group";
+
     static String[] keywords = new String[]{
 	"import",
 	"package",
@@ -74,7 +76,7 @@ class ProtobufLexer implements Lexer
 	"required",
 	"optional",
 	"repeated",
-	"group",
+	GROUPKEYWORD,
 	"double",
 	"float",
 	"int32",
@@ -92,6 +94,8 @@ class ProtobufLexer implements Lexer
 	"bytes",
 	"true",
 	"false",
+	"inf",
+	"nan"
 	};
 
     static int[] keytokens = new int[]{
@@ -129,6 +133,8 @@ class ProtobufLexer implements Lexer
 	BYTES,
 	TRUE,
 	FALSE,
+	POSINF,
+	POSNAN
     };
 
     // structure for file stack
@@ -139,6 +145,12 @@ class ProtobufLexer implements Lexer
 	int lineno;
 	int charno;
     }
+
+    enum IDstate {
+	ALL, // Accept any non-whitespace sequence as an identifier
+	NOKEYWORD, // ALL - all keywords
+	NOGROUP // ALL - group keyword
+    };
 
     /**************************************************/
     /* Per-lexer state */
@@ -157,7 +169,8 @@ class ProtobufLexer implements Lexer
     Stack<FileEntry> filestack = null;
     boolean eof2 = false;
     List<String> includepaths = null;
-    boolean forceidentifier = false;
+    IDstate idstate = IDstate.NOKEYWORD;
+
 
     /**
      * *********************************************
@@ -204,7 +217,7 @@ class ProtobufLexer implements Lexer
     {
         lookahead.insert(0, (char) c);
         charno--;
-	if(charno == 0 || charno == '\n') {lineno--; charno = 1;}
+	if(charno == 0 || c == '\n') {lineno--; charno = 1;}
     }
 
     int
@@ -306,7 +319,6 @@ class ProtobufLexer implements Lexer
 		    // single char sign token
 		    yytext.append((char)c);
 		    token = c;
-                    read();
 		} else {		
                     // probably a number
                     token = parsenumber(c);
@@ -328,7 +340,7 @@ class ProtobufLexer implements Lexer
                 if(tokentext.startsWith("google.protobuf.")
                    && tokentext.endsWith("Option")) 
                     token = GOOGLEOPTION;
-                else if(!forceidentifier) {
+                else if(idstate == IDstate.NOKEYWORD) {
                     // check for keyword: treat as case sensitive
                     for(int i=0;i<keywords.length;i++) {
                         if (keywords[i].equals(tokentext)) {
@@ -336,8 +348,11 @@ class ProtobufLexer implements Lexer
                             break;
                         }
                     }
+		} else if(idstate == IDstate.NOGROUP
+		          && GROUPKEYWORD.equalsIgnoreCase(tokentext)) {
+		    token = GROUP;
                 }
-                forceidentifier = false;
+                idstate = IDstate.NOKEYWORD;
             } else {
                 /* we have a single char token */
                 token = c;
@@ -361,18 +376,18 @@ class ProtobufLexer implements Lexer
     {
 	int radix = 10;
 	if(c == '-') { // we know this is followed by a digit
-	    yytext.append((char)c))
-	    c = read(c);
+	    yytext.append((char)c);
+	    c = read();
 	}
         if(c == '0') {// Hex or octal integer
             yytext.append((char) c);
-            int c1 = read();
+            // read enough characters to determine what we have
+            int c1 = peek();
             if(c1 == 'x' || c1 == 'X') {
-	        int c2 = peek();
-		if(hexcharsn.indexOf(c2) >= 0) radix = 16;
-		else pushback(c1); // encountered 0x... that is 0 followed by a name
-            } else if(octcharsn.indexOf(c) >= 0) radix = 8;
-            else radix = 10;
+               radix = 16;
+               read(); // skip leading 'x'
+            } else
+                radix = 8;
         }  else
             yytext.append((char) c);
         boolean more = true;
@@ -503,8 +518,8 @@ class ProtobufLexer implements Lexer
 	FileEntry entry = new FileEntry();
 	entry.filename = filename;
 	entry.stream = stream;
-	entry.lineno = endpos.lineno;
-	entry.charno = endpos.charno;
+	entry.lineno = lineno;
+	entry.charno = charno;
 	filestack.push(entry);
 	startpos.lineno = 1;
         startpos.charno = 1;
@@ -524,8 +539,10 @@ class ProtobufLexer implements Lexer
 	FileEntry entry = filestack.pop();
 	filename = entry.filename;
 	stream = entry.stream;
-	startpos.lineno = (endpos.lineno = entry.lineno);
-	startpos.charno = (endpos.charno = entry.charno);
+        lineno = entry.lineno;
+        charno = entry.charno;
+	startpos.lineno = (endpos.lineno = lineno);
+	startpos.charno = (endpos.charno = charno);
         if(Debug.enabled("trace.imports"))
 	    System.err.printf("[%d] re-enter: %s ",filestack.size(),filename);
 	return true;
@@ -553,14 +570,19 @@ class ProtobufLexer implements Lexer
     // Defined above
 
     /**
-     * Entry point for error reporting.  Emits an error
+     * Entry point for error and warning reporting.  Emits an report
      * in a user-defined way.
      *
-     * @param s The string for the error message.
+     * @param s The string for the error/warning message.
+     * @param iswarning true if should report a warning
      */
-    public void yyerror(String s)
+    public void yyerror(String s) {yyreport(s,false);}
+    public void yywarning(String s) {yyreport(s,true);}
+
+    public void yyreport(String s, boolean iswarning)
     {
-	System.err.println(String.format("yyerror %s:%s.%s ; %s",
+	System.err.println(String.format("%s %s:%s.%s ; %s",
+			   (iswarning?"warning":"error"),
 			   filename,lineno,charno,s));
         if(yytext.length() > 0)
             System.err.print("; near |"+ yytext + "|");

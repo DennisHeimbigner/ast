@@ -72,6 +72,7 @@ public void setIncludePaths(List<String> paths)
 
 abstract public boolean parse(String filename,Reader stream) throws IOException;
 abstract public Object parseError(String msg);
+abstract public Object parseWarning(String msg);
 abstract int getDebugLevel();
 abstract void setDebugLevel(int level);
 
@@ -430,8 +431,18 @@ position()
     return new Position(lexstate.lineno,lexstate.charno);
 }
 
-public void startsymbol() {lexstate.forceidentifier = true;}
-public void endsymbol()   {lexstate.forceidentifier = false;}
+public void startsymbol(boolean nogroup)
+{
+    if(nogroup)
+        lexstate.idstate = ProtobufLexer.IDstate.NOGROUP;
+    else
+	lexstate.idstate = ProtobufLexer.IDstate.NOKEYWORD;
+}
+
+public void endsymbol()
+{
+    lexstate.idstate = ProtobufLexer.IDstate.NOKEYWORD;
+}
 
 void notimplemented(String s)
 {

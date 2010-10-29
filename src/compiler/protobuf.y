@@ -41,6 +41,12 @@ import unidata.protobuf.compiler.AST.Position;
         return parse();
     }
 
+    public Object parseWarning(String s)
+    {
+	lexstate.yywarning(s);
+	return null;
+    }
+
     public Object parseError(String s)
     {
 	yyerror(s);
@@ -57,7 +63,7 @@ import unidata.protobuf.compiler.AST.Position;
 %token GOOGLEOPTION
 %token ENDFILE
 
-%token NAME INTCONST FLOATCONST STRINGCONST TRUE FALSE
+%token NAME INTCONST FLOATCONST STRINGCONST TRUE FALSE POSNAN POSINF NEGNAN NEGINF
 
 
 %start root
@@ -305,32 +311,25 @@ constant:
 	| STRINGCONST  {$$=$1;}
 	| TRUE {$$=$1;}
 	| FALSE {$$=$1;}
+	| POSNAN {$$=$1;}
+	| POSINF {$$=$1;}
+	| '-' POSNAN {$$ = "-nan";}
+	| '-' POSINF {$$ = "-inf";}
         ;
 
 // Some keywords are legal as symbols
 symbol:
-	  symbolnotgroup {$$=$1;}
-	| GROUP {$$=$1;}
+	  startsymbol NAME endsymbol {$$=$2;}
 	;
 
 symbolnotgroup:
-	  NAME {$$=$1;}
-	| IMPORT {$$=$1;}
-	| PACKAGE {$$=$1;}
-	| OPTION {$$=$1;}
-	| MESSAGE {$$=$1;}
-	| EXTEND {$$=$1;}
-	| EXTENSIONS {$$=$1;}
-	| ENUM {$$=$1;}
-	| SERVICE {$$=$1;}
-	| RPC {$$=$1;}
-	| RETURNS {$$=$1;}
-	| TO {$$=$1;}
-	| MAX {$$=$1;}
-	| REQUIRED {$$=$1;}
-	| OPTIONAL {$$=$1;}
-	| REPEATED {$$=$1;}
+	  startsymbol_nogroup NAME endsymbol {$$=$2;}
 	;
+
+startsymbol_nogroup:   /*empty*/ {startsymbol(true);} ;
+startsymbol:           /*empty*/ {startsymbol(false);} ;
+
+endsymbol: /*empty*/ {endsymbol();}
 
 // the following are excluded because they cause parser conflicts: "default:
 
