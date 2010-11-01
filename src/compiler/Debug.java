@@ -450,6 +450,32 @@ private static String qualnamefor(AST node)
         return node.qualifiedname;
     return namefor(node);
 }    
+
+
+static void printChildSets(AST.Root root, PrintStream w)
+	{printChildSets(root,new PrintWriter(w));}
+
+static void printChildSets(AST.Root root, PrintWriter w)
+{
+    for(AST ast: root.getNodeSet()) {
+	if(ast.getName() == null || ast.getName().length() == 0)
+            w.printf("[%d](%s): children=",ast.getId(),ast.getSort().getName());
+        else
+            w.print(ast.getName()+": children=");
+	w.print("{");
+	if(ast.getChildSet() != null) {
+	    for(AST sub: ast.getChildSet()) {
+		w.print(" "+sub.getName());
+	    }
+	}
+	w.print("}");
+	w.println();	
+    }
+    w.flush();
+}
+
+
+
 } // class Debug
     
     

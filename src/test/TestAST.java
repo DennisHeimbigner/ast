@@ -73,7 +73,7 @@ public class TestAST extends TestFiles
     {
         //Debug.setTag("trace.semantics");
         //Debug.setTag("trace.imports");
-        Debug.setTag("trace.parse");
+        //Debug.setTag("trace.parse");
         if(xtestfiles.length > 0) {
 	    tests = xtestfiles;
             testdir= xtestpath;

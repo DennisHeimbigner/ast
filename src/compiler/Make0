@@ -1,9 +1,7 @@
-X=-Xpt
+X=-Xs
 
-# Define how to build the parser(s)
-
-#TEST=-I. t.proto
-TEST=-I./testdata1 unittest.proto
+TEST=-I. t.proto
+#TEST=-I./testdata1 unittest.proto
 
 TOPDIR=d:/IdeaProjects/ast/src/compiler
 

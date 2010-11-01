@@ -18,7 +18,8 @@ public class Main
     static boolean optionVerbose = false;
     static boolean optionDebug = false;
     static boolean optionParseDebug = false;
-    static boolean optionTreeDebug = false;
+    static boolean optionSemanticsDebug = false;
+    static boolean optionSemanticStepsDebug = false;
 
     static public void main(String[] argv) throws Exception
     {
@@ -46,7 +47,8 @@ public class Main
 		    switch (x) {
 		    case 'd': optionDebug = true; break;
 		    case 'p': optionParseDebug = true; break;
-		    case 't': optionTreeDebug = true; break;
+		    case 't': optionSemanticStepsDebug = true; break;
+		    case 's': optionSemanticsDebug = true; break;
 		    default: break;
 		    }
 		}
@@ -101,7 +103,9 @@ public class Main
 	}
 
 	// Semantic Processing
-	if(optionTreeDebug) Debug.setTag("trace");
+	if(optionSemanticStepsDebug) Debug.setTag("trace.semantics.steps");
+	if(optionSemanticStepsDebug) Debug.setTag("trace.semantics.steps");
+	if(optionSemanticsDebug) Debug.setTag("trace.semantics");
 	Semantics sem = new Semantics();
 	pass = sem.process(parser.getAST());
 	if(!pass) {

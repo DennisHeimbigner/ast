@@ -1,3 +1,7 @@
+package t1;
 message m1 {
-  optional float zero_float = 7 [default = 0];
-};
+  message m2 {
+    required float f2 = 7;
+  }
+  required m1.m2 f1 = 1;
+}

@@ -43,63 +43,68 @@ public class Semantics
 // Constructor
 public Semantics() {}
 
+static boolean ctrl = true;
+
 //////////////////////////////////////////////////
 
 public boolean process(AST.Root root)
 {
     PrintWriter w = new PrintWriter(System.err);
     Debug.printprops.qualified = true;
-    Debug.printprops.useuid = true;
+//    Debug.printprops.useuid = true;
     if(!collectnodes(root,root)) return false;
-    if(Debug.enabled("trace.semantics")) {
+    if(ctrl && Debug.enabled("trace.semantics.steps")) {
         w.println("\ncollectnodes:");
         Debug.printTreeNodes(root,w);        
     }
     if(!setfilelink(root,null)) return false;
-    if(Debug.enabled("trace.semantics")) {
+    if(ctrl&& Debug.enabled("trace.semantics.steps")) {
         w.println("\nsetcontainers:");
 	Debug.printTreeNodes(root,w);
     }
     if(!setpackagelink(root,null)) return false;
-    if(Debug.enabled("trace.semantics")) {
+    if(ctrl && Debug.enabled("trace.semantics.steps")) {
         w.println("\nsetcontainers:");
-	Debug.printTreeNodes(root,w);
+//	Debug.printTreeNodes(root,w);
+	Debug.printTree(root,w,true);
     }
     if(!groupbypackage(root)) return false;
-    if(Debug.enabled("trace.semantics")) {
+    if(ctrl && Debug.enabled("trace.semantics.steps")) {
         w.println("\ngroupbypackages:");
 	Debug.printTreeNodes(root,w);
     }
     if(!collectpackagenodesets(root)) return false;
-    if(Debug.enabled("trace.semantics")) {
+    if(ctrl && Debug.enabled("trace.semantics.steps")) {
         w.println("\ncollectpackagenodesets:");
 	Debug.printTreeNodes(root,w);
     }
     if(!setnodegroups(root)) return false;
-    if(Debug.enabled("trace.semantics")) {
+    if(ctrl && Debug.enabled("trace.semantics.steps")) {
         w.println("\nsetnodegroups:");
 	Debug.printTreeNodes(root,w);
     }
     if(!qualifynames(root)) return false;
     Debug.printprops.useuid = false;
-    if(Debug.enabled("trace.semantics")) {
+    if(ctrl && Debug.enabled("trace.semantics.steps")) {
         w.println("\nqualifynames:");
 	Debug.printTreeNodes(root,w);
     }
     if(!dereference(root)) return false;
-    if(Debug.enabled("trace.semantics")) {
+    if(ctrl && Debug.enabled("trace.semantics.steps")) {
         w.println("\ndereference:");
 	Debug.printTreeNodes(root,w);
     }
     if(!checkduplicates(root.getNodeSet())) return false;
     Debug.resetprintprops();
     
-    if(Debug.enabled("trace.semantics")) {
-        // Print two ways
+    // Print two ways
+    if(ctrl && Debug.enabled("trace.semantics")) {
         System.err.println("-------------------------");
         System.err.println("Tree Format:");
 	Debug.printTree(root,w);
         w.flush();
+    }
+    if(ctrl && Debug.enabled("trace.semantics")) {
         System.err.println("-------------------------");
         System.err.println("Proto Format:");
         Debug.print(root,w);
@@ -272,13 +277,14 @@ groupbypackage(AST.Root root)
 
     // Make each file's children to be children of the containing package
     for(AST.File file: root.getFileSet()) {
-	AST.Package p = file.getPackage();
-        if(p == null) continue;
+	AST.Package p = file.getFilePackage();
 	for(AST fnode: file.getChildSet()) {
-	    if(p.getChildSet() == null) p.setChildSet(new ArrayList<AST>());
+	    if(fnode == p) continue;
 	    p.getChildSet().add(fnode);
 	    fnode.setParent(p);
+            fnode.setPackage(p);
 	}
+        file.setChildSet(null);
     }
     return true;
 }
@@ -484,7 +490,7 @@ dereference(AST.Root root)
 {
     boolean found;
     String qualname;
-    List<AST> matches;
+    List<AST.Type> matches;
     List<AST> allnodes = root.getNodeSet();
     for(AST node: allnodes) {
 	switch (node.getSort()) {
@@ -493,7 +499,7 @@ dereference(AST.Root root)
 	    AST.Extend extender = (AST.Extend)node;
 	    String msgname = (String)extender.getAnnotation();
 	    extender.setAnnotation(null);
-	    matches = Util.findbyname(msgname,allnodes);
+	    matches = Util.findtypebyname(msgname,node,root);
 	    found = false;
 	    for(AST ast : matches) {
 		if(ast instanceof AST.Message) {
@@ -510,14 +516,14 @@ dereference(AST.Root root)
 	case FIELD:
 	    // deref the field type name
 	    AST.Field field = (AST.Field)node;
-	    String fieldtypename = (String)field.getAnnotation();
+	    String typename = (String)field.getAnnotation();
 	    field.setAnnotation(null);
             // Compute absolute name relative to the parent message
-	    List<AST.Type> typematches = Util.findtypebyname(fieldtypename,root);
+	    List<AST.Type> typematches = Util.findtypebyname(typename,node,root);
 	    if(typematches.size() == 0) {
-	        return semerror(node,"Field refers to undefined type: "+fieldtypename);
+	        return semerror(node,"Field refers to undefined type: "+typename);
 	    } else if(typematches.size() > 1) {
-		return semerror(typematches.get(0),"Duplicate type names:"+typematches.get(0).getName());
+		return semerror(node,"Duplicate type names:"+typematches.get(0).getName());
 	    } else { // typematches.size() == 1
    	        field.fieldtype = typematches.get(0);
 	    }
@@ -528,7 +534,7 @@ dereference(AST.Root root)
 	    AST.Rpc rpc = (AST.Rpc)node;
 	    String[] names = (String[])rpc.getAnnotation();
 	    rpc.setAnnotation(null);
-	    typematches = Util.findtypebyname(names[0],root);
+	    typematches = Util.findtypebyname(names[0],node,root);
 	    if(typematches.size() == 0) {
 	        return semerror(node,"RPC returntype refers to undefined type: "+names[0]);
 	    } else if(typematches.size() > 1) {
@@ -536,7 +542,7 @@ dereference(AST.Root root)
 	    } else {// typematches.size() == 1
    	        rpc.argtype = typematches.get(0);
 	    }
-	    typematches = Util.findtypebyname(names[1],root);
+	    typematches = Util.findtypebyname(names[1],node,root);
 	    if(typematches.size() == 0) {
 	        return semerror(node,"RPC returntype refers to undefined type: "+names[1]);
 	    } else if(typematches.size() > 1) {
@@ -688,8 +694,8 @@ boolean
 semerror(AST node, String msg)
 {
     if(node != null && node.position != null) {
-	System.err.println(String.format("Semantic error: %s ; line %d\n",
-			   msg, node.position.lineno));
+	System.err.println(String.format("Semantic error: %s ; %s\n",
+			   msg, node.position));
     } else {
 	System.err.println(String.format("Semantic error: %s\n",msg));
     }

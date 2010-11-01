@@ -142,8 +142,7 @@ class ProtobufLexer implements Lexer
     {
 	String filename;
 	Reader stream;
-	int lineno;
-	int charno;
+	AST.Position pos;
     }
 
     enum IDstate {
@@ -156,14 +155,12 @@ class ProtobufLexer implements Lexer
     /* Per-lexer state */
 
     ProtobufActions parsestate = null;
-    String filename = null;
     Reader stream = null;
     StringBuilder input = null;
     StringBuilder yytext = null;
     Position startpos = new Position();
     Position endpos = new Position();
-    int lineno = 1;
-    int charno = 1;
+    AST.Position pos = new AST.Position();
     Object lval = null;
     StringBuilder lookahead = null;
     Stack<FileEntry> filestack = null;
@@ -189,8 +186,9 @@ class ProtobufLexer implements Lexer
         yytext = new StringBuilder();
         lookahead = new StringBuilder();
         lval = null;
-        charno = 1;
-	lineno = 1;
+	pos.setLine(1);
+	pos.setChar(1);
+	pos.setFile(state.filename);
 	this.stream = null;
         filestack = new Stack<FileEntry>();
     }
@@ -200,7 +198,7 @@ class ProtobufLexer implements Lexer
 
     public void setStream(String filename, Reader stream)
     {
-	this.filename = filename;
+        this.pos.setFile(filename);
 	this.stream = stream;
     }
 
@@ -216,8 +214,8 @@ class ProtobufLexer implements Lexer
     pushback(int c)
     {
         lookahead.insert(0, (char) c);
-        charno--;
-	if(charno == 0 || c == '\n') {lineno--; charno = 1;}
+        pos.moveChar(-1);
+	if(pos.getChar() == 0 || c == '\n') {pos.moveLine(-1); pos.setChar(1);}
     }
 
     int
@@ -231,8 +229,8 @@ class ProtobufLexer implements Lexer
             c = lookahead.charAt(0);
             lookahead.deleteCharAt(0);
         }
-        charno++;
-	if(c == '\n') {lineno++; charno = 1;}	
+        pos.moveChar(1);
+	if(c == '\n') {pos.moveLine(1); pos.setChar(1);}	
         return c;
     }
 
@@ -249,7 +247,7 @@ class ProtobufLexer implements Lexer
         yytext.setLength(0);
 
 	// Capture start pos
-	startpos = new Position(lineno,charno);
+	startpos = pos.clone();
 
         token = -1;
 
@@ -367,7 +365,7 @@ class ProtobufLexer implements Lexer
         }
         if(parsestate.getDebugLevel() > 0) dumptoken(token, (String) lval);
         // Capture end pos
-        endpos = new Position(lineno,charno);
+        endpos = pos.clone();
         return token;       /* Return the type of the token.  */
     }
 
@@ -516,18 +514,16 @@ class ProtobufLexer implements Lexer
 	if(!f.canRead()) return false;
 	FileReader fr = new FileReader(f);
 	FileEntry entry = new FileEntry();
-	entry.filename = filename;
 	entry.stream = stream;
-	entry.lineno = lineno;
-	entry.charno = charno;
+	entry.pos = this.pos.clone();
 	filestack.push(entry);
-	startpos.lineno = 1;
-        startpos.charno = 1;
-	endpos.lineno = 1;
-        endpos.charno = 1;
+	pos = new AST.Position(1,1,importfile);
+	startpos = pos.clone();
+	endpos = pos.clone();
         stream = fr;
         if(Debug.enabled("trace.imports"))
-	    System.err.printf("[%d] enter: %s ",filestack.size()-1,filename);
+	    System.err.printf("[%d] enter: %s ",
+				filestack.size()-1,pos.toString());
 	return true;
     }
 
@@ -537,14 +533,13 @@ class ProtobufLexer implements Lexer
 	if(filestack.empty()) return false;
 	try {stream.close();} catch (IOException ioe) {};
 	FileEntry entry = filestack.pop();
-	filename = entry.filename;
 	stream = entry.stream;
-        lineno = entry.lineno;
-        charno = entry.charno;
-	startpos.lineno = (endpos.lineno = lineno);
-	startpos.charno = (endpos.charno = charno);
+	pos = entry.pos;
+	startpos = pos.clone();
+	endpos = pos.clone();
         if(Debug.enabled("trace.imports"))
-	    System.err.printf("[%d] re-enter: %s ",filestack.size(),filename);
+	    System.err.printf("[%d] re-enter: %s ",
+			filestack.size(),pos.toString());
 	return true;
     }
 
@@ -581,9 +576,9 @@ class ProtobufLexer implements Lexer
 
     public void yyreport(String s, boolean iswarning)
     {
-	System.err.println(String.format("%s %s:%s.%s ; %s",
+	System.err.println(String.format("%s %s; %s",
 			   (iswarning?"warning":"error"),
-			   filename,lineno,charno,s));
+			   pos.toString(),s));
         if(yytext.length() > 0)
             System.err.print("; near |"+ yytext + "|");
         System.err.println();
@@ -600,8 +595,8 @@ class ProtobufLexer implements Lexer
             }
         } catch (IOException ioe) {
         }
-        System.out.printf("Lex error: %s; at %s:%d.%d; %s |%s|\n",
-			  msg, filename,lineno,charno, yytext, nextline);
+        System.out.printf("Lex error: %s; at %s; %s |%s|\n",
+			  msg, pos.toString(), yytext, nextline);
     }
 
 }

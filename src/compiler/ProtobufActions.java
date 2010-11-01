@@ -428,7 +428,7 @@ illegalname(Object s)
 AST.Position
 position()
 {
-    return new Position(lexstate.lineno,lexstate.charno);
+    return lexstate.pos.clone();
 }
 
 public void startsymbol(boolean nogroup)

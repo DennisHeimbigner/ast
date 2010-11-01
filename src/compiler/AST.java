@@ -95,26 +95,45 @@ abstract public class AST
     {
 	int lineno = 0;
 	int charno = 0;
+	String filename = null;
 
         public Position() {}
-        public Position(int line, int charno) {this.lineno = line; this.charno = charno;}
+        public Position(int line, int charno, String filename)
+	{setLine(line); setChar(charno); setFile(filename);}
 
         public int getLine() {return lineno;}
         public int getChar() {return charno;}
+        public String getFile() {return filename;}
+
+        public void setLine(int lineno) {this.lineno = lineno;}
+        public void setChar(int charno) {this.charno = charno;}
+        public void setFile(String file) {this.filename = file;}
+
+        public void moveLine(int delta)
+	    {this.lineno += delta; if(this.lineno < 0) this.lineno = 0;}
+        public void moveChar(int delta)
+	    {this.charno += delta; if(this.charno < 0) this.charno = 0;}
 
 	public boolean equals(Object o)
 	{
 	    if(o instanceof Position) {
 		Position p = (Position)o;
-		return (p.getLine() == lineno && p.getChar() == charno);
+		return (p.getLine() == lineno && p.getChar() == charno
+		        && p.getFile().equals(filename));
 	    }
 	    return false;
 	}
 
 	public String toString()
         {
-	    return String.format("%d::%d",lineno,charno);
+	    return String.format("%s:%d.%d",filename,lineno,charno);
 	}
+
+	public Position clone()
+	{
+	    return new Position(lineno,charno,filename);
+	}
+
     }
 
     //////////////////////////////////////////////////
