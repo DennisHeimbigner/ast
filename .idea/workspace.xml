@@ -16,8 +16,8 @@
   <component name="ChangeListManager">
     <list default="true" readonly="true" id="b6e5da51-04fd-4a50-aa89-b93e0dc37ef8" name="Default" comment="" />
     <ignored path="ast.iws" />
-    <ignored path=".idea/workspace.xml" />
     <ignored path="$USER_HOME_GRIFFON$/" />
+    <ignored path=".idea/workspace.xml" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -111,7 +111,7 @@
       </breakpoint>
     </exception_breakpoints>
     <line_breakpoints>
-      <breakpoint url="file://$PROJECT_DIR$/src/compiler/Util.java" line="143" class="unidata.protobuf.compiler.Util" package="unidata.protobuf.compiler">
+      <breakpoint url="file://$PROJECT_DIR$/src/compiler/Util.java" line="166" class="unidata.protobuf.compiler.Util" package="unidata.protobuf.compiler">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -124,7 +124,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/compiler/Util.java" line="155" class="unidata.protobuf.compiler.Util" package="unidata.protobuf.compiler">
+      <breakpoint url="file://$PROJECT_DIR$/src/compiler/Util.java" line="146" class="unidata.protobuf.compiler.Util" package="unidata.protobuf.compiler">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -185,8 +185,8 @@
       <property name="field_breakpoints_groupByClasses" value="true" />
       <property name="method_breakpoints_groupByClasses" value="true" />
       <property name="exception_breakpoints_viewId" value="TABLE" />
-      <property name="exception_breakpoints_groupByClasses" value="true" />
       <property name="field_breakpoints_viewId" value="TABLE" />
+      <property name="exception_breakpoints_groupByClasses" value="true" />
       <property name="method_breakpoints_groupByMethods" value="false" />
     </ui_properties>
   </component>
@@ -203,7 +203,7 @@
       <file leaf-file-name="ProtobufActions.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufActions.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="231" column="0" selection-start="5913" selection-end="5913" vertical-scroll-proportion="0.0">
+            <state line="228" column="0" selection-start="5807" selection-end="5807" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -212,7 +212,7 @@
       <file leaf-file-name="ProtobufLexer.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufLexer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="376" column="0" selection-start="11069" selection-end="11069" vertical-scroll-proportion="0.0">
+            <state line="375" column="0" selection-start="11040" selection-end="11040" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -230,7 +230,7 @@
       <file leaf-file-name="Util.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/compiler/Util.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="159" column="0" selection-start="5751" selection-end="5751" vertical-scroll-proportion="0.33031675">
+            <state line="37" column="15" selection-start="2035" selection-end="2035" vertical-scroll-proportion="0.17770036">
               <folding />
             </state>
           </provider>
@@ -333,6 +333,8 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="Favorites" />
+      <pane id="PackagesPane" />
       <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
@@ -382,8 +384,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Favorites" />
-      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -402,8 +402,8 @@
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
-    <property name="GenerateAntBuildDialog.backupFiles" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
+    <property name="GenerateAntBuildDialog.backupFiles" value="true" />
     <property name="dynamic.classpath" value="false" />
   </component>
   <component name="RecentsManager">
@@ -414,7 +414,7 @@
       <recent name="unidata.protobuf.ast" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.TestAST">
+  <component name="RunManager" selected="Application.Main">
     <configuration default="true" type="Remote" factoryName="Remote">
       <option name="USE_SOCKET_TRANSPORT" value="true" />
       <option name="SERVER_MODE" value="false" />
@@ -635,21 +635,21 @@
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32646593" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.54833597" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.41204438" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.23084886" sideWeight="0.39936608" order="1" side_tool="true" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.23084886" sideWeight="0.9793978" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.23084886" sideWeight="0.030110935" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.23084886" sideWeight="0.009508716" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.53090334" sideWeight="0.0" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32646593" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.41204438" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
@@ -736,12 +736,31 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufActions.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="231" column="0" selection-start="5913" selection-end="5913" vertical-scroll-proportion="0.0" />
+        <state line="228" column="0" selection-start="5807" selection-end="5807" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufLexer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="376" column="0" selection-start="11069" selection-end="11069" vertical-scroll-proportion="0.0" />
+        <state line="375" column="0" selection-start="11040" selection-end="11040" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/compiler/Semantics.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="521" column="0" selection-start="16760" selection-end="16760" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/compiler/AST.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="185" column="0" selection-start="6584" selection-end="6584" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/TestAST.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="75" column="10" selection-start="2819" selection-end="2819" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/compiler/Debug.java">
@@ -749,30 +768,9 @@
         <state line="459" column="0" selection-start="15130" selection-end="15130" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/TestAST.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="75" column="10" selection-start="2819" selection-end="2819" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/compiler/Semantics.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="521" column="0" selection-start="16760" selection-end="16760" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/compiler/AST.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="185" column="0" selection-start="6584" selection-end="6584" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/compiler/Util.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="159" column="0" selection-start="5751" selection-end="5751" vertical-scroll-proportion="0.33031675">
+        <state line="37" column="15" selection-start="2035" selection-end="2035" vertical-scroll-proportion="0.17770036">
           <folding />
         </state>
       </provider>
