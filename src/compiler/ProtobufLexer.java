@@ -35,8 +35,7 @@ package unidata.protobuf.compiler;
 import java.io.*;
 import java.util.Stack;
 import java.util.List;
-import java.util.ArrayList;
-	
+
 import unidata.protobuf.compiler.AST.Position;
 import static unidata.protobuf.compiler.ProtobufParser.*;
 

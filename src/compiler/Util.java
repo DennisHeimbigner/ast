@@ -35,7 +35,7 @@ package unidata.protobuf.compiler;
 import java.util.*;
 import java.io.*;
 
-public class Util
+public class Aux
 {
 
 static int uid = 0; // for generating unique ids.
@@ -177,9 +177,6 @@ static List<String> parsepath(String name)
 
 static boolean matchpath(List<String> path, int index, AST node, List<AST> matches)
 {
-    // 1. see if node name == path[0]
-    if(!path.get(index).equals(node.getName())) return false; // no initial match
-    // Do we need to go deeper?
     if(path.size() == index) {// we have a complete match
 	matches.add(node);
     } else { // recurse to track path below
@@ -240,5 +237,5 @@ static protected boolean isprefix(String packname, String prefix)
     return true;
 }
 
-} // class Util
+} // class Aux
 

@@ -7,9 +7,6 @@ package unidata.protobuf.compiler;
 import java.io.*;
 import java.util.*;
 
-import static unidata.protobuf.compiler.ProtobufParser.*;
-import unidata.protobuf.compiler.AST.Position;
-
 public abstract class ProtobufActions
 {
 

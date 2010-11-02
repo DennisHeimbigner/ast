@@ -1,7 +1,6 @@
-package t1;
-message m1 {
-  message m2 {
-    required float f2 = 7;
+message TestAllTypes {
+  message NestedMessage {
+    optional int32 bb = 1;
   }
-  required m1.m2 f1 = 1;
+  optional NestedMessage optional_nested_message  = 18;
 }
