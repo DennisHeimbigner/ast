@@ -1,7 +1,7 @@
 X=-Xs
 
-TEST=-I. t.proto
-#TEST=-I./testdata1 unittest.proto
+#TEST=-I. t.proto
+TEST=-I./testdata1 addressbook.proto
 
 TOPDIR=d:/IdeaProjects/ast/src/compiler
 
