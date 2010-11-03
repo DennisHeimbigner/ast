@@ -107,7 +107,7 @@ protobufroot(Object file0)
 	    basename = filename.substring(0,index);
 	}
         // Escape the resulting name to convert dots to underscores
-        file.getFilePackage().setName(Util.escapedname(basename));
+        file.getFilePackage().setName(AuxFcns.escapedname(basename));
     }
 }
 

@@ -78,8 +78,8 @@ public class Main
 	}
 
 	String rawfilename = arglist.get(0);
-	String escapedfilename = Util.escapedname(rawfilename);
-	String inputfilename = Util.locatefile(rawfilename,includePaths);
+	String escapedfilename = AuxFcns.escapedname(rawfilename);
+	String inputfilename = AuxFcns.locatefile(rawfilename,includePaths);
 
 	if(inputfilename == null) {
 	    System.err.println("Cannot locate input file: "+rawfilename);

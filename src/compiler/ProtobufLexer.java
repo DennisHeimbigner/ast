@@ -508,7 +508,7 @@ class ProtobufLexer implements Lexer
     public boolean pushFileStack(String importfile)
 	throws IOException
     {
-	importfile = Util.locatefile(importfile,includepaths); // use include paths
+	importfile = AuxFcns.locatefile(importfile,includepaths); // use include paths
 	File f = new File(importfile);
 	if(!f.canRead()) return false;
 	FileReader fr = new FileReader(f);

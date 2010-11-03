@@ -459,7 +459,7 @@ qualifynames(AST.Root root)
 	switch (ast1.getSort()) {
 	case ROOT: case PACKAGE: break;
 	default:
-            String qualname = Util.computequalifiedname(ast1);
+            String qualname = AuxFcns.computequalifiedname(ast1);
             ast1.setQualifiedName(qualname);
             if(ast1.getQualifiedName() == null) continue;
             for(AST ast2 : allnodes) {
@@ -499,7 +499,7 @@ dereference(AST.Root root)
 	    AST.Extend extender = (AST.Extend)node;
 	    String msgname = (String)extender.getAnnotation();
 	    extender.setAnnotation(null);
-	    matches = Util.findtypebyname(msgname,node,root);
+	    matches = AuxFcns.findtypebyname(msgname,node,root);
 	    found = false;
 	    for(AST ast : matches) {
 		if(ast instanceof AST.Message) {
@@ -519,7 +519,7 @@ dereference(AST.Root root)
 	    String typename = (String)field.getAnnotation();
 	    field.setAnnotation(null);
             // Compute absolute name relative to the parent message
-	    List<AST.Type> typematches = Util.findtypebyname(typename,node,root);
+	    List<AST.Type> typematches = AuxFcns.findtypebyname(typename,node,root);
 	    if(typematches.size() == 0) {
 	        return semerror(node,"Field refers to undefined type: "+typename);
 	    } else if(typematches.size() > 1) {
@@ -534,7 +534,7 @@ dereference(AST.Root root)
 	    AST.Rpc rpc = (AST.Rpc)node;
 	    String[] names = (String[])rpc.getAnnotation();
 	    rpc.setAnnotation(null);
-	    typematches = Util.findtypebyname(names[0],node,root);
+	    typematches = AuxFcns.findtypebyname(names[0],node,root);
 	    if(typematches.size() == 0) {
 	        return semerror(node,"RPC returntype refers to undefined type: "+names[0]);
 	    } else if(typematches.size() > 1) {
@@ -542,7 +542,7 @@ dereference(AST.Root root)
 	    } else {// typematches.size() == 1
    	        rpc.argtype = typematches.get(0);
 	    }
-	    typematches = Util.findtypebyname(names[1],node,root);
+	    typematches = AuxFcns.findtypebyname(names[1],node,root);
 	    if(typematches.size() == 0) {
 	        return semerror(node,"RPC returntype refers to undefined type: "+names[1]);
 	    } else if(typematches.size() > 1) {
