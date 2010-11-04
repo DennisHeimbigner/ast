@@ -129,13 +129,13 @@ static void printR(AST node, int depth, PrintWriter writer)
     case ENUM:
 	AST.Enum astenum = (AST.Enum)node;
 	writer.printf("%senum %s {\n",indent(depth),name);
-	for(int i=0;i<astenum.enumfields.size();i++)
-	    printR(astenum.enumfields.get(i),depth+1,writer);
+	for(int i=0;i<astenum.getEnumValues().size();i++)
+	    printR(astenum.getEnumValues().get(i),depth+1,writer);
 	writer.printf("%s}\n",indent(depth));
 	break;
-    case ENUMFIELD:
-	AST.EnumField astenumfield = (AST.EnumField)node;
-	writer.printf("%s%s = %d;\n",indent(depth),name,astenumfield.value);
+    case ENUMVALUE:
+	AST.EnumValue astenumvalue = (AST.EnumValue)node;
+	writer.printf("%s%s = %d;\n",indent(depth),name,astenumvalue.value);
 	break;
     case EXTEND:
 	AST.Extend astextend = (AST.Extend)node;
@@ -315,8 +315,8 @@ static void printTreeR(AST node, int depth,
             break;
         case ENUM:
             AST.Enum e = (AST.Enum)node;
-              if(e.getEnumFields() != null) {
-                for(AST subnode : e.getEnumFields())
+              if(e.getEnumValues() != null) {
+                for(AST subnode : e.getEnumValues())
                     printTreeR(subnode,depth+1,writer,presemantic);
             }
             break;
@@ -344,7 +344,7 @@ static void printTreeR(AST node, int depth,
         case RPC:
         // No children
         case FILE:
-        case ENUMFIELD:
+        case ENUMVALUE:
         case OPTION:
         case PRIMITIVETYPE:
             break;
@@ -415,9 +415,9 @@ static void printTreeNode(AST node, int depth,PrintWriter writer)
 			   range.start,range.stop);
 	}
 	break;
-    case ENUMFIELD:
-	AST.EnumField astenumfield = (AST.EnumField)node;
-	writer.printf(" value=%s",astenumfield.value);
+    case ENUMVALUE:
+	AST.EnumValue astenumvalue = (AST.EnumValue)node;
+	writer.printf(" value=%s",astenumvalue.value);
 	break;
     case OPTION: // Option statement
 	AST.Option astoption = (AST.Option)node;

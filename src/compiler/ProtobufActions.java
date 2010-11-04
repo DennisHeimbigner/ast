@@ -209,7 +209,7 @@ useroption(Object name0, Object field, Object value0)
 {
     // Check field name for legality
     String fieldname = (String)field;
-    if(fieldname.charAt(0) != "." || illegalname(fieldname.substring(1))) {
+    if(fieldname.charAt(0) != '.' || illegalname(fieldname.substring(1))) {
         parseError("Illegal field specification: "+fieldname.toString());
 	return null;	
     }
@@ -239,10 +239,30 @@ extend(Object msg0, Object fieldlist0)
 }
 
 Object
-googlextend(Object googlepart, Object fieldlist0)
+googleextend(Object googlepart, Object fieldlist0)
 {
-    AST.Extend node = astfactory.newExtend("$googleextend",null);
-    node.setUserDefined(true);
+    AST.GoogleExtend node = astfactory.newGoogleExtend("$googleextend");
+    // Figure out the kind of google option extension
+    String kind = (String)googlepart;
+    AST.Sort sort = null;
+    if("google.protobuf.FileOptions".equalsIgnoreCase(kind)) {
+	sort = AST.Sort.FILE;
+    } else if("google.protobuf.MessageOptions".equalsIgnoreCase(kind)) {
+	sort = AST.Sort.MESSAGE;
+    } else if("google.protobuf.FieldOptions".equalsIgnoreCase(kind)) {
+	sort = AST.Sort.FIELD;
+    } else if("google.protobuf.EnumOptions".equalsIgnoreCase(kind)) {
+	sort = AST.Sort.ENUM;
+    } else if("google.protobuf.EnumValueOptions".equalsIgnoreCase(kind)) {
+	sort = AST.Sort.ENUMVALUE;
+    } else if("google.protobuf.ServiceOptions".equalsIgnoreCase(kind)) {
+	sort = AST.Sort.SERVICE;
+    } else if("google.protobuf.MethodOptions".equalsIgnoreCase(kind)) {
+	sort = AST.Sort.RPC;
+    } else {
+	return parseError("Illegal google user defined options class: "+googlepart);
+    }
+    node.setGoogleSort(sort);
     node.getChildSet().addAll((List<AST>)fieldlist0);
     node.setPosition(position());
     return node;
@@ -285,7 +305,7 @@ enumfield(Object name0, Object intvalue0, Object options0)
     } catch (NumberFormatException nfe) {
 	return parseError("Illegal enum field value: "+intvalue0);
     }
-    AST.EnumField node = astfactory.newEnumField((String)name0,value);
+    AST.EnumValue node = astfactory.newEnumValue((String)name0,value);
     if(options0 == null) options0 = new ArrayList<AST.Option>();
     node.getChildSet().addAll((List<AST>)options0);
     node.setPosition(position());

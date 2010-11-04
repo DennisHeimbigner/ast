@@ -388,10 +388,10 @@ setnodegroups(AST.Root root)
             break;          
         case ENUM:
             AST.Enum astenum = (AST.Enum)node;
-            astenum.setEnumFields(new ArrayList<AST.EnumField>());
+            astenum.setEnumValues(new ArrayList<AST.EnumValue>());
             for(AST ast: astenum.getChildSet()) {
                 switch(ast.getSort()) {
-                case ENUMFIELD: astenum.getEnumFields().add((AST.EnumField)ast); break;
+                case ENUMVALUE: astenum.getEnumValues().add((AST.EnumValue)ast); break;
                 default: assert(false) : "Illegal ast case"; break;
                 }
             
@@ -420,12 +420,12 @@ setnodegroups(AST.Root root)
                 }
             }
             break;
-        case ENUMFIELD:
-            AST.EnumField astenumfield = (AST.EnumField)node;
-            astenumfield.setOptions(new ArrayList<AST.Option>());
-            for(AST ast: astenumfield.getChildSet()) {
+        case ENUMVALUE:
+            AST.EnumValue astenumvalue = (AST.EnumValue)node;
+            astenumvalue.setOptions(new ArrayList<AST.Option>());
+            for(AST ast: astenumvalue.getChildSet()) {
                 switch(ast.getSort()) {
-                case OPTION: astenumfield.getOptions().add((AST.Option)ast); break;
+                case OPTION: astenumvalue.getOptions().add((AST.Option)ast); break;
                 default: assert(false) : "Illegal ast case"; break;
                 }
             }
@@ -588,8 +588,8 @@ checkduplicates(List<AST> allnodes)
         switch (node.getSort()) {
         case ENUM:
             // check for duplicates
-            for(AST.EnumField field1: ((AST.Enum)node).getEnumFields()) {
-                for(AST.EnumField field2: ((AST.Enum)node).getEnumFields()) {
+            for(AST.EnumValue field1: ((AST.Enum)node).getEnumValues()) {
+                for(AST.EnumValue field2: ((AST.Enum)node).getEnumValues()) {
                     if(field1 == field2) continue;
                     if(field1.value == field2.value) {
                         semerror(node,"Duplicate enum field numbers: "+field1.value);
@@ -659,8 +659,8 @@ rebuild(AST node, List<AST> newallnodes)
 	} break;
     case ENUM: {
 	AST.Enum en = (AST.Enum)node;
-	if(en.getEnumFields() != null)
-	    for(AST.EnumField ef: en.getEnumFields()) pass8(ef,newallnodes);
+	if(en.getEnumValues() != null)
+	    for(AST.EnumValue ef: en.getEnumValues()) pass8(ef,newallnodes);
 	} break;
     case EXTEND: {
 	AST.Extend ex = (AST.Extend)node;
@@ -692,7 +692,7 @@ rebuild(AST node, List<AST> newallnodes)
 	if(s.getRpcs() != null)
 	    for(AST.Rpc r: s.getRpcs()) pass8(r,newallnodes);	    
 	} break;
-    case ENUMFIELD:
+    case ENUMVALUE:
     case EXTENSIONS:
     case FILE:
     case OPTION:

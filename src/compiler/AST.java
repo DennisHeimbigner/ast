@@ -56,7 +56,7 @@ abstract public class AST
 
     // Define the kinds of AST objects to avoid having to do instanceof.
     public enum Sort {
-	PACKAGE("package"), ENUM("enum"), ENUMFIELD("enumfield"),
+	PACKAGE("package"), ENUM("enum"), ENUMVALUE("enumvalue"),
 	EXTEND("extend"), EXTENSIONS("extensions"),
 	FIELD("field"), MESSAGE("message"), GROUP("group"),
 	OPTION("option"), RPC("rpc"), SERVICE("service"),
@@ -84,12 +84,13 @@ abstract public class AST
     }
 
     // Capture location in file if possible
-    static public class Location
+/*    static public class Location
     {
         public Location (Position loc) {}
         public Location (Position begin, Position end) {}
         public String toString () { return "<location>";}
     }
+*/
 
     static public class Position
     {
@@ -180,8 +181,8 @@ abstract public class AST
     public List<AST> getNodeSet() {return this.nodeset;}
     public void setNodeSet(List<AST> nodeset) {this.nodeset = nodeset;}
 
-    public List<AST> getGoogleOptions() {return this.googleoptions;}
-    public void setGoogleOptions(List<AST> googleoptions) {this.googleoptions = googleoptions;}
+    public List<AST.Extend> getGoogleOptions() {return this.googleoptions;}
+    public void setGoogleOptions(List<AST.Extend> googleoptions) {this.googleoptions = googleoptions;}
 
     public Position getPosition() {return position;}
     public void setPosition(Position position) {this.position = position;}
@@ -295,7 +296,7 @@ static public class Package extends AST
 
 static public class Enum extends AST.Type
 {
-    List<EnumField> enumfields = new ArrayList<EnumField>();
+    List<EnumValue> enumvalues = new ArrayList<EnumValue>();
 
     public Enum(String name)
     {
@@ -303,18 +304,18 @@ static public class Enum extends AST.Type
 	setName(name);
     }
 
-    public List<EnumField> getEnumFields() {return this.enumfields;}
-    public void setEnumFields(List<EnumField> enumfields) {this.enumfields = enumfields;}
+    public List<EnumValue> getEnumValues() {return this.enumvalues;}
+    public void setEnumValues(List<EnumValue> enumvalues) {this.enumvalues = enumvalues;}
 }
 
-static public class EnumField extends AST
+static public class EnumValue extends AST
 {
     int value;
     List<Option> options = new ArrayList<Option>();
 
-    public EnumField(String name, int value)
+    public EnumValue(String name, int value)
     {
-	super(Sort.ENUMFIELD);
+	super(Sort.ENUMVALUE);
 	setName(name);
         setValue(value);
     }
@@ -331,6 +332,7 @@ static public class Extend extends AST
     List<Field> fields = new ArrayList<Field>();
     List<Group> groups = new ArrayList<Group>();
     boolean userdefined = false;
+    Class astclass = null; // Track the kind of google option
 
     public Extend(String name, String msgname)
     {
@@ -347,6 +349,19 @@ static public class Extend extends AST
     public void setGroups(List<Group> groups) {this.groups = groups;}
     public boolean getUserDefined() {return this.userdefined;}
     public void setUserDefined(boolean tf) {this.userdefined = tf;}
+}
+
+static public class GoogleExtend extends AST.Extend
+{
+    Sort googlesort = null; // Track the kind of google option
+
+    public GoogleExtend(String name)
+    {
+	super(name,null);
+    }
+
+    public Sort getGoogleSort() {return this.googlesort;}
+    public void setGoogleSort(Sort googlesort) {this.googlesort = googlesort;}
 }
 
 // Helper class for storing stop-start pairs
