@@ -235,7 +235,7 @@ message(Object name0, Object body0)
 Object
 extend(Object type0, Object fieldlist0)
 {
-    AST.Extend node = astfactory.newExtend((String)type0);
+    AST.Extend node = astfactory.newExtend("$extend",(String)type0);
     node.getChildSet().addAll((List<AST>)fieldlist0);
     node.setPosition(position());
     return node;
@@ -359,14 +359,32 @@ fieldoptionlist(Object list0, Object decl0)
 Object
 group(Object cardinality0, Object name0, Object id0, Object msgbody)
 {
-    parseError("Groups not implemented; ignored");
-    return null;
+    AST.Cardinality cardinality = null;
+    int id;
+
+    for(AST.Cardinality card: AST.Cardinality.values()) {
+        if(card.getName().equalsIgnoreCase((String)cardinality0))
+	    cardinality = card;
+    }
+    if(cardinality == null)
+  	return parseError("Illegal field cardinality: "+cardinality0);
+
+    try {
+	id = Integer.parseInt((String)id0);
+    } catch (NumberFormatException nfe) {
+  	return parseError("Illegal message field id: "+id0);
+    }
+    AST.Group node = astfactory.newGroup((String)name0,cardinality,id);
+    node.getChildSet().addAll((List<AST>)msgbody);
+    node.setPosition(position());
+    return node;
 }
 
 Object
 extensions(Object list0)
 {
-    AST.Extensions node = astfactory.newExtensions();
+    // everynode has a name of some sort
+    AST.Extensions node = astfactory.newExtensions("$extensions");
     node.setRanges((List<AST.Range>)list0);
     return node;
 }
@@ -428,17 +446,14 @@ position()
     return lexstate.pos.clone();
 }
 
-public void startsymbol(boolean nogroup)
+public void startsymbol(ProtobufLexer.IDstate symbolkind)
 {
-    if(nogroup)
-        lexstate.idstate = ProtobufLexer.IDstate.NOGROUP;
-    else
-	lexstate.idstate = ProtobufLexer.IDstate.NOKEYWORD;
+    lexstate.idstate = symbolkind;
 }
 
 public void endsymbol()
 {
-    lexstate.idstate = ProtobufLexer.IDstate.NOKEYWORD;
+    lexstate.idstate = ProtobufLexer.IDstate.NOKEYWORDID;
 }
 
 void notimplemented(String s)

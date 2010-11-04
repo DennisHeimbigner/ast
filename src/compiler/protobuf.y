@@ -220,8 +220,9 @@ field:
         ;
 
 group:
-	  cardinality GROUP name '=' INTCONST  messagebody 
+	cardinality GROUP name '=' INTCONST  messagebody 
 	    {$$=group($1,$3,$5,$6);}
+	;
 
 fieldoptionlist:
 	  fieldoption
@@ -326,9 +327,11 @@ symbolnotgroup:
 	  startsymbol_nogroup NAME endsymbol {$$=$2;}
 	;
 
-startsymbol_nogroup:   /*empty*/ {startsymbol(true);} ;
-startsymbol:           /*empty*/ {startsymbol(false);} ;
-
+startsymbol:           /*empty*/ {startsymbol(ProtobufLexer.IDstate.ANYID);} ;
+startsymbol_nogroup:   /*empty*/ {startsymbol(ProtobufLexer.IDstate.NOGROUPID);} ;
+/* Not used
+startsymbol_nokeyword: {startsymbol(ProtobufLexer.IDstate.NOKEYWORDID);} ;
+*/
 endsymbol: /*empty*/ {endsymbol();}
 
 // the following are excluded because they cause parser conflicts: "default:

@@ -58,7 +58,7 @@ abstract public class AST
     public enum Sort {
 	PACKAGE("package"), ENUM("enum"), ENUMFIELD("enumfield"),
 	EXTEND("extend"), EXTENSIONS("extensions"),
-	FIELD("field"), MESSAGE("message"),
+	FIELD("field"), MESSAGE("message"), GROUP("group"),
 	OPTION("option"), RPC("rpc"), SERVICE("service"),
 	PRIMITIVETYPE("primitivetype"), FILE("file"), ROOT("root");
 
@@ -328,9 +328,10 @@ static public class Extend extends AST
     Message message = null;
     List<Field> fields = null;
 
-    public Extend(String msgname)
+    public Extend(String name, String msgname)
     {
 	super(Sort.EXTEND);
+    setName(name);
 	setAnnotation(msgname); // temporary storage place
     }
 
@@ -354,9 +355,10 @@ static public class Extensions extends AST
 {
     List<Range> ranges = null;
 
-    public Extensions()
+    public Extensions(String name)
     {
 	super(Sort.EXTENSIONS);
+	setName(name);
     }
 
     public List<AST.Range> getRanges() {return this.ranges;}
@@ -387,6 +389,30 @@ static public class Field extends AST
     public void setId(int id) {this.id = id;}
     public List<Option> getOptions() {return this.options;}
     public void setOptions(List<Option> options) {this.options = options;}
+}
+
+@Deprecated
+static public class Group extends AST
+{
+    Cardinality cardinality = null;
+    Type fieldtype = null;
+    int id;
+
+
+
+
+    public Group(String name, Cardinality cardinality, int id)
+    {
+	super(Sort.FIELD);
+	setName(name);
+	setCardinality(cardinality);
+	setId(id);
+    }
+
+    public Cardinality getCardinality() {return this.cardinality;}
+    public void setCardinality(Cardinality cardinality) {this.cardinality = cardinality;}
+    public int getId() {return this.id;}
+    public void setId(int id) {this.id = id;}
 }
 
 static public class Message extends Type

@@ -41,9 +41,10 @@ public interface ASTFactory
     AST.Package newPackage(String name);
     AST.Enum newEnum(String name);
     AST.EnumField newEnumField(String name, int value);
-    AST.Extend newExtend(String msgname);
-    AST.Extensions newExtensions();
+    AST.Extend newExtend(String name, String msgname);
+    AST.Extensions newExtensions(String name);
     AST.Field newField(String name, AST.Cardinality cardinality, String fieldtype, int id);
+    AST.Group newGroup(String name, AST.Cardinality cardinality, int id);
     AST.Message newMessage(String name);
     AST.Option newOption(String name, String value);
     AST.Rpc newRpc(String name, String argtype, String returntype);

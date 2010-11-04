@@ -1,6 +1,3 @@
-message TestAllTypes {
-  message NestedMessage {
-    optional int32 bb = 1;
-  }
-  optional NestedMessage optional_nested_message  = 18;
+message Person {
+  repeated string package = 4;
 }

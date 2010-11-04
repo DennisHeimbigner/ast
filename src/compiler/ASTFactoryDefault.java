@@ -46,12 +46,14 @@ public class ASTFactoryDefault implements ASTFactory
 	{return new AST.Enum(name);}
     public AST.EnumField newEnumField(String name, int value)
 	{return new AST.EnumField(name, value);}
-    public AST.Extend newExtend(String msgname)
-	{return new AST.Extend(msgname);}
-    public AST.Extensions newExtensions()
-	{return new AST.Extensions();}
+    public AST.Extend newExtend(String name, String msgname)
+	{return new AST.Extend(name,msgname);}
+    public AST.Extensions newExtensions(String name)
+	{return new AST.Extensions(name);}
     public AST.Field newField(String name, AST.Cardinality cardinality, String fieldtype, int id)
 	{return new AST.Field(name, cardinality, fieldtype, id);}
+    public AST.Group newGroup(String name, AST.Cardinality cardinality, int id)
+	{return new AST.Group(name, cardinality, id);}
     public AST.Message newMessage(String name)
 	{return new AST.Message(name);}
     public AST.Option newOption(String name, String value)

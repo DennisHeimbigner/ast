@@ -1,7 +1,7 @@
 X=-Xs
 
-#TEST=-I. t.proto
-TEST=-I./testdata1 addressbook.proto
+TEST=-I. t.proto
+#TEST=-I./testdata1 addressbook.proto
 
 TOPDIR=d:/IdeaProjects/ast/src/compiler
 
@@ -33,18 +33,20 @@ clean::
 compile: $(BUILDDIR) $(SRC) 
 	javac -d $(BUILDDIR) $(SRC)
 
-# The sed operations are to fix some bugs in the generated java code
 $(PARSER): $(GRAMMAR)
 	rm -f ./tmp 
-	bison -v -t -L java $(GRAMMAR) -o ./tmp
-	sed -e "s/(null,\ null)/(new Position())/" -e "s/public class Location/static public class Location/" <./tmp >$(PARSER)	
+	bison -v -t -L java $(GRAMMAR) -o ./$(PARSER)
+
+# The sed operations are to fix some bugs in the generated java code
+#	bison -v -t -L java $(GRAMMAR) -o ./tmp
+#	sed -e "s/(null,\ null)/(new Position())/" -e "s/public class Location/static public class Location/" <./tmp >$(PARSER)	
 
 $(BUILDDIR):
 	mkdir $(BUILDDIR)
 
 test: compile
 	javac -d $(BUILDDIR) -classpath $(BUILDDIR) Main.java
-	java -cp $(TOPDIR)/$(BUILDDIR) Main ${X} $(TEST)
+	java -cp $(BUILDDIR) Main ${X} $(TEST)
 
 fix::
 	for f in $(SRC) ; do \

@@ -40,6 +40,8 @@ public class AuxFcns
 
 static int uid = 0; // for generating unique ids.
 
+static int nextuid() {return ++uid;}
+
 static String qualify(String relpath, AST node)
 {
     if(relpath.startsWith(".")) return relpath;
@@ -78,15 +80,14 @@ static String computequalifiedname(AST node)
         qualname = qualname + "." + path.get(i).getName();
     // For some nodes, we need to modify the qualified name
     switch (node.getSort()) {
-    // Following have special qualified names
     case EXTEND:
-        qualname = qualname + ".extend." + (++uid);
-        break;
-    case EXTENSIONS:    
-        qualname = qualname + ".extensions." + (++uid);
-        break;
+        qualname = qualname + "." +nextuid();
+	break;
+    case EXTENSIONS:
+        qualname = qualname + "." + nextuid();
+	break;
     case OPTION:
-        qualname = qualname + ".option." + (++uid);
+        qualname = qualname + ".$option." + nextuid();
         break;
     default: break;
     }
@@ -141,23 +142,24 @@ static List<AST.Type> findtypebyname(String typename, AST node, AST.Root root)
         return typematches;
     }
 
-    // Walk up the parent chain to the specified root looking for matches
+    // Walk up the scopenode chain to the specified root looking for matches
     // Start by finding the innermost enclosing type
-    AST parent;
+    AST scopenode;
     List<AST> matches = new ArrayList<AST>();
     List<String> path = parsepath(typename);
-    for(parent = node; parent != root; parent = parent.getParent()) {
-	matchpath(path, parent, matches);
-        if(matches.size() > 0) break;
+    for(scopenode = node; scopenode != root; scopenode = scopenode.getParent()) {
+	    // See if any of the children of this node will match
+	    if(AuxFcns.isscope(scopenode) && scopenode.getChildSet() != null) {
+            for(AST ast : scopenode.getChildSet())
+		        matchpath(path,ast,matches);
+            if(matches.size() > 0) break;
+        }
     }
     if(matches.size() == 0) {
 	// Search in other packages
 	for(AST.Package p: root.getPackageSet()) {
-	    // See if this package is a possible match
-	    if(path.get(0).equals(p.getName())) {
-	        matchpath(path,p,matches);
-	        if(matches.size() > 0) break; // stop when something is found
-	    }
+	    matchpath(path,p,matches);
+	    if(matches.size() > 0) break; // stop when something is found
 	}
     }
     // Transfer all type instances
@@ -177,26 +179,35 @@ static List<String> parsepath(String name)
 }
 
 /*
-Given a set of children of a given node,
-see if the given path can match starting with any
-of the children.
+Given a node, see if the given path can match starting at that node
 */
 static boolean matchpath(List<String> path, AST node, List<AST> matches)
 {
-    if(path.size() == 0) {// we have a complete match
+    assert(path.size() > 0);
+    // match the first element against this node
+    if(!node.getName().equals(path.get(0))) return false; // cannot possibly match
+    // First path element matches; are we done?
+    if(path.size() == 1) {
 	matches.add(node);
-    } else { // recurse to track path below
-        // Check all immediate children of this node for a match
-        if(node.getChildSet() != null) {
-	    for(AST ast : node.getChildSet()) { 
-	        matchpath(path.subList(1,path.size()),ast,matches); // recurse
-	    }
+	return true;
+    }
+    // Try the rest recursively
+    if(node.getChildSet() != null) {
+       for(AST ast : node.getChildSet()) { 
+	    matchpath(path.subList(1,path.size()),ast,matches); // recurse
         }
     }
     return (matches.size() > 0);
 }
 
+// The scope definers are messages and packages
+static boolean isscope(AST node)
+{
+    return node.getSort() == AST.Sort.MESSAGE || node.getSort() == AST.Sort.PACKAGE;
+}
 
+
+/* IGNORE
 static protected boolean searchpackage(String typename, AST parent,
                                     List<AST.Type> matches)
 {
@@ -212,6 +223,7 @@ static protected boolean searchpackage(String typename, AST parent,
     }
     return false;
 }
+
 
 static protected boolean issuffix(String qualname, String suffix)
 {
@@ -242,6 +254,6 @@ static protected boolean isprefix(String packname, String prefix)
     }
     return true;
 }
-
+*/
 } // class AuxFcns
 

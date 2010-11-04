@@ -171,6 +171,14 @@ static void printR(AST node, int depth, PrintWriter writer)
 	}
 	writer.println(";");
 	break;
+    case GROUP:
+	AST.Group astgroup = (AST.Group)node;
+	writer.printf("%s%s group %s = %d {",indent(depth),
+		      astgroup.cardinality.getName(),name,astgroup.id);
+	for(AST subnode : astgroup.getChildSet())
+	    printR(subnode,depth+1,writer);
+	writer.printf("%s}\n",indent(depth));
+	break;
     case OPTION: // Option statement
 	AST.Option astoption = (AST.Option)node;
         writer.printf("%soption ",indent(depth));
@@ -326,6 +334,13 @@ static void printTreeR(AST node, int depth,
                     printTreeR(subnode,depth+1,writer,presemantic);
             }
             break;
+        case GROUP:
+              AST.Group group = (AST.Group)node;
+              if(group.getChildSet() != null) {
+                for(AST subnode : group.getChildSet())
+                    printTreeR(subnode,depth+1,writer,presemantic);
+            }
+            break;
         case RPC:
         // No children
         case FILE:
@@ -386,6 +401,12 @@ static void printTreeNode(AST node, int depth,PrintWriter writer)
 	writer.printf(" cardinality=%s type=%s id=%d",
 		      astfield.cardinality.getName(),
 		      typename,astfield.id);
+	break;
+    case GROUP:
+	AST.Group astgroup = (AST.Group)node;
+	writer.printf(" cardinality=%s id=%d",
+		      astgroup.cardinality.getName(),
+		      astgroup.id);
 	break;
     case EXTENSIONS:
 	AST.Extensions astextensions = (AST.Extensions)node;
