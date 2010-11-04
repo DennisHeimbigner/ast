@@ -24,7 +24,7 @@ public class Main
     static public void main(String[] argv) throws Exception
     {
 	int c;
-	Getopt g = new Getopt("Main",argv,"-:D:I:L:X:V",null);
+	Getopt g = new Getopt("Main",argv,"-:D:I:L:W:V",null);
 	while ((c = g.getopt()) != -1) {
             switch (c) {
 	    case 1: // intermixed non-option
@@ -41,9 +41,9 @@ public class Main
 	    case 'L':
 		String optionLanguage = g.getOptarg();
 		break;
-	    case 'X':
-		String xvalue = g.getOptarg();
-		for(char x: xvalue.toCharArray()) {
+	    case 'W':
+		String wvalue = g.getOptarg();
+		for(char x: wvalue.toCharArray()) {
 		    switch (x) {
 		    case 'd': optionDebug = true; break;
 		    case 'p': optionParseDebug = true; break;

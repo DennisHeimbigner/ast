@@ -187,22 +187,12 @@ filepop()
     return true; //lexstate.popFileStack();
 }
 
-
 Object
 decllist(Object list0, Object decl0)
 {
     List<AST> list = (List<AST>)list0;
     if(list == null) list = new ArrayList<AST>();
     if(decl0 != null) list.add((AST)decl0);
-    return list;
-}
-
-Object
-optionstmtlist(Object list0, Object optionstmt0)
-{
-    List<AST> list = (List<AST>)list0;
-    if(list == null) list = new ArrayList<AST>();
-    if(optionstmt0 != null) list.add((AST)optionstmt0);
     return list;
 }
 
@@ -270,7 +260,7 @@ enumlist(Object list0, Object decl0)
 }
 
 Object
-enumfield(Object name0, Object intvalue0)
+enumfield(Object name0, Object intvalue0, Object options0)
 {
     int value = 0;
     try {
@@ -279,8 +269,19 @@ enumfield(Object name0, Object intvalue0)
 	return parseError("Illegal enum field value: "+intvalue0);
     }
     AST.EnumField node = astfactory.newEnumField((String)name0,value);
+    if(options0 == null) options0 = new ArrayList<AST.Option>();
+    node.getChildSet().addAll((List<AST>)options0);
     node.setPosition(position());
     return node;
+}
+
+Object
+enumoptionlist(Object list0, Object decl0)
+{
+    List<AST.Option> list = (List<AST.Option>)list0;
+    if(list == null) list = new ArrayList<AST.Option>();
+    if(decl0 != null) list.add((AST.Option)decl0);
+    return list;
 }
 
 Object
@@ -302,11 +303,21 @@ servicecaselist(Object list0, Object decl0)
 }
 
 Object
-rpc(Object name0, Object type0, Object returntype0)
+rpc(Object name0, Object type0, Object returntype0, Object optionlist)
 {
     AST.Rpc node = astfactory.newRpc((String)name0,(String)type0,(String)returntype0);
+    node.setChildSet((List<AST>)optionlist);
     node.setPosition(position());
     return node;
+}
+
+Object
+optionstmtlist(Object list0, Object optionstmt0)
+{
+    List<AST.Option> list = (List<AST.Option>)list0;
+    if(list == null) list = new ArrayList<AST.Option>();
+    if(optionstmt0 != null) list.add((AST.Option)optionstmt0);
+    return list;
 }
 
 Object

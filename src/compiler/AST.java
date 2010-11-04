@@ -311,6 +311,7 @@ static public class Enum extends AST.Type
 static public class EnumField extends AST
 {
     int value;
+    List<Option> options = null;
 
     public EnumField(String name, int value)
     {
@@ -321,17 +322,20 @@ static public class EnumField extends AST
 
     public int getValue() {return this.value;}
     public void setValue(int value) {this.value = value;}
+    public List<Option> getOptions() {return this.options;}
+    public void setOptions(List<Option> options) {this.options = options;}
 }
 
 static public class Extend extends AST
 {
     Message message = null;
     List<Field> fields = null;
+    List<Group> groups = null;
 
     public Extend(String name, String msgname)
     {
 	super(Sort.EXTEND);
-    setName(name);
+        setName(name);
 	setAnnotation(msgname); // temporary storage place
     }
 
@@ -339,7 +343,8 @@ static public class Extend extends AST
     public void setMessage(Message message) {this.message = message;}
     public List<Field> getFields() {return this.fields;}
     public void setFields(List<Field> fields) {this.fields = fields;}
-
+    public List<Group> getGroups() {return this.groups;}
+    public void setGroups(List<Group> groups) {this.groups = groups;}
 }
 
 
@@ -391,28 +396,15 @@ static public class Field extends AST
     public void setOptions(List<Option> options) {this.options = options;}
 }
 
-@Deprecated
-static public class Group extends AST
+// A group node is a special case of field
+static public class Group extends AST.Field
 {
-    Cardinality cardinality = null;
-    Type fieldtype = null;
-    int id;
-
-
-
-
     public Group(String name, Cardinality cardinality, int id)
     {
-	super(Sort.FIELD);
+	super(name,cardinality,null,id);
+	setSort(Sort.GROUP);
 	setName(name);
-	setCardinality(cardinality);
-	setId(id);
     }
-
-    public Cardinality getCardinality() {return this.cardinality;}
-    public void setCardinality(Cardinality cardinality) {this.cardinality = cardinality;}
-    public int getId() {return this.id;}
-    public void setId(int id) {this.id = id;}
 }
 
 static public class Message extends Type
@@ -424,6 +416,7 @@ static public class Message extends Type
     List<Extend> extenders = null;
     List<Extensions> extensions = null;
     List<Option> options = null;
+    List<Group> groups = null;
 
     public Message(String name)
     {

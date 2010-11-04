@@ -136,6 +136,7 @@ extend:
 	    {$$=null; /* ignore */ }
         ;
 
+/* A list of Fields or Groups */
 fieldlist:
 	  /*empty*/
 	    {$$=fieldlist(null,null);}
@@ -161,9 +162,20 @@ enumlist:
 	;
 
 enumfield:
-        name '=' INTCONST
-	    {if(($$=enumfield($1,$3))==null) {return YYABORT;}}
+          name '=' INTCONST
+	    {if(($$=enumfield($1,$3,null))==null) {return YYABORT;}}
+        | name '=' INTCONST '[' enumoptionlist ']'
+	    {if(($$=enumfield($1,$3,$5))==null) {return YYABORT;}}
         ;
+
+enumoptionlist:
+	  option
+	    {$$=enumoptionlist(null,$1);}
+	| enumoptionlist ',' option
+	    {$$=enumoptionlist($1,$3);}
+	;
+
+
 
 service:
         SERVICE name '{' servicecaselist '}'
@@ -184,9 +196,19 @@ servicecase:
 	;
 
 rpc:
-        RPC name '(' usertype ')' RETURNS '(' usertype ')' ';'
-	    {$$=rpc($2,$4,$8);}
+          RPC name '(' usertype ')' RETURNS '(' usertype ')' ';'
+	    {$$=rpc($2,$4,$8,null);}
+        | RPC name '(' usertype ')' RETURNS '(' usertype ')'
+          '{' optionstmtlist '}'
+	    {$$=rpc($2,$4,$8,$11);}
         ;
+
+optionstmtlist:
+	  /*empty*/
+	    {$$=optionstmtlist(null,null);}
+	| optionstmtlist optionstmt
+	    {$$=optionstmtlist($1,$2);}
+	;	
 
 messagebody:
         '{' messageelementlist '}'

@@ -155,10 +155,24 @@ static List<AST.Type> findtypebyname(String typename, AST node, AST.Root root)
             if(matches.size() > 0) break;
         }
     }
+    // Search in other packages in two ways
     if(matches.size() == 0) {
-	// Search in other packages
+	// 1. test for path against the package.
 	for(AST.Package p: root.getPackageSet()) {
-	    matchpath(path,p,matches);
+	    if(p.getName().equals(path.get(0))) 
+	        matchpath(path,p,matches);
+	    if(matches.size() > 0) break; // stop when something is found
+	}
+    }
+    // 2. test for path.subList(1,path.size()) against
+    //    the children of the package
+    //    This, of course, is inherently ambiguous because
+    //    There is actually no defined order for the packages
+    //    (although the original c++ parser probably has one).
+    if(matches.size() == 0) {
+	for(AST.Package p: root.getPackageSet()) {
+	    for(AST ast: p.getChildSet())
+                matchpath(path,ast,matches);
 	    if(matches.size() > 0) break; // stop when something is found
 	}
     }

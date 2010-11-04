@@ -69,8 +69,6 @@ public class TestFiles extends TestCase
 	"plugin",
 	"simplerpc",
 	"test-full",
-	"test",
-	"t",
 	"unittest",
 	"unittest_custom_options",
 	"unittest_embed_optimize_for",

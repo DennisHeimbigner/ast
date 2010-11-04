@@ -360,9 +360,11 @@ setnodegroups(AST.Root root)
             msg.extenders = new ArrayList<AST.Extend>();
             msg.extensions = new ArrayList<AST.Extensions>();
             msg.options = new ArrayList<AST.Option>();
+            msg.groups = new ArrayList<AST.Group>();
             for(AST ast: msg.getChildSet()) {
                 switch(ast.getSort()) {
                 case FIELD: msg.fields.add((AST.Field)ast); break;
+                case GROUP: msg.groups.add((AST.Group)ast); break;
                 case ENUM: msg.enums.add((AST.Enum)ast); break;
                 case MESSAGE: msg.messages.add((AST.Message)ast); break;
                 case EXTEND: msg.extenders.add((AST.Extend)ast); break;
@@ -398,9 +400,11 @@ setnodegroups(AST.Root root)
         case EXTEND:
             AST.Extend astextend = (AST.Extend)node;
             astextend.setFields(new ArrayList<AST.Field>());
+            astextend.setGroups(new ArrayList<AST.Group>());
             for(AST ast: astextend.getChildSet()) {
                 switch(ast.getSort()) {
                 case FIELD: astextend.getFields().add((AST.Field)ast); break;
+                case GROUP: astextend.getGroups().add((AST.Group)ast); break;
                 default: assert(false) : "Illegal ast case"; break;
                 }
             }
@@ -416,10 +420,20 @@ setnodegroups(AST.Root root)
                 }
             }
             break;
+        case ENUMFIELD:
+            AST.EnumField astenumfield = (AST.EnumField)node;
+            astenumfield.setOptions(new ArrayList<AST.Option>());
+            for(AST ast: astenumfield.getChildSet()) {
+                switch(ast.getSort()) {
+                case OPTION: astenumfield.getOptions().add((AST.Option)ast); break;
+                default: assert(false) : "Illegal ast case"; break;
+                }
+            }
+            break;
         // Cases where no extra action is required in pass
+        case GROUP:
         case ROOT:
         case FILE:
-        case ENUMFIELD:
         case EXTENSIONS:
         case OPTION:
         case RPC:
