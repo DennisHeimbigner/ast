@@ -121,7 +121,9 @@ option:
 	  name '=' constant
    	    {$$=option($1,$3);}
 	| '(' name ')' '=' constant
-   	    {$$=useroption($2,$5);}
+   	    {$$=useroption($2,null,$5);}
+	| '(' name ')' symbol '=' constant
+   	    {$$=useroption($2,$4,$6);}
         ;
 
 message:
@@ -133,7 +135,7 @@ extend:
           EXTEND path '{' fieldlist '}'
 	    {$$=extend($2,$4);}
         | EXTEND GOOGLEOPTION  '{' fieldlist '}'
-	    {$$=null; /* ignore */ }
+	    {$$=googleextend($2,$4);}
         ;
 
 /* A list of Fields or Groups */

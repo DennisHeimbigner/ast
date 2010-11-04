@@ -154,17 +154,16 @@ abstract public class AST
     String name = null;
     String qualifiedname = null;
     Object annotation = null;
-    List<AST> childset= null; // immediate children
-    List<AST> nodeset = null; // All nodes under this node;
-			      // null except for root and packages
+    List<AST> childset= new ArrayList<AST>(); // immediate children
+    List<AST> nodeset = new ArrayList<AST>(); // All nodes under this node;
+     			                      // null except for root and packages
 
     int refcount = 0;
+    List<AST.Extend> googleoptions = new ArrayList<AST.Extend>();
 
     AST(Sort sort)
     {
 	this.sort = sort;
-	if(nodeset == null) nodeset = new ArrayList<AST>();
-        if(childset == null) childset = new ArrayList<AST>();
         setuid();
     }
 
@@ -180,6 +179,9 @@ abstract public class AST
 
     public List<AST> getNodeSet() {return this.nodeset;}
     public void setNodeSet(List<AST> nodeset) {this.nodeset = nodeset;}
+
+    public List<AST> getGoogleOptions() {return this.googleoptions;}
+    public void setGoogleOptions(List<AST> googleoptions) {this.googleoptions = googleoptions;}
 
     public Position getPosition() {return position;}
     public void setPosition(Position position) {this.position = position;}
@@ -215,8 +217,8 @@ static public class Type extends AST
 // An instance of this is the root of the AST tree
 static public class Root extends AST 
 {
-    List<Package> packageset = null;
-    List<File> fileset = null;
+    List<Package> packageset = new ArrayList<Package>();
+    List<File> fileset = new ArrayList<File>();
     List<PrimitiveType> primitivetypes = null;
     File rootfile = null;
 
@@ -226,9 +228,6 @@ static public class Root extends AST
 	setName("");
         setPackage(null);
         setSrcFile(null);
-	setNodeSet(new ArrayList<AST>());
-	setPackageSet(new ArrayList<Package>());
-	setFileSet(new ArrayList<File>());
     }
 
     public List<File> getFileSet() {return this.fileset;}
@@ -248,7 +247,7 @@ static public class File extends AST
 {
     Package filepackage = null;
     List<File> imports = null;
-    List<AST> decls = null;
+    List<AST> decls = new ArrayList<AST>();
 
     File(String name)
     {
@@ -266,11 +265,11 @@ static public class Package extends AST
 {
     File packagefile = null; // inverse of AST.File.filepackage
 
-    List<Message> messages = null;
-    List<Extend> extenders = null;
-    List<Enum> enums = null;
-    List<Option> options = null;
-    List<Service> services = null;
+    List<Message> messages = new ArrayList<Message>();
+    List<Extend> extenders = new ArrayList<Extend>();
+    List<Enum> enums = new ArrayList<Enum>();
+    List<Option> options = new ArrayList<Option>();
+    List<Service> services = new ArrayList<Service>();
 
     public Package(String name)
     {
@@ -296,7 +295,7 @@ static public class Package extends AST
 
 static public class Enum extends AST.Type
 {
-    List<EnumField> enumfields = null;
+    List<EnumField> enumfields = new ArrayList<EnumField>();
 
     public Enum(String name)
     {
@@ -311,7 +310,7 @@ static public class Enum extends AST.Type
 static public class EnumField extends AST
 {
     int value;
-    List<Option> options = null;
+    List<Option> options = new ArrayList<Option>();
 
     public EnumField(String name, int value)
     {
@@ -329,8 +328,9 @@ static public class EnumField extends AST
 static public class Extend extends AST
 {
     Message message = null;
-    List<Field> fields = null;
-    List<Group> groups = null;
+    List<Field> fields = new ArrayList<Field>();
+    List<Group> groups = new ArrayList<Group>();
+    boolean userdefined = false;
 
     public Extend(String name, String msgname)
     {
@@ -345,8 +345,9 @@ static public class Extend extends AST
     public void setFields(List<Field> fields) {this.fields = fields;}
     public List<Group> getGroups() {return this.groups;}
     public void setGroups(List<Group> groups) {this.groups = groups;}
+    public boolean getUserDefined() {return this.userdefined;}
+    public void setUserDefined(boolean tf) {this.userdefined = tf;}
 }
-
 
 // Helper class for storing stop-start pairs
 static public class Range
@@ -358,7 +359,7 @@ static public class Range
 
 static public class Extensions extends AST
 {
-    List<Range> ranges = null;
+    List<Range> ranges = new ArrayList<Range>();
 
     public Extensions(String name)
     {
@@ -375,7 +376,7 @@ static public class Field extends AST
     Cardinality cardinality = null;
     Type fieldtype = null;
     int id;
-    List<Option> options = null;
+    List<Option> options = new ArrayList<Option>();
 
     public Field(String name, Cardinality cardinality, String fieldtype, int id)
     {
@@ -410,13 +411,13 @@ static public class Group extends AST.Field
 static public class Message extends Type
 {
     // Filled in during Semantic processing
-    List<Field> fields = null;
-    List<Enum> enums = null;
-    List<Message> messages = null;
-    List<Extend> extenders = null;
-    List<Extensions> extensions = null;
-    List<Option> options = null;
-    List<Group> groups = null;
+    List<Field> fields = new ArrayList<Field>();
+    List<Enum> enums = new ArrayList<Enum>();
+    List<Message> messages = new ArrayList<Message>();
+    List<Extend> extenders = new ArrayList<Extend>();
+    List<Extensions> extensions = new ArrayList<Extensions>();
+    List<Option> options = new ArrayList<Option>();
+    List<Group> groups = new ArrayList<Group>();
 
     public Message(String name)
     {
@@ -482,8 +483,8 @@ static public class Rpc extends AST
 static public class Service extends AST
 {
     // Filled in during semantic processing
-    List<Option> options = null;
-    List<Rpc> rpcs = null;
+    List<Option> options = new ArrayList<Option>();
+    List<Rpc> rpcs = new ArrayList<Rpc>();
 
     public Service(String name)
     {

@@ -205,11 +205,18 @@ option(Object name0, Object value0)
 }
 
 Object
-useroption(Object name0, Object value0)
+useroption(Object name0, Object field, Object value0)
 {
+    // Check field name for legality
+    String fieldname = (String)field;
+    if(fieldname.charAt(0) != "." || illegalname(fieldname.substring(1))) {
+        parseError("Illegal field specification: "+fieldname.toString());
+	return null;	
+    }
     AST.Option node = astfactory.newOption((String)name0,(String)value0);
     node.setPosition(position());
     node.setUserDefined(true);
+    node.setAnnotation((String)field);
     return node;
 }
 
@@ -223,9 +230,19 @@ message(Object name0, Object body0)
 }
 
 Object
-extend(Object type0, Object fieldlist0)
+extend(Object msg0, Object fieldlist0)
 {
-    AST.Extend node = astfactory.newExtend("$extend",(String)type0);
+    AST.Extend node = astfactory.newExtend("$extend",(String)msg0);
+    node.getChildSet().addAll((List<AST>)fieldlist0);
+    node.setPosition(position());
+    return node;
+}
+
+Object
+googlextend(Object googlepart, Object fieldlist0)
+{
+    AST.Extend node = astfactory.newExtend("$googleextend",null);
+    node.setUserDefined(true);
     node.getChildSet().addAll((List<AST>)fieldlist0);
     node.setPosition(position());
     return node;
