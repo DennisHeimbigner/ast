@@ -1,4 +1,4 @@
-#W=-Wp
+W=-Wp
 
 TEST=-I. t.proto
 #TEST=-I./testdata1 addressbook.proto

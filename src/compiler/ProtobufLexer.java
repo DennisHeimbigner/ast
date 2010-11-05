@@ -45,13 +45,14 @@ class ProtobufLexer implements Lexer {
     /* Define 1 and > 1st legal characters */
     /* Note: '.' is included but legality will be checked by semantic checker */
     static final String wordchars1 =
-            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_.";
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
     static final String wordcharsn =
-            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.";
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
 
     /* Number characters, but see below for handling leading '.' */
-    static final String numchars1 = ".+-0123456789";
+    static final String numchars1 = ".0123456789";
     static final String numcharsn = ".+-0123456789Ee";
+    static final char floatchars[] = new char[] {'.','E','e'};
     // Following are used for hex and octal integers only
     static final String hexcharsn = "0123456789abcdefABCDEF";
     static final String octcharsn = "01234567";
@@ -144,14 +145,6 @@ class ProtobufLexer implements Lexer {
         AST.Position pos;
     }
 
-    enum IDstate {
-        ANYID, // Accept any non-whitespace sequence as an identifier
-        NOKEYWORDID, // ANYID - all keywords
-        NOGROUPID // ANYID - group keyword
-    }
-
-    ;
-
     /**
      * **********************************************
      */
@@ -169,7 +162,7 @@ class ProtobufLexer implements Lexer {
     Stack<FileEntry> filestack = null;
     boolean eof2 = false;
     List<String> includepaths = null;
-    IDstate idstate = IDstate.NOKEYWORDID;
+    boolean namestate = false;
 
 
     /**
@@ -323,47 +316,18 @@ class ProtobufLexer implements Lexer {
                     if (more) yytext.append((char) c);
                 }
                 token = STRINGCONST;
+	    } else if(c == '.') { // May be either a number or a single char token
+		int cp = peek();
+		if(numcharsn.indexOf(cp) >= 0) {// assume a number
+		    token = parsenumber(c);
+		} else { // assume a word (possibly single character
+		    yytext.append((char)c);
+		    token = c;
+		}
             } else if (numchars1.indexOf(c) >= 0) {
-                // Special check for single char "+-."
-                int cp = peek();
-                if ("+-.".indexOf(c) >= 0 && numcharsn.indexOf(cp) < 0) {
-                    // single char sign token
-                    yytext.append((char) c);
-                    token = c;
-                } else {
-                    // probably a number
-                    token = parsenumber(c);
-                    if (token == 0) token = NAME; // Name, not a number
-                }
+		token = parsenumber(c);
             } else if (wordchars1.indexOf(c) >= 0) {
-                /* we have a NAME */
-                yytext.append((char) c);
-                while ((c = read()) > 0) {
-                    if (wordcharsn.indexOf(c) < 0) {
-                        pushback(c);
-                        break;
-                    }
-                    yytext.append((char) c);
-                }
-                token = NAME; // Default
-                // Check for googleoption
-                String tokentext = yytext.toString();
-                if (tokentext.startsWith("google.protobuf.")
-                        && tokentext.endsWith("Option"))
-                    token = GOOGLEOPTION;
-                else if (idstate == IDstate.NOKEYWORDID) {
-                    // check for keyword: treat as case sensitive
-                    for (int i = 0; i < keywords.length; i++) {
-                        if (keywords[i].equals(tokentext)) {
-                            token = keytokens[i];
-                            break;
-                        }
-                    }
-                } else if (idstate == IDstate.NOGROUPID
-                        && GROUPKEYWORD.equalsIgnoreCase(tokentext)) {
-                    token = GROUP;
-                }
-                idstate = IDstate.NOKEYWORDID;
+		token = parsename(c);
             } else {
                 /* we have a single char token */
                 token = c;
@@ -383,21 +347,46 @@ class ProtobufLexer implements Lexer {
     }
 
     int
+    parsename(int c) throws IOException
+    {
+	int token = 0;
+	yytext.append((char) c);
+        while ((c = read()) > 0) {
+            if (wordcharsn.indexOf(c) < 0) {
+		pushback(c);
+		break;
+            }
+            yytext.append((char) c);
+        }
+	token = NAME; // Default
+        String tokentext = yytext.toString();
+        if(!namestate) {
+            // check for keyword: treat as case sensitive
+            for (int i = 0; i < keywords.length; i++) {
+                if (keywords[i].equals(tokentext)) {
+                    token = keytokens[i];
+                    break;
+                }
+	    }
+        }
+	namestate = false;
+	return token;
+    }
+
+    int
     parsenumber(int c) throws IOException {
         int radix = 10;
-        if (c == '-') { // we know this is followed by a digit
-            yytext.append((char) c);
-            c = read();
-        }
         if (c == '0') {// Hex or octal integer
             yytext.append((char) c);
             // read enough characters to determine what we have
             int c1 = peek();
             if (c1 == 'x' || c1 == 'X') {
+                yytext.append('x');
                 radix = 16;
                 read(); // skip leading 'x'
-            } else
+            } else {
                 radix = 8;
+            }
         } else
             yytext.append((char) c);
         boolean more = true;
@@ -410,27 +399,16 @@ class ProtobufLexer implements Lexer {
             if (more) yytext.append((char) c);
         }
         pushback(c);
-        int numberkind = 0;
-        if (radix == 10) { // decimal int constant or float constant
+        int numberkind = INTCONST;
+        if (radix == 10) { // check for float constant
             // Should be either a decimal integer or decimal float 
-            try {
-                long number = Long.parseLong(yytext.toString());
-                numberkind = INTCONST;
-            } catch (NumberFormatException nfe) {
-            }
-            ;
-            if (numberkind == 0) try {
-                double number = Double.parseDouble(yytext.toString());
-                numberkind = FLOATCONST;
-            } catch (NumberFormatException nfe) {
-            }
-            ;
-        } else {// radix == 16 || radix == 8
-            try {
-                long number = Long.parseLong(yytext.toString(), radix);
-                numberkind = INTCONST;
-            } catch (NumberFormatException nfe) {
-            }
+	    String s = yytext.toString();
+	    for(char cp: floatchars) {
+		if(s.indexOf(cp) >= 0) {
+		    numberkind = FLOATCONST;
+		    break;
+		}
+	    }
         }
         return numberkind;
     }
@@ -589,7 +567,6 @@ class ProtobufLexer implements Lexer {
      * in a user-defined way.
      *
      * @param s         The string for the error/warning message.
-     * @param iswarning true if should report a warning
      */
     public void yyerror(String s) {
         yyreport(s, false);

@@ -205,18 +205,15 @@ option(Object name0, Object value0)
 }
 
 Object
-useroption(Object name0, Object field, Object value0)
+useroption(Object path0, Object pathlist0, Object value0)
 {
-    // Check field name for legality
-    String fieldname = (String)field;
-    if(fieldname.charAt(0) != '.' || illegalname(fieldname.substring(1))) {
-        parseError("Illegal field specification: "+fieldname.toString());
-	return null;	
-    }
-    AST.Option node = astfactory.newOption((String)name0,(String)value0);
+    List<String> pathlist = (List<String>)pathlist0;
+    pathlist.add(0,(String)path0);
+    String name = pathlist.get(pathlist.size()-1);
+    AST.Option node = astfactory.newOption((String)name,(String)value0);
     node.setPosition(position());
     node.setUserDefined(true);
-    node.setAnnotation((String)field);
+    node.setAnnotation(pathlist);
     return node;
 }
 
@@ -229,6 +226,9 @@ message(Object name0, Object body0)
     return node;
 }
 
+/* The protobuf user defined option mechanism is easily one of the stupidest
+   ideas I have ever seen; some one at Google was trying too clever by half
+*/
 Object
 extend(Object msg0, Object fieldlist0)
 {
@@ -239,9 +239,12 @@ extend(Object msg0, Object fieldlist0)
 }
 
 Object
-googleextend(Object googlepart, Object fieldlist0)
+googleextend(Object segment0, Object relpath0, Object fieldlist0)
 {
-    AST.GoogleExtend node = astfactory.newGoogleExtend("$googleextend");
+    List<String> relpath = (List<String>)relpath0;
+    relpath.add(0,segment0);
+    String name = relpath.get(relpath.size()-1);
+    AST.GoogleExtend node = astfactory.newGoogleExtend(name);
     // Figure out the kind of google option extension
     String kind = (String)googlepart;
     AST.Sort sort = null;
@@ -267,6 +270,17 @@ googleextend(Object googlepart, Object fieldlist0)
     node.setPosition(position());
     return node;
 }
+
+Object
+useroptionlist(Object list0, Object decl0, int parsecase)
+{
+    List<String> list = (List<String>)list0;
+    if(list == null) list = new ArrayList<String>();
+    if(decl0 != null) list.add((String)decl0);
+    return list;
+}
+
+
 
 Object
 fieldlist(Object list0, Object decl0)
@@ -494,14 +508,14 @@ position()
     return lexstate.pos.clone();
 }
 
-public void startsymbol(ProtobufLexer.IDstate symbolkind)
+public void startname()
 {
-    lexstate.idstate = symbolkind;
+    lexstate.namestate = true;
 }
 
-public void endsymbol()
+public void endname()
 {
-    lexstate.idstate = ProtobufLexer.IDstate.NOKEYWORDID;
+    lexstate.namestate = false;
 }
 
 void notimplemented(String s)

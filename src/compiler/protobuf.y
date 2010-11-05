@@ -55,12 +55,11 @@ import unidata.protobuf.compiler.AST.Position;
 }
 
 %token IMPORT PACKAGE OPTION MESSAGE EXTEND EXTENSIONS
-%token ENUM SERVICE RPC RETURNS GROUP
+%token ENUM SERVICE RPC RETURNS
 %token DEFAULT TO MAX REQUIRED OPTIONAL REPEATED
 %token DOUBLE FLOAT INT32 INT64 UINT32 UINT64
 %token SINT32 SINT64 FIXED32 FIXED64 SFIXED32 SFIXED64
 %token BOOL STRING BYTES
-%token GOOGLEOPTION
 %token ENDFILE
 
 %token NAME INTCONST FLOATCONST STRINGCONST TRUE FALSE POSNAN POSINF NEGNAN NEGINF
@@ -120,10 +119,8 @@ optionstmt:
 option:
 	  name '=' constant
    	    {$$=option($1,$3);}
-	| '(' name ')' '=' constant
-   	    {$$=useroption($2,null,$5);}
-	| '(' name ')' symbol '=' constant
-   	    {$$=useroption($2,$4,$6);}
+	| '(' path ')' '.' relpath '=' constant
+   	    {$$=useroption($2,$5,$7);}
         ;
 
 message:
@@ -134,8 +131,8 @@ message:
 extend:
           EXTEND path '{' fieldlist '}'
 	    {$$=extend($2,$4);}
-        | EXTEND GOOGLEOPTION  '{' fieldlist '}'
-	    {$$=googleextend($2,$4);}
+          EXTEND '(' path ')' '.' relpath '{' fieldlist '}'
+	    {$$=googleextend($3,$6,$8);}
         ;
 
 /* A list of Fields or Groups */
@@ -164,9 +161,9 @@ enumlist:
 	;
 
 enumfield:
-          name '=' INTCONST
+          name '=' intconst
 	    {if(($$=enumfield($1,$3,null))==null) {return YYABORT;}}
-        | name '=' INTCONST '[' enumoptionlist ']'
+        | name '=' intconst '[' enumoptionlist ']'
 	    {if(($$=enumfield($1,$3,$5))==null) {return YYABORT;}}
         ;
 
@@ -236,16 +233,12 @@ messageelement:
 
 // tag number must be 2^28-1 or lower
 field:
-	   group {$$=$1;}
-	| cardinality type name '=' INTCONST  ';'
+	  cardinality type name '=' INTCONST  ';'
 	    {$$=field($1,$2,$3,$5,null);}
 	| cardinality type name '=' INTCONST '[' fieldoptionlist ']'  ';'
 	    {$$=field($1,$2,$3,$5,$7);}
-        ;
-
-group:
-	cardinality GROUP name '=' INTCONST  messagebody 
-	    {$$=group($1,$3,$5,$6);}
+	| cardinality type name '=' INTCONST  messagebody 
+	    {$$=group($1,$2,$3,$5,$6);}
 	;
 
 fieldoptionlist:
@@ -309,30 +302,18 @@ type:
 
 
 usertype:
-	symbolnotgroup {$$=$1;} /* user defined type */
+	path {$$=$1;}
 	;
 
-// Package names can have embedded '.''s
 packagename:
-	symbol {$$=$1;}
+	path {$$=$1;}
 	;
 
-// Path is a reference to some other object, so it can have embedded '.'s.
-path:
-	symbol {$$=$1;}
-	;
-
-// names do not allow embedded '.'s
-name:
-	symbol
-	    {if(illegalname($1)) {return YYABORT;}; $$=$1;}
-	;
-
-// In constants, symbols will end up being treated as strings that just happen to be unquoted.
+// In constants, paths will end up being treated as strings that just happen to be unquoted.
 constant:
-          symbol  {$$=$1;}
-	| INTCONST  {$$=$1;}
-	| FLOATCONST  {$$=$1;}
+          path  {$$=$1;}
+	| intconst {$$=$1;}
+	| floatconst {$$=$1;}
 	| STRINGCONST  {$$=$1;}
 	| TRUE {$$=$1;}
 	| FALSE {$$=$1;}
@@ -342,21 +323,36 @@ constant:
 	| '-' POSINF {$$ = "-inf";}
         ;
 
-// Some keywords are legal as symbols
-symbol:
-	  startsymbol NAME endsymbol {$$=$2;}
+intconst:
+	  INTCONST {$$=$1;}
+	| '+' INTCONST {$$=("+"+$2);}
+	| '-' INTCONST {$$=("-"+$2);}
 	;
 
-symbolnotgroup:
-	  startsymbol_nogroup NAME endsymbol {$$=$2;}
+floatconst:
+	  FLOATCONST {$$=$1;}
+	| '+' FLOATCONST {$$=("+"+$1);}
+	| '-' FLOATCONST {$$=("-"+$1);}
 	;
 
-startsymbol:           /*empty*/ {startsymbol(ProtobufLexer.IDstate.ANYID);} ;
-startsymbol_nogroup:   /*empty*/ {startsymbol(ProtobufLexer.IDstate.NOGROUPID);} ;
-/* Not used
-startsymbol_nokeyword: {startsymbol(ProtobufLexer.IDstate.NOKEYWORDID);} ;
-*/
-endsymbol: /*empty*/ {endsymbol();}
+/* Relative or absolute */
+path:
+	  relpath {$$=path(null,$1);}
+	| '.' relpath {$$=path($1,$2);}
+	;
 
-// the following are excluded because they cause parser conflicts: "default:
+relpath:
+	  name
+	    {$$=relpath(null,$1);}
+	| relpath '.' name
+	    {$$=relpath($1,$3);}
+	;
 
+/* A Name can be a keyword */
+name:
+	startname NAME endname {$$=$2;}
+	;
+
+startname: /*empty*/ {startname();} ;
+
+endname: /*empty*/ {endname();}
