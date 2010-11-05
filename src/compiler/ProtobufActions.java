@@ -13,6 +13,9 @@ public abstract class ProtobufActions
 //////////////////////////////////////////////////
 // Class State
 
+static String GROUPKEYWORD = "group";
+static String GOOGLEKEYWORD = "google.protobuf";
+
 //////////////////////////////////////////////////
 // Instance State
 
@@ -204,18 +207,6 @@ option(Object name0, Object value0)
     return node;
 }
 
-Object
-useroption(Object path0, Object pathlist0, Object value0)
-{
-    List<String> pathlist = (List<String>)pathlist0;
-    pathlist.add(0,(String)path0);
-    String name = pathlist.get(pathlist.size()-1);
-    AST.Option node = astfactory.newOption((String)name,(String)value0);
-    node.setPosition(position());
-    node.setUserDefined(true);
-    node.setAnnotation(pathlist);
-    return node;
-}
 
 Object
 message(Object name0, Object body0)
@@ -226,60 +217,21 @@ message(Object name0, Object body0)
     return node;
 }
 
-/* The protobuf user defined option mechanism is easily one of the stupidest
-   ideas I have ever seen; some one at Google was trying too clever by half
+/* The protobuf user defined option mechanism is easily one of the most foolish 
+   ideas I have ever seen; some one at Google was trying too clever by half;
+   => I do not implement
 */
 Object
 extend(Object msg0, Object fieldlist0)
 {
+    // Check for user defined options
+    if(((String)msg0).startsWith(GOOGLEKEYWORD))
+	    return parseWarning("Google-style user defined options not supported: "+msg0);
     AST.Extend node = astfactory.newExtend("$extend",(String)msg0);
     node.getChildSet().addAll((List<AST>)fieldlist0);
     node.setPosition(position());
     return node;
 }
-
-Object
-googleextend(Object segment0, Object relpath0, Object fieldlist0)
-{
-    List<String> relpath = (List<String>)relpath0;
-    relpath.add(0,segment0);
-    String name = relpath.get(relpath.size()-1);
-    AST.GoogleExtend node = astfactory.newGoogleExtend(name);
-    // Figure out the kind of google option extension
-    String kind = (String)googlepart;
-    AST.Sort sort = null;
-    if("google.protobuf.FileOptions".equalsIgnoreCase(kind)) {
-	sort = AST.Sort.FILE;
-    } else if("google.protobuf.MessageOptions".equalsIgnoreCase(kind)) {
-	sort = AST.Sort.MESSAGE;
-    } else if("google.protobuf.FieldOptions".equalsIgnoreCase(kind)) {
-	sort = AST.Sort.FIELD;
-    } else if("google.protobuf.EnumOptions".equalsIgnoreCase(kind)) {
-	sort = AST.Sort.ENUM;
-    } else if("google.protobuf.EnumValueOptions".equalsIgnoreCase(kind)) {
-	sort = AST.Sort.ENUMVALUE;
-    } else if("google.protobuf.ServiceOptions".equalsIgnoreCase(kind)) {
-	sort = AST.Sort.SERVICE;
-    } else if("google.protobuf.MethodOptions".equalsIgnoreCase(kind)) {
-	sort = AST.Sort.RPC;
-    } else {
-	return parseError("Illegal google user defined options class: "+googlepart);
-    }
-    node.setGoogleSort(sort);
-    node.getChildSet().addAll((List<AST>)fieldlist0);
-    node.setPosition(position());
-    return node;
-}
-
-Object
-useroptionlist(Object list0, Object decl0, int parsecase)
-{
-    List<String> list = (List<String>)list0;
-    if(list == null) list = new ArrayList<String>();
-    if(decl0 != null) list.add((String)decl0);
-    return list;
-}
-
 
 
 Object
@@ -311,7 +263,7 @@ enumlist(Object list0, Object decl0)
 }
 
 Object
-enumfield(Object name0, Object intvalue0, Object options0)
+enumvalue(Object name0, Object intvalue0, Object options0)
 {
     int value = 0;
     try {
@@ -419,11 +371,12 @@ fieldoptionlist(Object list0, Object decl0)
 }
 
 Object
-group(Object cardinality0, Object name0, Object id0, Object msgbody)
+group(Object cardinality0, Object grouptag, Object name0, Object id0, Object msgbody)
 {
-    AST.Cardinality cardinality = null;
-    int id;
+    if(!GROUPKEYWORD.equals((String)grouptag))
+  	return parseError("Illegal group declaration");
 
+    AST.Cardinality cardinality = null;
     for(AST.Cardinality card: AST.Cardinality.values()) {
         if(card.getName().equalsIgnoreCase((String)cardinality0))
 	    cardinality = card;
@@ -431,10 +384,11 @@ group(Object cardinality0, Object name0, Object id0, Object msgbody)
     if(cardinality == null)
   	return parseError("Illegal field cardinality: "+cardinality0);
 
+    int id = -1;
     try {
 	id = Integer.parseInt((String)id0);
     } catch (NumberFormatException nfe) {
-  	return parseError("Illegal message field id: "+id0);
+  	return parseError("Illegal group id: "+id0);
     }
     AST.Group node = astfactory.newGroup((String)name0,cardinality,id);
     node.getChildSet().addAll((List<AST>)msgbody);
@@ -508,20 +462,39 @@ position()
     return lexstate.pos.clone();
 }
 
-public void startname()
+public void
+startname()
 {
     lexstate.namestate = true;
 }
 
-public void endname()
+public void
+endname()
 {
     lexstate.namestate = false;
 }
 
-void notimplemented(String s)
+void
+notimplemented(String s)
 {
     parseError(s+" not implemented.");
     return;
 }
+
+Object
+path(Object relpath0, boolean absolute)
+{
+    String pathstring = (String)relpath0;
+    if(absolute) pathstring = "." + pathstring;
+    return pathstring;
+}
+
+Object
+relpath(Object relpath0, Object segment0)
+{
+    if(relpath0 == null) return segment0;
+    return ((String)relpath0) + "." + ((String)segment0);
+}
+
 
 } // class ProtobufActions

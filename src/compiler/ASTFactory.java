@@ -42,7 +42,6 @@ public interface ASTFactory
     AST.Enum newEnum(String name);
     AST.EnumValue newEnumValue(String name, int value);
     AST.Extend newExtend(String name, String msgname);
-    AST.GoogleExtend newGoogleExtend(String name);
     AST.Extensions newExtensions(String name);
     AST.Field newField(String name, AST.Cardinality cardinality, String fieldtype, int id);
     AST.Group newGroup(String name, AST.Cardinality cardinality, int id);

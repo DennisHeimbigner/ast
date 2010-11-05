@@ -56,7 +56,7 @@ import unidata.protobuf.compiler.AST.Position;
 
 %token IMPORT PACKAGE OPTION MESSAGE EXTEND EXTENSIONS
 %token ENUM SERVICE RPC RETURNS
-%token DEFAULT TO MAX REQUIRED OPTIONAL REPEATED
+%token TO MAX REQUIRED OPTIONAL REPEATED
 %token DOUBLE FLOAT INT32 INT64 UINT32 UINT64
 %token SINT32 SINT64 FIXED32 FIXED64 SFIXED32 SFIXED64
 %token BOOL STRING BYTES
@@ -97,7 +97,7 @@ decllist:
 	  /*empty*/
 	    {$$=decllist(null,null);}
 	| decllist decl
-	    {$$=decllist($1,$2);}
+	    {if($2 != null) $$=decllist($1,$2); else $$=$1;}
 	;	
 
 decl:
@@ -119,8 +119,6 @@ optionstmt:
 option:
 	  name '=' constant
    	    {$$=option($1,$3);}
-	| '(' path ')' '.' relpath '=' constant
-   	    {$$=useroption($2,$5,$7);}
         ;
 
 message:
@@ -129,10 +127,8 @@ message:
         ;
 
 extend:
-          EXTEND path '{' fieldlist '}'
+        EXTEND path '{' fieldlist '}'
 	    {$$=extend($2,$4);}
-          EXTEND '(' path ')' '.' relpath '{' fieldlist '}'
-	    {$$=googleextend($3,$6,$8);}
         ;
 
 /* A list of Fields or Groups */
@@ -155,16 +151,16 @@ enumlist:
 	    {$$=enumlist(null,null);}
 	| enumlist optionstmt
 	    {$$=enumlist($1,$2);}
-	| enumlist enumfield
+	| enumlist enumvalue
 	    {$$=enumlist($1,$2);}
 	| enumlist ';' {$$=$1;}
 	;
 
-enumfield:
+enumvalue:
           name '=' intconst
-	    {if(($$=enumfield($1,$3,null))==null) {return YYABORT;}}
+	    {if(($$=enumvalue($1,$3,null))==null) {return YYABORT;}}
         | name '=' intconst '[' enumoptionlist ']'
-	    {if(($$=enumfield($1,$3,$5))==null) {return YYABORT;}}
+	    {if(($$=enumvalue($1,$3,$5))==null) {return YYABORT;}}
         ;
 
 enumoptionlist:
@@ -173,7 +169,6 @@ enumoptionlist:
 	| enumoptionlist ',' option
 	    {$$=enumoptionlist($1,$3);}
 	;
-
 
 
 service:
@@ -251,8 +246,6 @@ fieldoptionlist:
 fieldoption:
           option
 	    {$$=$1;}
-	| DEFAULT '=' constant // treat like a special kind of option
-	    {$$=option(AST.DEFAULTNAME,$3);}
         ;
 
 extensions:
@@ -337,8 +330,8 @@ floatconst:
 
 /* Relative or absolute */
 path:
-	  relpath {$$=path(null,$1);}
-	| '.' relpath {$$=path($1,$2);}
+	  relpath {$$=path($1,false);}
+	| '.' relpath {$$=path($2,true);}
 	;
 
 relpath:
@@ -349,10 +342,11 @@ relpath:
 	;
 
 /* A Name can be a keyword */
+/* Slightly odd gramar to ensure that startname is reduced before NAME token is produced*/
 name:
-	startname NAME endname {$$=$2;}
+	{startname();}
+	NAME
+	{endname(); $$=$2;}
 	;
 
-startname: /*empty*/ {startname();} ;
 
-endname: /*empty*/ {endname();}

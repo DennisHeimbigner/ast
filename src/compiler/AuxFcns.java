@@ -86,9 +86,11 @@ static String computequalifiedname(AST node)
     case EXTENSIONS:
         qualname = qualname + "." + nextuid();
 	break;
+/*IGNORE
     case OPTION:
         qualname = qualname + ".$option." + nextuid();
         break;
+*/
     default: break;
     }
 

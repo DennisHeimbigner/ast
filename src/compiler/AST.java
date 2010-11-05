@@ -160,7 +160,6 @@ abstract public class AST
      			                      // null except for root and packages
 
     int refcount = 0;
-    List<AST.Extend> googleoptions = new ArrayList<AST.Extend>();
 
     AST(Sort sort)
     {
@@ -180,9 +179,6 @@ abstract public class AST
 
     public List<AST> getNodeSet() {return this.nodeset;}
     public void setNodeSet(List<AST> nodeset) {this.nodeset = nodeset;}
-
-    public List<AST.Extend> getGoogleOptions() {return this.googleoptions;}
-    public void setGoogleOptions(List<AST.Extend> googleoptions) {this.googleoptions = googleoptions;}
 
     public Position getPosition() {return position;}
     public void setPosition(Position position) {this.position = position;}
@@ -331,8 +327,6 @@ static public class Extend extends AST
     Message message = null;
     List<Field> fields = new ArrayList<Field>();
     List<Group> groups = new ArrayList<Group>();
-    boolean userdefined = false;
-    Class astclass = null; // Track the kind of google option
 
     public Extend(String name, String msgname)
     {
@@ -347,21 +341,6 @@ static public class Extend extends AST
     public void setFields(List<Field> fields) {this.fields = fields;}
     public List<Group> getGroups() {return this.groups;}
     public void setGroups(List<Group> groups) {this.groups = groups;}
-    public boolean getUserDefined() {return this.userdefined;}
-    public void setUserDefined(boolean tf) {this.userdefined = tf;}
-}
-
-static public class GoogleExtend extends AST.Extend
-{
-    Sort googlesort = null; // Track the kind of google option
-
-    public GoogleExtend(String name)
-    {
-	super(name,null);
-    }
-
-    public Sort getGoogleSort() {return this.googlesort;}
-    public void setGoogleSort(Sort googlesort) {this.googlesort = googlesort;}
 }
 
 // Helper class for storing stop-start pairs

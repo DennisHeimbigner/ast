@@ -57,8 +57,6 @@ class ProtobufLexer implements Lexer {
     static final String hexcharsn = "0123456789abcdefABCDEF";
     static final String octcharsn = "01234567";
 
-    static String GROUPKEYWORD = "group";
-
     static String[] keywords = new String[]{
             "import",
             "package",
@@ -70,13 +68,11 @@ class ProtobufLexer implements Lexer {
             "service",
             "rpc",
             "returns",
-            "default",
             "to",
             "max",
             "required",
             "optional",
             "repeated",
-            GROUPKEYWORD,
             "double",
             "float",
             "int32",
@@ -109,13 +105,11 @@ class ProtobufLexer implements Lexer {
             SERVICE,
             RPC,
             RETURNS,
-            DEFAULT,
             TO,
             MAX,
             REQUIRED,
             OPTIONAL,
             REPEATED,
-            GROUP,
             DOUBLE,
             FLOAT,
             INT32,
@@ -343,6 +337,7 @@ class ProtobufLexer implements Lexer {
         if (parsestate.getDebugLevel() > 0) dumptoken(token, (String) lval);
         // Capture end pos
         endpos = pos.clone();
+	namestate = false;
         return token;       /* Return the type of the token.  */
     }
 
@@ -369,7 +364,6 @@ class ProtobufLexer implements Lexer {
                 }
 	    }
         }
-	namestate = false;
 	return token;
     }
 
@@ -420,6 +414,9 @@ class ProtobufLexer implements Lexer {
                 System.err.printf("TOKEN = |\"%s\"|\n", lval);
                 break;
             case NAME:
+	        if(namestate)
+                System.err.printf("TOKEN = #|%s|\n", lval);
+		else
                 System.err.printf("TOKEN = |%s|\n", lval);
                 break;
             case INTCONST:
