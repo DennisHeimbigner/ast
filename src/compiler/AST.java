@@ -158,6 +158,7 @@ abstract public class AST
     List<AST> childset= new ArrayList<AST>(); // immediate children
     List<AST> nodeset = new ArrayList<AST>(); // All nodes under this node;
      			                      // null except for root and packages
+    List<Option> options = new ArrayList<Option>();
 
     int refcount = 0;
 
@@ -198,6 +199,8 @@ abstract public class AST
     public void setQualifiedName(String qualifiedname) {this.qualifiedname = qualifiedname;}
     public Object getAnnotation() {return annotation;}
     public void setAnnotation(Object annotation) {this.annotation = annotation;}
+    public List<Option> getOptions() {return this.options;}
+    public void setOptions(List<Option> options) {this.options = options;}
 
     public String toString() {
         if(getQualifiedName() != null) return getQualifiedName();
@@ -265,7 +268,6 @@ static public class Package extends AST
     List<Message> messages = new ArrayList<Message>();
     List<Extend> extenders = new ArrayList<Extend>();
     List<Enum> enums = new ArrayList<Enum>();
-    List<Option> options = new ArrayList<Option>();
     List<Service> services = new ArrayList<Service>();
 
     public Package(String name)
@@ -283,8 +285,6 @@ static public class Package extends AST
     public void setExtenders(List<Extend> extenders) {this.extenders = extenders;}
     public List<Enum> getEnums() {return this.enums;}
     public void setEnums(List<Enum> enums) {this.enums = enums;}
-    public List<Option> getOptions() {return this.options;}
-    public void setOptions(List<Option> options) {this.options = options;}
     public List<Service> getServices() {return this.services;}
     public void setServices(List<Service> services) {this.services = services;}
 
@@ -307,7 +307,6 @@ static public class Enum extends AST.Type
 static public class EnumValue extends AST
 {
     int value;
-    List<Option> options = new ArrayList<Option>();
 
     public EnumValue(String name, int value)
     {
@@ -318,8 +317,6 @@ static public class EnumValue extends AST
 
     public int getValue() {return this.value;}
     public void setValue(int value) {this.value = value;}
-    public List<Option> getOptions() {return this.options;}
-    public void setOptions(List<Option> options) {this.options = options;}
 }
 
 static public class Extend extends AST
@@ -370,7 +367,6 @@ static public class Field extends AST
     Cardinality cardinality = null;
     Type fieldtype = null;
     int id;
-    List<Option> options = new ArrayList<Option>();
 
     public Field(String name, Cardinality cardinality, String fieldtype, int id)
     {
@@ -387,8 +383,6 @@ static public class Field extends AST
     public void setType(Type fieldtype) {this.fieldtype = fieldtype;}
     public int getId() {return this.id;}
     public void setId(int id) {this.id = id;}
-    public List<Option> getOptions() {return this.options;}
-    public void setOptions(List<Option> options) {this.options = options;}
 }
 
 // A group node is a special case of field
@@ -410,7 +404,6 @@ static public class Message extends Type
     List<Message> messages = new ArrayList<Message>();
     List<Extend> extenders = new ArrayList<Extend>();
     List<Extensions> extensions = new ArrayList<Extensions>();
-    List<Option> options = new ArrayList<Option>();
     List<Group> groups = new ArrayList<Group>();
 
     public Message(String name)
@@ -429,8 +422,6 @@ static public class Message extends Type
     public void setExtenders(List<Extend> extenders) {this.extenders = extenders;}
     public List<Extensions> getExtensions() {return this.extensions;}
     public void setExtensions(List<Extensions> extension) {this.extensions = extensions;}
-    public List<Option> getOptions() {return this.options;}
-    public void setOptions(List<Option> options) {this.options = options;}
 }
 
 static public class Option extends AST
@@ -477,7 +468,6 @@ static public class Rpc extends AST
 static public class Service extends AST
 {
     // Filled in during semantic processing
-    List<Option> options = new ArrayList<Option>();
     List<Rpc> rpcs = new ArrayList<Rpc>();
 
     public Service(String name)
@@ -486,8 +476,6 @@ static public class Service extends AST
 	setName(name);
     }
 
-    public List<Option> getOptions() {return this.options;}
-    public void setOptions(List<Option> options) {this.options = options;}
     public List<Rpc> getRpcs() {return this.rpcs;}
     public void setRpcs(List<Rpc> rpcs) {this.rpcs = rpcs;}
 }

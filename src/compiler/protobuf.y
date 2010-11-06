@@ -119,6 +119,8 @@ optionstmt:
 option:
 	  name '=' constant
    	    {$$=option($1,$3);}
+	| '(' name ')' '=' constant
+   	    {$$=option($2,$5);}
         ;
 
 message:
@@ -342,11 +344,21 @@ relpath:
 	;
 
 /* A Name can be a keyword */
-/* Slightly odd gramar to ensure that startname is reduced before NAME token is produced*/
 name:
-	{startname();}
-	NAME
-	{endname(); $$=$2;}
+	  NAME		{$$=$1;}
+	| IMPORT	{$$=$1;}
+	| PACKAGE	{$$=$1;}
+	| OPTION	{$$=$1;}
+	| MESSAGE	{$$=$1;}
+	| EXTEND	{$$=$1;}
+	| EXTENSIONS	{$$=$1;}
+	| ENUM		{$$=$1;}
+	| SERVICE	{$$=$1;}
+	| RPC		{$$=$1;}
+	| RETURNS	{$$=$1;}
+	| TO		{$$=$1;}
+	| MAX		{$$=$1;}
+	| REQUIRED	{$$=$1;}
+	| OPTIONAL	{$$=$1;}
+	| REPEATED	{$$=$1;}
 	;
-
-

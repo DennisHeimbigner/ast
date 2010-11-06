@@ -462,17 +462,6 @@ position()
     return lexstate.pos.clone();
 }
 
-public void
-startname()
-{
-    lexstate.namestate = true;
-}
-
-public void
-endname()
-{
-    lexstate.namestate = false;
-}
 
 void
 notimplemented(String s)

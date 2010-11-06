@@ -32,7 +32,7 @@
 //
 // Tests that a "lite" message can import a regular message.
 
-package protobuf_unittest;
+package protobuf_unittest_lite_imports_nonlite;
 
 import "unittest.proto";
 

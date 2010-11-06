@@ -20,6 +20,7 @@ public class Main
     static boolean optionParseDebug = false;
     static boolean optionSemanticsDebug = false;
     static boolean optionSemanticStepsDebug = false;
+    static boolean optionDuplicate = false;
 
     static public void main(String[] argv) throws Exception
     {
@@ -49,6 +50,7 @@ public class Main
 		    case 'p': optionParseDebug = true; break;
 		    case 't': optionSemanticStepsDebug = true; break;
 		    case 's': optionSemanticsDebug = true; break;
+		    case 'D': optionDuplicate = true; break;
 		    default: break;
 		    }
 		}
@@ -106,6 +108,9 @@ public class Main
 	if(optionSemanticStepsDebug) Debug.setTag("trace.semantics.steps");
 	if(optionSemanticStepsDebug) Debug.setTag("trace.semantics.steps");
 	if(optionSemanticsDebug) Debug.setTag("trace.semantics");
+	if(optionDuplicate) {
+	    Debug.setTag("trace.duplicate.package");
+	}
 	Semantics sem = new Semantics();
 	pass = sem.process(parser.getAST());
 	if(!pass) {

@@ -57,6 +57,11 @@ class ProtobufLexer implements Lexer {
     static final String hexcharsn = "0123456789abcdefABCDEF";
     static final String octcharsn = "01234567";
 
+    static String FLOATREGEXP = 
+	"([0-9]+([.][0-9]*)?|[.][0-9]+)([Ee][+-]?[0-9]+)?";
+
+    static String INTREGEXP = "[0-9]+";
+
     static String[] keywords = new String[]{
             "import",
             "package",
@@ -268,53 +273,11 @@ class ProtobufLexer implements Lexer {
                 } while (c != '\0' && c != '\n');
                 continue; // start over
             } else if (c == '"' || c == '\'') {
-                int quotemark = c;
-                boolean more = true;
-                while (more && (c = read()) > 0) {
-                    if (c == quotemark)
-                        more = false;
-                    else if (c == '\\') {
-                        c = read();
-                        if (c < 0) more = false;
-                            /* Handle the typical \r \n etc */
-                        else switch (c) {
-                            case 'n':
-                                c = '\n';
-                                break;
-                            case 'r':
-                                c = '\r';
-                                break;
-                            case 't':
-                                c = '\t';
-                                break;
-                            case 'x': {
-                                c = hexescape();
-                                if (c < 0) {
-                                    lexerror("Illegal hex escape character");
-                                    more = false;
-                                }
-                            }
-                            break;
-                            case '0': { // warning, might be less than four digits
-                                c = octalescape();
-                                if (c < 0) {
-                                    lexerror("Illegal octal escape character");
-                                    more = false;
-                                }
-                            }
-                            break;
-                            default:
-                                break;
-                        }
-                    }
-                    if (more) yytext.append((char) c);
-                }
-                token = STRINGCONST;
-	    } else if(c == '.') { // May be either a number or a single char token
-		int cp = peek();
-		if(numcharsn.indexOf(cp) >= 0) {// assume a number
-		    token = parsenumber(c);
-		} else { // assume a word (possibly single character
+		token = parsestring(c);
+	    } else if(c == '.') { // May be either a number
+			          // or a single char token
+	        token = parsenumber(c);
+		if(token == 0) {// assume a single char token
 		    yytext.append((char)c);
 		    token = c;
 		}
@@ -368,7 +331,56 @@ class ProtobufLexer implements Lexer {
     }
 
     int
-    parsenumber(int c) throws IOException {
+    parsestring(int quotemark) throws IOException
+    {
+	int c;
+        boolean more = true;
+        while (more && (c = read()) > 0) {
+            if (c == quotemark)
+                more = false;
+            else if (c == '\\') {
+                c = read();
+                if (c < 0) more = false;
+                    /* Handle the typical \r \n etc */
+                else switch (c) {
+                    case 'n':
+                        c = '\n';
+                        break;
+                    case 'r':
+                        c = '\r';
+                        break;
+                    case 't':
+                        c = '\t';
+                        break;
+                    case 'x': {
+                        c = hexescape();
+                        if (c < 0) {
+                            lexerror("Illegal hex escape character");
+                            more = false;
+                        }
+                    }
+                    break;
+                    case '0': { // warning, might be less than four digits
+                        c = octalescape();
+                        if (c < 0) {
+                            lexerror("Illegal octal escape character");
+                            more = false;
+                        }
+                    }
+                    break;
+                    default:
+                        break;
+                }
+            }
+            if (more) yytext.append((char) c);
+        }
+        return STRINGCONST;
+    }
+
+    int
+    parsenumber(int c) throws IOException
+    {
+	// Figure out the radix
         int radix = 10;
         if (c == '0') {// Hex or octal integer
             yytext.append((char) c);
@@ -377,7 +389,7 @@ class ProtobufLexer implements Lexer {
             if (c1 == 'x' || c1 == 'X') {
                 yytext.append('x');
                 radix = 16;
-                read(); // skip leading 'x'
+		read(); // skip 'x'
             } else {
                 radix = 8;
             }
@@ -393,18 +405,25 @@ class ProtobufLexer implements Lexer {
             if (more) yytext.append((char) c);
         }
         pushback(c);
-        int numberkind = INTCONST;
+
+        int token = INTCONST;
         if (radix == 10) { // check for float constant
-            // Should be either a decimal integer or decimal float 
+            // Should be either a decimal integer or decimal float or nothing
 	    String s = yytext.toString();
-	    for(char cp: floatchars) {
-		if(s.indexOf(cp) >= 0) {
-		    numberkind = FLOATCONST;
-		    break;
+	    // Do a regexp match to see if this is a float
+	    if(s.matches(INTREGEXP)) token = INTCONST;
+	    else if(s.matches(FLOATREGEXP)) token = FLOATCONST;
+	    else { // Look for leading '.'
+	        if(s.charAt(0) == '.') {
+		    token = '.';
+		    // pushback the remainder
+		    for(int i=1;i<s.length();i++)
+			pushback(s.charAt(i));
+		    yytext.setLength(1); // keep only the '.'
 		}
 	    }
         }
-        return numberkind;
+        return token;
     }
 
     void

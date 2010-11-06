@@ -255,21 +255,21 @@ extend google.protobuf.MessageOptions {
 }
 
 // Note that we try various different ways of naming the same extension.
-message VariousComplexOptions {
-  option (.protobuf_unittest.complex_opt1).foo = 42;
-  option (protobuf_unittest.complex_opt1).(.protobuf_unittest.quux) = 324;
-  option (.protobuf_unittest.complex_opt1).(protobuf_unittest.corge).qux = 876;
-  option (complex_opt2).baz = 987;
-  option (complex_opt2).(grault) = 654;
-  option (complex_opt2).bar.foo = 743;
-  option (complex_opt2).bar.(quux) = 1999;
-  option (complex_opt2).bar.(protobuf_unittest.corge).qux = 2008;
-  option (complex_opt2).(garply).foo = 741;
-  option (complex_opt2).(garply).(.protobuf_unittest.quux) = 1998;
-  option (complex_opt2).(protobuf_unittest.garply).(corge).qux = 2121;
-  option (ComplexOptionType2.ComplexOptionType4.complex_opt4).waldo = 1971;
-  option (complex_opt2).fred.waldo = 321;
-  option (protobuf_unittest.complex_opt3).qux = 9;
-  option (complex_opt3).complexoptiontype5.plugh = 22;
-  option (complexopt6).xyzzy = 24;
-}
+//message VariousComplexOptions {
+//  option (.protobuf_unittest.complex_opt1).foo = 42;
+//  option (protobuf_unittest.complex_opt1).(.protobuf_unittest.quux) = 324;
+//  option (.protobuf_unittest.complex_opt1).(protobuf_unittest.corge).qux = 876;
+//  option (complex_opt2).baz = 987;
+//  option (complex_opt2).(grault) = 654;
+//  option (complex_opt2).bar.foo = 743;
+//  option (complex_opt2).bar.(quux) = 1999;
+//  option (complex_opt2).bar.(protobuf_unittest.corge).qux = 2008;
+//  option (complex_opt2).(garply).foo = 741;
+//  option (complex_opt2).(garply).(.protobuf_unittest.quux) = 1998;
+//  option (complex_opt2).(protobuf_unittest.garply).(corge).qux = 2121;
+//  option (ComplexOptionType2.ComplexOptionType4.complex_opt4).waldo = 1971;
+//  option (complex_opt2).fred.waldo = 321;
+//  option (protobuf_unittest.complex_opt3).qux = 9;
+//  option (complex_opt3).complexoptiontype5.plugh = 22;
+//  option (complexopt6).xyzzy = 24;
+//}

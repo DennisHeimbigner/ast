@@ -154,9 +154,22 @@ collectnodes(AST node, AST.Root root)
 	root.getFileSet().add((AST.File)node);
 	break;
     case PACKAGE:
-	root.getPackageSet().add((AST.Package)node);
-	// Make sure package node set is defined
-	((AST.Package)node).setNodeSet(new ArrayList<AST>());
+	AST.Package p = (AST.Package)node;
+	boolean match = false;
+	// See if this is a duplicate package?
+	for(AST.Package p2: root.getPackageSet()) {
+	    if(p2.getName().equals(p.getName())) {
+		if(Debug.enabled("trace.duplicate.packages"))
+		    duperror(p,p2,"Duplicate Packages: "+p.getName());
+	        match = true;
+		break;
+	    }
+	}
+	if(!match) {
+	    root.getPackageSet().add(p);
+	    // Make sure package node set is defined
+	    p.setNodeSet(new ArrayList<AST>());
+	}
 	break;
     default: break;
     }
@@ -392,7 +405,9 @@ setnodegroups(AST.Root root)
             for(AST ast: astenum.getChildSet()) {
                 switch(ast.getSort()) {
                 case ENUMVALUE: astenum.getEnumValues().add((AST.EnumValue)ast); break;
-                default: assert(false) : "Illegal ast case"; break;
+                case OPTION: astenum.getOptions().add((AST.Option)ast); break;
+                default:
+                    assert(false) : "Illegal ast case"; break;
                 }
             
             }
@@ -479,11 +494,9 @@ qualifynames(AST.Root root)
             for(AST ast2 : allnodes) {
                 if(ast2 == ast1 || ast2.getQualifiedName() == null) continue;
 		if(ast2.getQualifiedName().equals(ast1.getQualifiedName())) {
-                    semerror(ast1,"Duplicate qualified names: '"
-			 +ast1.getQualifiedName()+"'"
-			 + String.format(" [%d,%d]",ast1.index,ast2.index)
-			 );
-                    return false;
+		    duperror(ast1,ast2,"Duplicate qualified name: "
+			     +ast1.getName());
+		    break;
                 }
             }
 	}
@@ -537,7 +550,9 @@ dereference(AST.Root root)
 	    if(typematches.size() == 0) {
 	        return semerror(node,"Field refers to undefined type: "+typename);
 	    } else if(typematches.size() > 1) {
-		return semerror(node,"Duplicate type names:"+typematches.get(0).getName());
+		return duperror(typematches.get(0),typematches.get(1),
+				"Duplicate qualified type names: "
+				+typematches.get(0).getName());
 	    } else { // typematches.size() == 1
    	        field.fieldtype = typematches.get(0);
 	    }
@@ -552,7 +567,9 @@ dereference(AST.Root root)
 	    if(typematches.size() == 0) {
 	        return semerror(node,"RPC returntype refers to undefined type: "+names[0]);
 	    } else if(typematches.size() > 1) {
-		return semerror(typematches.get(0),"Duplicate type names:"+typematches.get(0).getName());
+		return duperror(typematches.get(0),typematches.get(1),
+				"Duplicate qualified type names: "
+				+typematches.get(0).getName());
 	    } else {// typematches.size() == 1
    	        rpc.argtype = typematches.get(0);
 	    }
@@ -560,7 +577,9 @@ dereference(AST.Root root)
 	    if(typematches.size() == 0) {
 	        return semerror(node,"RPC returntype refers to undefined type: "+names[1]);
 	    } else if(typematches.size() > 1) {
-		return semerror(typematches.get(0),"Duplicate type names:"+typematches.get(0).getName());
+		return duperror(typematches.get(0),typematches.get(1),
+				"Duplicate qualified type names: "
+				+typematches.get(0).getName());
 	    } else {// typematches.size() == 1
    	        rpc.returntype = typematches.get(0);
 	    }
@@ -592,7 +611,10 @@ checkduplicates(List<AST> allnodes)
                 for(AST.EnumValue field2: ((AST.Enum)node).getEnumValues()) {
                     if(field1 == field2) continue;
                     if(field1.value == field2.value) {
-                        semerror(node,"Duplicate enum field numbers: "+field1.value);
+                        duperror(field1,field2,
+				 String.format("Duplicate enum field numbers: %s=%s and %s=%s",
+				 field1.getName(),field1.getValue(),
+				 field2.getName(),field2.getValue()));
                         break;
                     }
                 }
@@ -604,7 +626,8 @@ checkduplicates(List<AST> allnodes)
                for(AST.Field field2: ((AST.Message)node).fields) {
                     if(field1 == field2) continue;
                     if(field1.id == field2.id) {
-                        semerror(node,"Duplicate message field numbers: "+field1.id);
+                        duperror(field1,field2,
+				"Duplicate message field numbers: "+field1.id);
                         break;
                     }
                 }
@@ -706,13 +729,37 @@ rebuild(AST node, List<AST> newallnodes)
 
 boolean
 semerror(AST node, String msg)
+    {return semreport(node,msg,true);}
+
+boolean
+semwarning(AST node, String msg)
+    {return semreport(node,msg,false);}
+
+
+boolean
+semreport(AST node, String msg, boolean err)
 {
+    System.err.print(err?"Semantic error ":"Warning ");
     if(node != null && node.position != null) {
-	System.err.println(String.format("Semantic error: %s ; %s\n",
+	System.err.print(String.format("%s @ %s\n",
 			   msg, node.position));
     } else {
-	System.err.println(String.format("Semantic error: %s\n",msg));
+	System.err.print(String.format("%s\n",msg));
     }
+    return !err;
+}
+
+
+boolean
+duperror(AST node1, AST node2, String msg)
+{
+    System.err.print(msg);
+    if(node1 != null && node1.position != null
+       && node2 != null && node2.position != null) {
+	System.err.print(String.format(" ; node1 @ %s node2 @ %s",
+			   node1.position,node2.position));
+    }
+    System.err.println();
     return false;
 }
 

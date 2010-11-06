@@ -36,7 +36,7 @@
 
 import "unittest_optimize_for.proto";
 
-package protobuf_unittest;
+package protobuf_unittest_embed_optimize;
 
 // We optimize for speed here, but we are importing a proto that is optimized
 // for code size.

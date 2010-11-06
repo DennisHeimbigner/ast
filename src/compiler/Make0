@@ -1,7 +1,7 @@
-W=-Wp
+W=-WD
 
-TEST=-I. t.proto
-#TEST=-I./testdata1 addressbook.proto
+#TEST=-I . -I./testdata1 t.proto
+TEST=-I./testdata1 unittest_lite_imports_nonlite.proto
 
 TOPDIR=d:/IdeaProjects/ast/src/compiler
 
