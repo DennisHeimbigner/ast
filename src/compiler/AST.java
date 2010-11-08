@@ -159,6 +159,7 @@ abstract public class AST
     List<AST> nodeset = new ArrayList<AST>(); // All nodes under this node;
      			                      // null except for root and packages
     List<Option> options = new ArrayList<Option>();
+    Map<String,String> optionmap = new HashMap<String,String>();
 
     int refcount = 0;
 
@@ -199,8 +200,14 @@ abstract public class AST
     public void setQualifiedName(String qualifiedname) {this.qualifiedname = qualifiedname;}
     public Object getAnnotation() {return annotation;}
     public void setAnnotation(Object annotation) {this.annotation = annotation;}
+
     public List<Option> getOptions() {return this.options;}
     public void setOptions(List<Option> options) {this.options = options;}
+
+    // Map oriented option access
+    public String optionLookup(String key) {return this.optionmap.get(key);}
+    public void setOptionMap(String key, String value)
+	{this.optionmap.put(key,value);}
 
     public String toString() {
         if(getQualifiedName() != null) return getQualifiedName();

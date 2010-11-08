@@ -16,11 +16,12 @@ public class Main
     static List<String> arglist = new ArrayList<String>();
     static String optionLanguage = null;
     static boolean optionVerbose = false;
-    static boolean optionDebug = false;
     static boolean optionParseDebug = false;
     static boolean optionSemanticsDebug = false;
     static boolean optionSemanticStepsDebug = false;
     static boolean optionDuplicate = false;
+
+    static boolean debug = false;
 
     static public void main(String[] argv) throws Exception
     {
@@ -46,7 +47,7 @@ public class Main
 		String wvalue = g.getOptarg();
 		for(char x: wvalue.toCharArray()) {
 		    switch (x) {
-		    case 'd': optionDebug = true; break;
+		    case 'd': debug = true; break;
 		    case 'p': optionParseDebug = true; break;
 		    case 't': optionSemanticStepsDebug = true; break;
 		    case 's': optionSemanticsDebug = true; break;
@@ -69,6 +70,7 @@ public class Main
 	        System.exit(1);
 	    }
         }
+
 	if(optionLanguage == null) optionLanguage = DFALTLANGUAGE;
 	// Canonicalize the language name: all lower case except first character
 	optionLanguage = optionLanguage.substring(0,1).toUpperCase()
@@ -94,7 +96,22 @@ public class Main
 	}
 	FileReader rdr = new FileReader(inputfile);
 
-        ProtobufParser parser = new ProtobufParser();
+	// Try to locate the language specific ASTFactory using reflection
+	ASTFactory factory = null;
+	String factoryclassname = DFALTPACKAGE + ".ASTFactory"+optionLanguage;
+        ClassLoader classLoader = Main.class.getClassLoader();
+        try {
+            Class factoryclass = Class.forName(factoryclassname);
+	    factory = (ASTFactory)factoryclass.newInstance();
+	    if(debug)
+		System.err.println("Using AST factory: ASTFactory"+optionLanguage);
+        } catch (ClassNotFoundException e) {
+	    factory = new ASTFactoryDefault();
+	    if(debug)
+		System.err.println("Using default AST factory");
+        }
+
+        ProtobufParser parser = new ProtobufParser(factory);
 	parser.setIncludePaths(includePaths);
 	if(optionParseDebug) parser.setDebugLevel(1);
 
@@ -120,7 +137,7 @@ public class Main
 
 	// Try to locate the language specific Generator using reflection
 	String generatorclassname = DFALTPACKAGE + "."+optionLanguage;
-        ClassLoader classLoader = Main.class.getClassLoader();
+        classLoader = Main.class.getClassLoader();
         try {
             Class generatorclass = Class.forName(generatorclassname);
 	    Generator generator = (Generator)generatorclass.newInstance();

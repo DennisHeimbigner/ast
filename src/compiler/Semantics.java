@@ -65,8 +65,7 @@ public boolean process(AST.Root root)
     if(!setpackagelink(root,null)) return false;
     if(ctrl && Debug.enabled("trace.semantics.steps")) {
         w.println("\nsetcontainers:");
-//	Debug.printTreeNodes(root,w);
-	Debug.printTree(root,w,true);
+	Debug.printTreeNodes(root,w);
     }
     if(!groupbypackage(root)) return false;
     if(ctrl && Debug.enabled("trace.semantics.steps")) {
@@ -83,20 +82,24 @@ public boolean process(AST.Root root)
         w.println("\nsetnodegroups:");
 	Debug.printTreeNodes(root,w);
     }
+
     if(!qualifynames(root)) return false;
     Debug.printprops.useuid = false;
     if(ctrl && Debug.enabled("trace.semantics.steps")) {
         w.println("\nqualifynames:");
 	Debug.printTreeNodes(root,w);
     }
+
     if(!dereference(root)) return false;
     if(ctrl && Debug.enabled("trace.semantics.steps")) {
         w.println("\ndereference:");
 	Debug.printTreeNodes(root,w);
     }
+
     if(!checkduplicates(root.getNodeSet())) return false;
+    if(!mapoptions(root)) return false;
+
     Debug.resetprintprops();
-    
     // Print two ways
     if(ctrl && Debug.enabled("trace.semantics")) {
         System.err.println("-------------------------");
@@ -650,82 +653,22 @@ checkduplicates(List<AST> allnodes)
 
 /**
  * Pass does the following:
- * - Rebuild allnodes to be preorder
+ * - Copy the raw options for each node into the optionmap for that node
  *
- * @param node The AST tree node
- * @param newallnodes The new list of all nodes in preorder
+ * @param root The AST tree root
  * @return true if the processing succeeded.
 */
-/*IGNORE
 boolean
-rebuild(AST node, List<AST> newallnodes)
+mapoptions(AST.Root root)
 {
-    newallnodes.add(node);
-    switch(node.getSort()) {
-    case ROOT: {
-	AST.Root r = (AST.Root)node;
-	for(AST.Package p: r.getPackageSet()) pass8(p,newallnodes);	    
-	} break;
-    case PACKAGE: {
-	AST.Package p = (AST.Package)node;
-	pass8(p.getSrcFile(),newallnodes);
-	if(p.getOptions() != null)
-	    for(AST.Option o: p.getOptions()) pass8(o,newallnodes);	    
-	if(p.getEnums() != null)
-	    for(AST.Enum en: p.getEnums()) pass8(en,newallnodes);	    
-	if(p.getMessages() != null)
-	    for(AST.Message m: p.getMessages()) pass8(m,newallnodes);
-	if(p.getExtenders() != null)
-	    for(AST.Extend ex: p.getExtenders()) pass8(ex,newallnodes);
-	if(p.getServices() != null)
-	    for(AST.Service s: p.getServices()) pass8(s,newallnodes);
-	} break;
-    case ENUM: {
-	AST.Enum en = (AST.Enum)node;
-	if(en.getEnumValues() != null)
-	    for(AST.EnumValue ef: en.getEnumValues()) pass8(ef,newallnodes);
-	} break;
-    case EXTEND: {
-	AST.Extend ex = (AST.Extend)node;
-	if(ex.getFields() != null)
-	    for(AST.Field f: ex.getFields()) pass8(f,newallnodes);
-	} break;
-    case FIELD: {
-	AST.Field f = (AST.Field)node;
-	if(f.getOptions() != null)
-	    for(AST.Option o: f.getOptions()) pass8(o,newallnodes);	    
-	} break;
-    case MESSAGE: {
-	AST.Message m = (AST.Message)node;
-	if(m.getOptions() != null)
-	    for(AST.Option o: m.getOptions()) pass8(o,newallnodes);	    
-	if(m.getEnums() != null)
-	    for(AST.Enum e: m.getEnums()) pass8(e,newallnodes);	    
-	if(m.getMessages() != null)
-	    for(AST.Message m2: m.getMessages()) pass8(m2,newallnodes);
-	if(m.getFields() != null)
-	    for(AST.Field f: m.getFields()) pass8(f,newallnodes);
-	if(m.getExtenders() != null)
-	    for(AST.Extend ex: m.getExtenders()) pass8(ex,newallnodes);
-	} break;
-    case SERVICE: {
-	AST.Service s = (AST.Service)node;
-	if(s.getOptions() != null)
-	    for(AST.Option o: s.getOptions()) pass8(o,newallnodes);	    
-	if(s.getRpcs() != null)
-	    for(AST.Rpc r: s.getRpcs()) pass8(r,newallnodes);	    
-	} break;
-    case ENUMVALUE:
-    case EXTENSIONS:
-    case FILE:
-    case OPTION:
-    case PRIMITIVETYPE:
-    case RPC:
-	break;
+    for(AST ast: root.getNodeSet()) {
+	if(ast.getOptions() != null)
+	    for(AST.Option option: ast.getOptions()) {
+		ast.setOptionMap(option.getName(),option.getValue());
+	    }
     }
     return true;
 }
-*/
 
 boolean
 semerror(AST node, String msg)
