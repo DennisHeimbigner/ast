@@ -14,7 +14,8 @@ SRC=\
     Semantics.java AuxFcns.java Printer.java Debug.java  \
     ASTFactory.java ASTFactoryDefault.java \
     Generator.java \
-    Getopt.java LongOpt.java Java.java
+    Getopt.java LongOpt.java \
+    ASTJava.java
 
 COMPILERPATH=classes/unidate/protobuf/ast/compiler
 

@@ -163,7 +163,7 @@ abstract public class AST
 
     int refcount = 0;
 
-    AST(Sort sort)
+    public AST(Sort sort)
     {
 	this.sort = sort;
         setuid();
@@ -216,9 +216,9 @@ abstract public class AST
     }
 
 // Convenience grouping class
-static public class Type extends AST 
+static public abstract class Type extends AST 
 {
-    Type(Sort sort) {super(sort);}
+    public Type(Sort sort) {super(sort);}
 }
 
 // An instance of this is the root of the AST tree
@@ -229,7 +229,7 @@ static public class Root extends AST
     List<PrimitiveType> primitivetypes = null;
     File rootfile = null;
 
-    Root(String name)
+    public Root(String name)
     {
 	super(Sort.ROOT);
 	setName("");
@@ -256,7 +256,7 @@ static public class File extends AST
     List<File> imports = null;
     List<AST> decls = new ArrayList<AST>();
 
-    File(String name)
+    public File(String name)
     {
 	super(Sort.FILE);
 	setName(name);
