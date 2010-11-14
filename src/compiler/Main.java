@@ -8,6 +8,18 @@ import java.io.*;
 
 public class Main
 {
+    // Define a map of -L language tags to class name tags
+    static String[][] languagemap = new String[][] {
+	// Note, the language tag is tested as lower case
+	// while the class name tag is used as is.
+	{"java","Java"},
+	{"c","C"},
+	{"c++","Cpp"}, 
+	{"c#","Csharp"},
+	{"python","Python"},
+	{"ruby","Ruby"}
+    };
+
     static final String DFALTLANGUAGE = "java";
     static final String DFALTPACKAGE = "unidata.protobuf.compiler";
 
@@ -72,9 +84,18 @@ public class Main
         }
 
 	if(optionLanguage == null) optionLanguage = DFALTLANGUAGE;
-	// Canonicalize the language name: all lower case except first character
-	optionLanguage = optionLanguage.substring(0,1).toUpperCase()
-                         + optionLanguage.substring(1).toLowerCase();
+	// Map the -L language to the class tag
+	String classLanguageTag = null;
+        for(int i=0;i<languagemap.length;i++) {
+	    if(optionLanguage.equalsIgnoreCase(languagemap[i][0])) {
+	        classLanguageTag = languagemap[i][1];
+		break;
+	    }
+        }
+        if(classLanguageTag == null) {
+	    System.err.println("Unknown language: "+optionLanguage);
+	    System.exit(1);
+        }
 
 	if(arglist.size() == 0) {
 	    System.err.println("No input file specified");
@@ -96,22 +117,7 @@ public class Main
 	}
 	FileReader rdr = new FileReader(inputfile);
 
-	// Try to locate the language specific ASTFactory using reflection
-	ASTFactory factory = null;
-	String factoryclassname = DFALTPACKAGE + ".ASTFactory"+optionLanguage;
-        ClassLoader classLoader = Main.class.getClassLoader();
-        try {
-            Class factoryclass = Class.forName(factoryclassname);
-	    factory = (ASTFactory)factoryclass.newInstance();
-	    if(debug)
-		System.err.println("Using AST factory: ASTFactory"+optionLanguage);
-        } catch (ClassNotFoundException e) {
-	    factory = new ASTFactoryDefault();
-	    if(debug)
-		System.err.println("Using default AST factory");
-        }
-
-        ProtobufParser parser = new ProtobufParser(factory);
+        ProtobufParser parser = new ProtobufParser();
 	parser.setIncludePaths(includePaths);
 	if(optionParseDebug) parser.setDebugLevel(1);
 
@@ -136,8 +142,8 @@ public class Main
 	}
 
 	// Try to locate the language specific Generator using reflection
-	String generatorclassname = DFALTPACKAGE + "."+optionLanguage;
-        classLoader = Main.class.getClassLoader();
+	String generatorclassname = DFALTPACKAGE + "."+"Generate"+classLanguageTag;
+        ClassLoader classLoader = Main.class.getClassLoader();
         try {
             Class generatorclass = Class.forName(generatorclassname);
 	    Generator generator = (Generator)generatorclass.newInstance();

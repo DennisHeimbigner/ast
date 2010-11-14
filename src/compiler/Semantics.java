@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.io.*;
 
+import static unidata.protobuf.compiler.AST.*;
+
 public class Semantics
 {
 
@@ -341,27 +343,27 @@ setnodegroups(AST.Root root)
         switch (node.getSort()) {
         case PACKAGE:
             AST.Package astpackage = (AST.Package)node;
-            astpackage.messages = new ArrayList<AST.Message>();
-            astpackage.extenders = new ArrayList<AST.Extend>();
-            astpackage.enums = new ArrayList<AST.Enum>();
-            astpackage.options = new ArrayList<AST.Option>();
-            astpackage.services = new ArrayList<AST.Service>();
+            astpackage.setMessages(new ArrayList<AST.Message>());
+            astpackage.setExtenders(new ArrayList<AST.Extend>());
+            astpackage.setEnums(new ArrayList<AST.Enum>());
+            astpackage.setOptions(new ArrayList<AST.Option>());
+            astpackage.setServices(new ArrayList<AST.Service>());
             for(AST ast: astpackage.getChildSet()) {
-                switch(ast.sort) {
+                switch(ast.getSort()) {
                 case ENUM:
-                    astpackage.enums.add((AST.Enum)ast);
+                    astpackage.getEnums().add((AST.Enum)ast);
                     break;
                 case EXTEND:
-                    astpackage.extenders.add((AST.Extend)ast);
+                    astpackage.getExtenders().add((AST.Extend)ast);
                     break;
                 case MESSAGE:
-                    astpackage.messages.add((AST.Message)ast);
+                    astpackage.getMessages().add((AST.Message)ast);
                     break;
                 case OPTION:
-                    astpackage.options.add((AST.Option)ast);
+                    astpackage.getOptions().add((AST.Option)ast);
                     break;
                 case SERVICE:
-                    astpackage.services.add((AST.Service)ast);
+                    astpackage.getServices().add((AST.Service)ast);
                     break;
                 default: /*ignore*/ break;
                 }
@@ -370,34 +372,34 @@ setnodegroups(AST.Root root)
         case MESSAGE:
             // Group the message elements
             AST.Message msg = (AST.Message)node;
-            msg.fields = new ArrayList<AST.Field>();
-            msg.enums = new ArrayList<AST.Enum>();
-            msg.messages = new ArrayList<AST.Message>();
-            msg.extenders = new ArrayList<AST.Extend>();
-            msg.extensions = new ArrayList<AST.Extensions>();
-            msg.options = new ArrayList<AST.Option>();
-            msg.groups = new ArrayList<AST.Group>();
+            msg.setFields(new ArrayList<AST.Field>());
+            msg.setEnums(new ArrayList<AST.Enum>());
+            msg.setMessages(new ArrayList<AST.Message>());
+            msg.setExtenders(new ArrayList<AST.Extend>());
+            msg.setExtensions(new ArrayList<AST.Extensions>());
+            msg.setOptions(new ArrayList<AST.Option>());
+            msg.setGroups(new ArrayList<AST.Group>());
             for(AST ast: msg.getChildSet()) {
                 switch(ast.getSort()) {
-                case FIELD: msg.fields.add((AST.Field)ast); break;
-                case GROUP: msg.groups.add((AST.Group)ast); break;
-                case ENUM: msg.enums.add((AST.Enum)ast); break;
-                case MESSAGE: msg.messages.add((AST.Message)ast); break;
-                case EXTEND: msg.extenders.add((AST.Extend)ast); break;
-                case EXTENSIONS: msg.extensions.add((AST.Extensions)ast); break;
-                case OPTION: msg.options.add((AST.Option)ast); break;
+                case FIELD: msg.getFields().add((AST.Field)ast); break;
+                case GROUP: msg.getGroups().add((AST.Group)ast); break;
+                case ENUM: msg.getEnums().add((AST.Enum)ast); break;
+                case MESSAGE: msg.getMessages().add((AST.Message)ast); break;
+                case EXTEND: msg.getExtenders().add((AST.Extend)ast); break;
+                case EXTENSIONS: msg.getExtensions().add((AST.Extensions)ast); break;
+                case OPTION: msg.getOptions().add((AST.Option)ast); break;
                 default: assert(false) : "Illegal ast case"; break;
                 }
             }
             break;
         case SERVICE:
             AST.Service svc = (AST.Service)node;
-            svc.options = new ArrayList<AST.Option>();
-            svc.rpcs = new ArrayList<AST.Rpc>();
+            svc.setOptions(new ArrayList<AST.Option>());
+            svc.setRpcs(new ArrayList<AST.Rpc>());
             for(AST ast: svc.getChildSet()) {
                 switch(ast.getSort()) {
-                case OPTION: svc.options.add((AST.Option)ast); break;
-                case RPC: svc.rpcs.add((AST.Rpc)ast); break;
+                case OPTION: svc.getOptions().add((AST.Option)ast); break;
+                case RPC: svc.getRpcs().add((AST.Rpc)ast); break;
                 default: assert(false) : "Illegal ast case"; break;
                 }
             }
@@ -533,7 +535,7 @@ dereference(AST.Root root)
 	    found = false;
 	    for(AST ast : matches) {
 		if(ast instanceof AST.Message) {
-		    extender.message = (AST.Message)ast;
+		    extender.setMessage((AST.Message)ast);
 		    found = true;
 		    break;
 		}
@@ -557,7 +559,7 @@ dereference(AST.Root root)
 				"Duplicate qualified type names: "
 				+typematches.get(0).getName());
 	    } else { // typematches.size() == 1
-   	        field.fieldtype = typematches.get(0);
+   	        field.setType(typematches.get(0));
 	    }
 	    break;
 
@@ -574,7 +576,7 @@ dereference(AST.Root root)
 				"Duplicate qualified type names: "
 				+typematches.get(0).getName());
 	    } else {// typematches.size() == 1
-   	        rpc.argtype = typematches.get(0);
+   	        rpc.setArgType(typematches.get(0));
 	    }
 	    typematches = AuxFcns.findtypebyname(names[1],node,root);
 	    if(typematches.size() == 0) {
@@ -584,7 +586,7 @@ dereference(AST.Root root)
 				"Duplicate qualified type names: "
 				+typematches.get(0).getName());
 	    } else {// typematches.size() == 1
-   	        rpc.returntype = typematches.get(0);
+   	        rpc.setReturnType(typematches.get(0));
 	    }
 	    break;
 
@@ -613,7 +615,7 @@ checkduplicates(List<AST> allnodes)
             for(AST.EnumValue field1: ((AST.Enum)node).getEnumValues()) {
                 for(AST.EnumValue field2: ((AST.Enum)node).getEnumValues()) {
                     if(field1 == field2) continue;
-                    if(field1.value == field2.value) {
+                    if(field1.getValue() == field2.getValue()) {
                         duperror(field1,field2,
 				 String.format("Duplicate enum field numbers: %s=%s and %s=%s",
 				 field1.getName(),field1.getValue(),
@@ -625,12 +627,12 @@ checkduplicates(List<AST> allnodes)
             break;
         case MESSAGE:
             // check for duplicates
-           for(AST.Field field1: ((AST.Message)node).fields) {
-               for(AST.Field field2: ((AST.Message)node).fields) {
+           for(AST.Field field1: ((AST.Message)node).getFields()) {
+               for(AST.Field field2: ((AST.Message)node).getFields()) {
                     if(field1 == field2) continue;
-                    if(field1.id == field2.id) {
+                    if(field1.getId() == field2.getId()) {
                         duperror(field1,field2,
-				"Duplicate message field numbers: "+field1.id);
+				"Duplicate message field numbers: "+field1.getId());
                         break;
                     }
                 }
@@ -640,8 +642,8 @@ checkduplicates(List<AST> allnodes)
         case FIELD:
             // Check legality of field number
             AST.Field field = (AST.Field)node;
-            if(field.id < 0 || field.id >= AST.MAXFIELDID)
-                semerror(node,"Illegal message field id"+field.id);
+            if(field.getId() < 0 || field.getId() >= AST.MAXFIELDID)
+                semerror(node,"Illegal message field id"+field.getId());
             break;
         default:
 	    break;
@@ -683,9 +685,9 @@ boolean
 semreport(AST node, String msg, boolean err)
 {
     System.err.print(err?"Semantic error ":"Warning ");
-    if(node != null && node.position != null) {
+    if(node != null && node.getPosition() != null) {
 	System.err.print(String.format("%s @ %s\n",
-			   msg, node.position));
+			   msg, node.getPosition()));
     } else {
 	System.err.print(String.format("%s\n",msg));
     }
@@ -697,10 +699,10 @@ boolean
 duperror(AST node1, AST node2, String msg)
 {
     System.err.print(msg);
-    if(node1 != null && node1.position != null
-       && node2 != null && node2.position != null) {
+    if(node1 != null && node1.getPosition() != null
+       && node2 != null && node2.getPosition() != null) {
 	System.err.print(String.format(" ; node1 @ %s node2 @ %s",
-			   node1.position,node2.position));
+			   node1.getPosition(),node2.getPosition()));
     }
     System.err.println();
     return false;

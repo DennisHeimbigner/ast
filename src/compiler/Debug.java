@@ -35,6 +35,8 @@ package unidata.protobuf.compiler;
 import java.io.*;
 import java.util.*;
 
+import static unidata.protobuf.compiler.AST.*;
+
 public class Debug
 {
     static class PrintProps {
@@ -99,7 +101,7 @@ static void printR(AST node, int depth, PrintWriter writer)
     String name;
 
     name = qualnamefor(node);
-    switch (node.sort) {
+    switch (node.getSort()) {
     case FILE:
 	AST.File astfile = (AST.File)node;
 	if(astfile != astfile.getRoot().getRootFile()) {
@@ -135,12 +137,12 @@ static void printR(AST node, int depth, PrintWriter writer)
 	break;
     case ENUMVALUE:
 	AST.EnumValue astenumvalue = (AST.EnumValue)node;
-	writer.printf("%s%s = %d;\n",indent(depth),name,astenumvalue.value);
+	writer.printf("%s%s = %d;\n",indent(depth),name,astenumvalue.getValue());
 	break;
     case EXTEND:
 	AST.Extend astextend = (AST.Extend)node;
 	writer.printf("%sextend %s {\n",indent(depth),name);
-	for(AST subnode : astextend.fields) 
+	for(AST subnode : astextend.getFields()) 
 	    printR(subnode,depth+1,writer);
 	writer.printf("%s}\n",indent(depth));
 	break;
@@ -155,16 +157,16 @@ static void printR(AST node, int depth, PrintWriter writer)
 	break;
     case FIELD:
 	AST.Field astfield = (AST.Field)node;
-	typename = qualnamefor(astfield.fieldtype);
+	typename = qualnamefor(astfield.getType());
 	writer.printf("%s%s %s %s = %d",indent(depth),
-		      astfield.cardinality.getName(),typename,name,astfield.id);
+		      astfield.getCardinality().getName(),typename,name,astfield.getId());
 	// Special case handling
-	if(astfield.options.size() > 0) {
+	if(astfield.getOptions().size() > 0) {
             writer.print(" [");
 	    boolean first = true;
-	    for(AST.Option opt : astfield.options) {
+	    for(AST.Option opt : astfield.getOptions()) {
 	        if(!first) writer.print(", ");
-		printSimpleOption(opt.name,opt,writer);
+		printSimpleOption(opt.getName(),opt,writer);
 		first = false;
 	    }
             writer.print("]\n");
@@ -174,7 +176,7 @@ static void printR(AST node, int depth, PrintWriter writer)
     case GROUP:
 	AST.Group astgroup = (AST.Group)node;
 	writer.printf("%s%s group %s = %d {",indent(depth),
-		      astgroup.cardinality.getName(),name,astgroup.id);
+		      astgroup.getCardinality().getName(),name,astgroup.getId());
 	for(AST subnode : astgroup.getChildSet())
 	    printR(subnode,depth+1,writer);
 	writer.printf("%s}\n",indent(depth));
@@ -187,8 +189,8 @@ static void printR(AST node, int depth, PrintWriter writer)
 	break;
     case RPC:
 	AST.Rpc astrpc = (AST.Rpc)node;
-	String argtype = qualnamefor(astrpc.argtype);
-	String returntype = qualnamefor(astrpc.returntype);
+	String argtype = qualnamefor(astrpc.getArgType());
+	String returntype = qualnamefor(astrpc.getReturnType());
 	writer.printf("%srpc %s (%s) returns (%s);\n",indent(depth),name,argtype,returntype);
 	break;
     default: // ignore
@@ -199,11 +201,11 @@ static void printR(AST node, int depth, PrintWriter writer)
 private static void printSimpleOption(String name, AST.Option option, PrintWriter writer)
 {
     if(option.getUserDefined()) {
-        writer.printf("(%s) = %s",name,option.value);
+        writer.printf("(%s) = %s",name,option.getValue());
     } else if(name.equals(AST.DEFAULTNAME))
-        writer.printf("DEFAULT = %s",option.value);
+        writer.printf("DEFAULT = %s",option.getValue());
     else
-	writer.printf("%s = %s",name,option.value);
+	writer.printf("%s = %s",name,option.getValue());
 }
 
 
@@ -245,7 +247,7 @@ static void printTreeR(AST node, int depth,
 	        printTreeR(subnode,depth+1,writer,presemantic);
         }
     } else {// Dump per-package
-        switch (node.sort) {
+        switch (node.getSort()) {
         case ROOT:
             AST.Root root = (AST.Root)node;
             if(root.getPackageSet() != null) {
@@ -362,7 +364,7 @@ static void printTreeNode(AST node, int depth,PrintWriter writer)
     String qname;
 
     if(depth >= 0) writer.printf("[%s]",depth);
-    writer.printf("[%d] %s%s",node.index,indent(depth),node.sort.getName());
+    writer.printf("[%d] %s%s",node.getId(),indent(depth),node.getSort().getName());
     qname = qualnamefor(node);
     name = namefor(node);
     writer.printf(" name=|%s|",name);
@@ -382,7 +384,7 @@ static void printTreeNode(AST node, int depth,PrintWriter writer)
     }
 
     // switch to print any additional parameters
-    switch (node.sort) {
+    switch (node.getSort()) {
     case ROOT:
         AST.Root root = (AST.Root)node;
         writer.printf(" rootfile=|%s|",root.getRootFile().getName());
@@ -397,16 +399,16 @@ static void printTreeNode(AST node, int depth,PrintWriter writer)
 	if(astfield.getAnnotation() != null)
             typename = (String)astfield.getAnnotation();
         else
-            typename = qualnamefor(astfield.fieldtype);
+            typename = qualnamefor(astfield.getType());
 	writer.printf(" cardinality=%s type=%s id=%d",
-		      astfield.cardinality.getName(),
-		      typename,astfield.id);
+		      astfield.getCardinality().getName(),
+		      typename,astfield.getId());
 	break;
     case GROUP:
 	AST.Group astgroup = (AST.Group)node;
 	writer.printf(" cardinality=%s id=%d",
-		      astgroup.cardinality.getName(),
-		      astgroup.id);
+		      astgroup.getCardinality().getName(),
+		      astgroup.getId());
 	break;
     case EXTENSIONS:
 	AST.Extensions astextensions = (AST.Extensions)node;
@@ -417,7 +419,7 @@ static void printTreeNode(AST node, int depth,PrintWriter writer)
 	break;
     case ENUMVALUE:
 	AST.EnumValue astenumvalue = (AST.EnumValue)node;
-	writer.printf(" value=%s",astenumvalue.value);
+	writer.printf(" value=%s",astenumvalue.getValue());
 	break;
     case OPTION: // Option statement
 	AST.Option astoption = (AST.Option)node;
@@ -432,8 +434,8 @@ static void printTreeNode(AST node, int depth,PrintWriter writer)
 	    argtype = ((String[])astrpc.getAnnotation())[0];
 	    returntype = ((String[])astrpc.getAnnotation())[1];
 	} else {
-            argtype = astrpc.argtype.getQualifiedName();
-            returntype = astrpc.returntype.getQualifiedName();
+            argtype = astrpc.getArgType().getQualifiedName();
+            returntype = astrpc.getReturnType().getQualifiedName();
 	}
 	writer.printf(" argtype=|%s| returntype=|%s|", argtype, returntype);
 	break;
@@ -457,8 +459,8 @@ private static String namefor(AST node)
     if(node == null) return null;
     if(printprops.useuid)
 	return String.format("[%d]",node.getId());
-    if(node.name != null)
-        return node.name;
+    if(node.getName() != null)
+        return node.getName();
     return String.format("[?%d]",node.getId());
 }    
 
@@ -467,8 +469,8 @@ private static String qualnamefor(AST node)
     if(node == null) return null;
     if(!printprops.useuid
        && printprops.qualified
-       && node.qualifiedname != null)
-        return node.qualifiedname;
+       && node.getQualifiedName() != null)
+        return node.getQualifiedName();
     return namefor(node);
 }    
 

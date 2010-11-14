@@ -37,31 +37,31 @@ import java.util.*;
 public class ASTFactoryDefault implements ASTFactory
 {
     public AST.Root newRoot(String name)
-	{return new AST.Root(name);}
+	{return new ASTDefault.Root(name);}
     public AST.File newFile(String name)
-	{return new AST.File(name);}
+	{return new ASTDefault.File(name);}
     public AST.Package newPackage(String name)
-	{return new AST.Package(name);}
+	{return new ASTDefault.Package(name);}
     public AST.Enum newEnum(String name)
-	{return new AST.Enum(name);}
+	{return new ASTDefault.Enum(name);}
     public AST.EnumValue newEnumValue(String name, int value)
-	{return new AST.EnumValue(name, value);}
+	{return new ASTDefault.EnumValue(name, value);}
     public AST.Extend newExtend(String name, String msgname)
-	{return new AST.Extend(name,msgname);}
+	{return new ASTDefault.Extend(name,msgname);}
     public AST.Extensions newExtensions(String name)
-	{return new AST.Extensions(name);}
+	{return new ASTDefault.Extensions(name);}
     public AST.Field newField(String name, AST.Cardinality cardinality, String fieldtype, int id)
-	{return new AST.Field(name, cardinality, fieldtype, id);}
+	{return new ASTDefault.Field(name, cardinality, fieldtype, id);}
     public AST.Group newGroup(String name, AST.Cardinality cardinality, int id)
-	{return new AST.Group(name, cardinality, id);}
+	{return new ASTDefault.Group(name, cardinality, id);}
     public AST.Message newMessage(String name)
-	{return new AST.Message(name);}
+	{return new ASTDefault.Message(name);}
     public AST.Option newOption(String name, String value)
-	{return new AST.Option(name, value);}
+	{return new ASTDefault.Option(name, value);}
     public AST.Rpc newRpc(String name, String argtype, String returntype)
-	{return new AST.Rpc(name, argtype, returntype);}
+	{return new ASTDefault.Rpc(name, argtype, returntype);}
     public AST.Service newService(String name)
-	{return new AST.Service(name);}
+	{return new ASTDefault.Service(name);}
     public AST.PrimitiveType newPrimitiveType(AST.PrimitiveSort sort)
-	{return new AST.PrimitiveType(sort);}
+	{return new ASTDefault.PrimitiveType(sort);}
 }
