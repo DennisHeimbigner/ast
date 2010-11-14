@@ -142,7 +142,10 @@ public class Main
 	}
 
 	// Try to locate the language specific Generator using reflection
-	String generatorclassname = DFALTPACKAGE + "."+"Generate"+classLanguageTag;
+	String generatorclassname = DFALTPACKAGE
+				    + "."
+				    + classLanguageTag
+				    + "Generator";
         ClassLoader classLoader = Main.class.getClassLoader();
         try {
             Class generatorclass = Class.forName(generatorclassname);

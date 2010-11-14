@@ -32,7 +32,7 @@
 
 package unidata.protobuf.compiler;
 
-public interface Generator
+abstract public interface Generator
 {
-    public boolean generate(String[] argv, AST root);
+    public abstract boolean generate(String[] argv, AST root) throws Exception;
 }

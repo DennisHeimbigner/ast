@@ -41,20 +41,42 @@ import java.util.*;
 
 class Printer
 {
-
-    Writer writer;
+    String filename = null;
+    Writer writer = null;
+    PrintWriter pw = null;
     String indent = "    ";
 
     String indentation = "";
 
+    public Printer(String file)
+    {
+	this(new FileWriter(file));	
+    }
+
     public Printer(Writer writer)
     {
         this.writer = writer;
+	this.pw = new PrintWriter(this.writer);
     }
 
-    public void Print(Map<String,String> map, String text)
-	throws IOException
+    // Allow direct access to the writer wrapped as a printwriter
+    public PrintWriter getWriter() {return pw;}
+
+    public void flush() {pw.flush();}
+
+    public void close()
     {
+	try { pw.close(); writer.close(); pw = null; writer = null; }
+	catch (IOException ioe) {};
+    }
+
+    public void println(String text) throws IOException {print(text + "\n");}
+
+    public void print(String text) throws IOException {pw.print(text);}
+
+    public void print(Map<String,String> map, String text)
+	throws IOException 
+   {
 	int len = text.length();
 	for(int pos=0;pos<len;) {
 	    int c = text.charAt(pos++);
@@ -62,24 +84,24 @@ class Printer
 		c = text.charAt(pos);
 		if(c == '$') {
 		    pos++;
-      	            writer.append('$');
+      	            pw.append('$');
 		} else {// Assume it is an keyword
 		    int enddollar = text.indexOf('$',pos);
 		    if(enddollar < 0) {
 		        System.err.println("Unclosed identifier: "+text.substring(pos-1));
-			writer.append('$');
+			pw.append('$');
 		    } else {
 			String identifier = text.substring(pos,enddollar);
 			String match = map.get(identifier);
 			if(match == null) {
 		            System.err.println("Undefined identifier: "+identifier);
-			    writer.append("$"+identifier+"$");
+			    pw.append("$"+identifier+"$");
 			}
 			pos = enddollar;
 		    }
 		}
 	    } else
-    	        writer.append((char)c);
+    	        pw.append((char)c);
         }
     }
 
