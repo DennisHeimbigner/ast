@@ -34,5 +34,10 @@ package unidata.protobuf.compiler;
 
 abstract public interface Generator
 {
+    // Define some flags taken from the command line
+    boolean optionFlatten = false;
+    boolean getOptionFlatten() {return this.optionFlatten;}
+    void setOptionFlatten(boolean tf) {this.optionFlatten = tf;}
+
     public abstract boolean generate(String[] argv, AST root) throws Exception;
 }
