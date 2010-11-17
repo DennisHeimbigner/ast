@@ -32,7 +32,7 @@
 
 package unidata.protobuf.compiler;
 
-abstract public interface Generator
+abstract public class Generator
 {
     // Define some flags taken from the command line
     boolean optionFlatten = false;

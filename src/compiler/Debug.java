@@ -104,7 +104,7 @@ static void printR(AST node, int depth, PrintWriter writer)
     switch (node.getSort()) {
     case FILE:
 	AST.File astfile = (AST.File)node;
-	if(astfile != astfile.getRoot().getRootFile()) {
+	if(astfile != astfile.getRoot().getTopFile()) {
 	    writer.printf("%simport %s;\n",indent(depth),astfile.getName());
 	}
 	break;
@@ -387,7 +387,7 @@ static void printTreeNode(AST node, int depth,PrintWriter writer)
     switch (node.getSort()) {
     case ROOT:
         AST.Root root = (AST.Root)node;
-        writer.printf(" rootfile=|%s|",root.getRootFile().getName());
+        writer.printf(" rootfile=|%s|",root.getTopFile().getName());
         break;
     case FILE:
         AST.File f = (AST.File)node;

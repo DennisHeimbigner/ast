@@ -86,7 +86,7 @@ protobufroot(Object file0)
     AST.File file = (AST.File)file0;
     file.setName(filename);
     this.ast = astfactory.newRoot("");
-    this.ast.setRootFile(file);
+    this.ast.setTopFile(file);
     this.ast.getChildSet().add(file);
     // Place the set of primitive type nodes in the root
     this.ast.setPrimitiveTypes(primitives);

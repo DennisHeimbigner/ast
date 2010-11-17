@@ -191,8 +191,11 @@ public interface Root extends AST
     public List<PrimitiveType> getPrimitiveTypes();
     public void setPrimitiveTypes(List<PrimitiveType> primitivetypes);
 
-    File getRootFile();
-    void setRootFile(File f);
+    File getTopFile();
+    void setTopFile(File f);
+
+    Package getTopPackage();
+    void setTopPackage(Package p);
 }
 
 public interface File extends AST 

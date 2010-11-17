@@ -133,7 +133,9 @@ static public class Root extends ASTDefault implements AST.Root
     List<AST.Package> packageset = new ArrayList<AST.Package>();
     List<AST.File> fileset = new ArrayList<AST.File>();
     List<AST.PrimitiveType> primitivetypes = null;
-    AST.File rootfile = null;
+
+    AST.File topfile = null;
+    AST.Package toppackage = null;
 
     public Root(String name)
     {
@@ -152,8 +154,11 @@ static public class Root extends ASTDefault implements AST.Root
     public List<AST.PrimitiveType> getPrimitiveTypes() {return this.primitivetypes;}
     public void setPrimitiveTypes(List<AST.PrimitiveType> primitivetypes) {this.primitivetypes = primitivetypes;}
 
-    public AST.File getRootFile() {return this.rootfile;}
-    public void setRootFile(AST.File f) {this.rootfile = f;}
+    public AST.File getTopFile() {return this.topfile;}
+    public void setTopFile(AST.File f) {this.topfile = f;}
+
+    public AST.Package getTopPackage() {return this.toppackage;}
+    public void setTopPackage(AST.Package p) {this.toppackage = p;}
 }
 
 static public class File extends ASTDefault implements AST.File

@@ -40,6 +40,12 @@ option "java_outer_classname" or from the name of the file
 with all non-alphnumeric characters deleted and
 the remainer converted to upper case.
 (i.e. t_x.proto is used to make class TX).
+
+This code is intended to be non-interpretive,
+so it must produce an output file for each
+package decl=> using the import file name
+and assuming that each file contains as most
+one package decl.
 */
 
 package unidata.protobuf.compiler;
@@ -61,17 +67,14 @@ public class JavaGenerator implements Generator
     static public class Annotation
     {
 	String packagename = null;
-	String classname = null; // also used as file name
+	String outerclass = null; // also used as file name
 	String refpath = null;
-	Printer printer = null;
     }
 
     //////////////////////////////////////////////////
     // Instance variables
 
     String outputdir = DFALTDIR;
-
-    String outerclass = null; // Name of the outer class
 
     //////////////////////////////////////////////////
     // Constructor
@@ -110,11 +113,12 @@ public class JavaGenerator implements Generator
 		System.exit(1);
 	    }
 	}
+    }
     //////////////////////////////////////////////////
 
 /*
-- compute the filename for the top level class
 - compute the Java package names for all the packages
+- compute the filenames for each package
 - compute the reference path for each message and enum
 - for each enum in package p
    - generate the top level enum definitions
@@ -134,11 +138,8 @@ public class JavaGenerator implements Generator
 		ast.setAnnotation(a);
 		break;
 	    default: break;
+	    }
 	}
-
-	// Compute the output filename
-	String file = root.getPackage().optionLookup("java_outer_classname");
-        if(file == null) file = makeouterclassname(root.getRootFile());
 
 	// Compute the Java package names for all the packages
 	for(AST.Package p: root.getPackageSet()) {
@@ -146,69 +147,125 @@ public class JavaGenerator implements Generator
 	    a.packagename = p.optionLookup("java_package");
 	    if(a.packagename == null) a.packagename = p.getName();
 	}
-	// compute the filenames for all the top-level message types
-	for(AST ast: root.getNodeSet()) {
-	    if(ast.getParent().getSort() != AST.Sort.Package)
-		continue; // not top level
-	    switch (ast.getSort()) {
-	    case MESSAGE:
-		AST.Message msg = (AST.Message)ast;
-		Annotation a = msg.getAnnotation();
-		a.classname = msg.getName();
-		break;
-	    default: break;
+
+	// compute the outer class / filename for all the packages
+	// Truncate each such filename
+	for(AST p0: root.getPackageSet()) {
+	    String base = computeouterclassname(p0);
+	    // Make sure name is unique
+	    int counter = 1;
+	    String outerclass = base;
+	    for(boolean ok=false;ok;) {
+		ok = true;
+		for(AST p1: root.getPackageSet()) {
+		    Annotation a = (Annotation)p1.getAnnotation();
+		    if(outerclass.equals(a.outerclass)) {
+			outerclass = base + counter++;
+		        ok = false;
+		    }
+		}
 	    }
+	    Annotation a = (Annotation)p0.getAnnotation();
+	    a.outerclass = outerclass;
+	    // Now, truncate
+	    FileWriter filewriter = null;
+	    String filename = outputdir + "/" + a.outerclass+".java";
+	    try {
+		filewriter = new FileWriter(filename);
+	    } catch (Exception e) {
+		System.err.println("Cannot access file: "+filename);
+		return false;
+	    }
+	    try {filewriter.close();} catch (Exception e) {};
 	}
-	// Compute the reference path for each message and enum
+
+	// Compute the java reference path for each message and enum
+        List<AST> path = new ArrayList<AST>();
 	for(AST ast: root.getNodeSet()) {
 	    Annotation a = ast.getAnnotation();
 	    switch (ast.getSort()) {
 	    case MESSAGE: CASE ENUM:
-		a.refpath = ast.getQualifiedName();
+		collectpath(ast,path,false)
+		a.refpath = computejavapath(path);
 		break;
 	    default: break;
 	    }
 	}
-	// Truncate the .java enum files and message files
-	for(AST ast: root.getNodeSet()) {
-	    FileWriter filewriter = null;
-	    if(ast.getParent().getSort() != AST.Sort.Package)
-		continue; // not top level
-	    Annotation a = msg.getAnnotation();
-	    switch (ast.getSort()) {
-	    case MESSAGE: case ENUM:
-		String filename = outputdir + "/" + a.classname+".java";
-		try {
-		    filewriter = new FileWriter(filename);
-		} catch (Exception e) {
-		    System.err.println("Cannot access file: "+filename);
-		    return false;
-		}
-		try {a.filewriter.close();} catch (Exception e) {};
-		break;
-	    default: break;
+
+	// Generate each package's content
+	for(AST.Package p0: root.getPackageSet()) {
+	    Annotation a = p0.getAnnotation();
+	    Printer pw = null;
+	    generate_header(p0,pw)
+	    // Open the .java file for this package
+   	    String filename = outputdir + "/" + a.outerclass+".java";
+  	    try {
+		pw = new printer(filename);
+		generate_header(po,a.printer);
+		generate_content(po,a.printer);
+		generate_trailer(po,a.printer);
+		pw.close();
+	    } catch (Exception e) {
+		System.err.println("Generation Failure: "+filename+":"+e);
+		return false;
 	    }
 	}
+
+	return true;
+    } // generate()
+
+    void generate_header(AST.Package p, Printer printer) throws Exception
+    {
+	Annotation a = p.getAnnotation();
+	Printer.println("package " + p.packagename() + ";")
+	Printer.println("");
+	
+        // Open the outerclass
+	Printer.println("public class "+a.outerclass);
+	Printer.println("{");
+    }
+
+    void generate_trailer(AST.Package p, Printer printer) throws Exception
+    {
+	Annotation a = p.getAnnotation();
+	// Close the outer class
+	Printer.println("} //"+a.outerclass);
+    }
+
+    void generate_content(AST.Package p, Printer printer) throws Exception
+    {
+	// Generate the enum definitions
+	for(AST ast: p.getChildSet()) {
+	    if(ast.getSort() != AST.Sort.ENUM) continue;
+	    generate_enum((AST.Enum)ast,pw);
+	}
+
+	// Generate the message definitions (including recursive contents)
+	for(AST ast: p.getChildSet()) {
+	    if(ast.getSort() != AST.Sort.MESSAGE) continue;
+	    generate_message((AST.Message)ast,pw);
+	}
+    }
+
+
+    void generate_enum(AST.Enum node, Printer printer) throws Exception
+    {
 	// Generate the top level enum definitions
 	for(AST ast: root.getNodeSet()) {
 	    if(ast.getParent().getSort() != AST.Sort.Package) continue;
 	    Annotation a = msg.getAnnotation();
 	    switch (ast.getSort()) {
 	    case ENUM:
-		// Open the .java file for this enum
-		AST.Enum e = (AST.Enum)ast;
-		String filename = outputdir + "/" + a.classname+".java";
-		try {
-		    a.printer = new printer(filename);
-		    if(!generate_enum(e,a.printer)) return false;
-		} catch (Exception e) {
-		    System.err.println("IO Failure: "+filename+":"+e);
-		    return false;
-		}
 	    default: break;
 	    }
 	}
+    }
+
+
+    void generate_message(AST.Message node, Printer printer) throws Exception
+    {
 	// Generate the top level message definitions
+	// including any nested enums or messages
 	for(AST ast: root.getNodeSet()) {
 	    if(ast.getParent().getSort() != AST.Sort.Package) continue;
 	    Annotation a = msg.getAnnotation();
@@ -216,7 +273,7 @@ public class JavaGenerator implements Generator
 	    case MESSAGE:
 		// Open the .java file for this message
 		AST.Message e = (AST.Message)ast;
-		String filename = outputdir + "/" + a.classname+".java";
+		String filename = outputdir + "/" + a.outerclass+".java";
 		try {
 		    a.printer = new Printer(filename);
 		    if(!generate_message(e,a.printer)) return false;
@@ -227,23 +284,47 @@ public class JavaGenerator implements Generator
 	    default: break;
 	    }
 	}
-	return true;
     }
-} // generate()
 
 
-boolean generate_enum(AST.Enum node, Printer printer) throws Exception
-{
-// Dump the package decl
-assert(node.getParent() instanceof AST.Package);
-Annotation pa = node.getParent().getAnnotation();
-Printer.println("package " + pa.packagename() + ";")
-Printer.println("");
+    String
+    computeouterclassname(AST.Package p)
+    {
+        AST.File file = p.getPackageFile();
+        String filename = file.getName();
+        String outername = "";
+        for(int i=0;i<filename.length();i++) {
+            char c = filename.charAt(i).toUpperCase();
+            if("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".indexOf(char) >= 0)
+                outername += c;
+        }
+        return outername
+    }
 
+    // Collect path of parent nodes upto
+    // and (optionally) including the package
+    void
+    collectpath(AST ast, List<AST> path, boolean thrupackage)
+    {
+        path.clear();
+        AST parent = ast;
+        while(parent.getSort() != AST.Sort.ROOT) {
+            if(parent.getSort() == AST.Sort.PACKAGE && !thrupackage) break;
+            path.add(0,parent);
+            parent = parent.getParent();
+        }
+    }
 
-}
-
-
+    String
+    computejavapath(List<AST> path, String outerclass)
+    {
+        String spath = outerclass;
+        for(int i=0;i<path.size();i++) {
+            AST ast = path.get(i);
+            spath = spath + "." + ast.getName();
+        }
+        return spath;
+    }
 
 } // JavaGenerator
 

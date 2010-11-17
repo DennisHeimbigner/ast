@@ -48,12 +48,12 @@ class Printer
 
     String indentation = "";
 
-    public Printer(String file)
+    public Printer(String file) throws IOException
     {
 	this(new FileWriter(file));	
     }
 
-    public Printer(Writer writer)
+    public Printer(Writer writer) 
     {
         this.writer = writer;
 	this.pw = new PrintWriter(this.writer);

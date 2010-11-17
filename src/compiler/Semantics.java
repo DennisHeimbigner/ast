@@ -282,8 +282,13 @@ boolean
 groupbypackage(AST.Root root)
 {
     // Root has no containing file or package
+    // But does have top files
+    root.setTopFile(root.getSrcFile());
+    root.setPackage(root.getTopFile().getFilePackage());
+
     root.setSrcFile(null);
     root.setPackage(null);
+
     root.setRoot(root); // true for all nodes
 
     // Make root's children become the set of packages    
