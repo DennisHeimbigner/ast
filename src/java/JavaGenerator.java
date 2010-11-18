@@ -195,41 +195,39 @@ public class JavaGenerator implements Generator
 	// Generate each package's content
 	for(AST.Package p0: root.getPackageSet()) {
 	    Annotation a = p0.getAnnotation();
-	    Printer pw = null;
-	    generate_header(p0,pw)
+	    Printer printer = null;
 	    // Open the .java file for this package
    	    String filename = outputdir + "/" + a.outerclass+".java";
   	    try {
-		pw = new printer(filename);
-		generate_header(po,a.printer);
-		generate_content(po,a.printer);
-		generate_trailer(po,a.printer);
-		pw.close();
+		printer = new Printer(filename);
+		generate_header(po,printern);
+		generate_content(po,printer);
+		generate_trailer(po,printer);
+		printer.close();
 	    } catch (Exception e) {
 		System.err.println("Generation Failure: "+filename+":"+e);
 		return false;
 	    }
 	}
-
 	return true;
     } // generate()
 
     void generate_header(AST.Package p, Printer printer) throws Exception
     {
 	Annotation a = p.getAnnotation();
-	Printer.println("package " + p.packagename() + ";")
-	Printer.println("");
+	printer.println("package " + p.packagename() + ";")
+	printer.println("");
 	
         // Open the outerclass
-	Printer.println("public class "+a.outerclass);
-	Printer.println("{");
+	printer.println("public class "+a.outerclass);
+	printer.println("{");
     }
 
     void generate_trailer(AST.Package p, Printer printer) throws Exception
     {
 	Annotation a = p.getAnnotation();
 	// Close the outer class
-	Printer.println("} //"+a.outerclass);
+	printer.println("} //"+a.outerclass);
     }
 
     void generate_content(AST.Package p, Printer printer) throws Exception
@@ -248,44 +246,186 @@ public class JavaGenerator implements Generator
     }
 
 
-    void generate_enum(AST.Enum node, Printer printer) throws Exception
+    void generate_enum(AST.Enum e, Printer printer) throws Exception
     {
-	// Generate the top level enum definitions
-	for(AST ast: root.getNodeSet()) {
-	    if(ast.getParent().getSort() != AST.Sort.Package) continue;
-	    Annotation a = msg.getAnnotation();
-	    switch (ast.getSort()) {
-	    case ENUM:
-	    default: break;
-	    }
-	}
-    }
-
-
-    void generate_message(AST.Message node, Printer printer) throws Exception
-    {
-	// Generate the top level message definitions
-	// including any nested enums or messages
-	for(AST ast: root.getNodeSet()) {
-	    if(ast.getParent().getSort() != AST.Sort.Package) continue;
-	    Annotation a = msg.getAnnotation();
-	    switch (ast.getSort()) {
-	    case MESSAGE:
-		// Open the .java file for this message
-		AST.Message e = (AST.Message)ast;
-		String filename = outputdir + "/" + a.outerclass+".java";
-		try {
-		    a.printer = new Printer(filename);
-		    if(!generate_message(e,a.printer)) return false;
-		} catch (Exception e) {
-		    System.err.println("IO Failure: "+filename+":"+e);
-		    return false;
+	Annotation a = e.getAnnotation();
+	printer.println("public enum");
+	printer.println("{");
+            List<AST.EnumValue> values = e.getEnumValues();
+            int nvalues = values.size();
+            for(int i=0;i<nvalues;i++) {
+                AST.EnumValue eval = values.get(i);
+                printer.printf("%s(%d)%s\n",
+                    eval.getName(),
+                    eval.getValue(),
+                    (i == (nvalues - 1)?";":","));
+            }
+            // Dump the value accessors
+            printer.println("private final int value;");
+            printer.printf("%s(int value) {this.value = value;}",e.getName());
+            printer.println("public String getValue() {return value;}");
+	    printer.println("public %s getEnum(int value)",e.getName());
+	    printer.println("{");
+	    printer.println("switch (value) {");
+		for(AST.EnumValue ev: e.getEnumValues()) {
+		    printer.println("case %d: return %s;",e.getValue(),e.getName());
 		}
-	    default: break;
-	    }
-	}
+		printer.println("default:")
+		printer.println("throw Unidata.protobuf.Error("Illegal Enumeration value"););
+	    printer.println("} // switch");
+	    printer.println("} // getEnum");
+	printer.println("} //"+e.getName())"
     }
 
+    void generate_message(AST.Message msg, Printer printer) throws Exception
+    {
+        Annotation a = msg.getAnnotation();
+	// Generate the class header
+	printer.printf("static public class %s");
+	printer.println("{");
+
+	// Generate the class fields
+	for(AST.Field field: msg.getFields()) {
+	    printer.printf("%s %s = %s;\n",
+		javatypefor(field.getType()),
+		field.getName(),
+		defaultfor(field));
+ 	}
+
+	// Generate get instance function
+	printer.printf("public %s getInstance()\n",msg.getName());
+	printer.println("{");
+	    printer.printf("return new %s();\n",msg.getName());
+	printer.println("} // getInstance");
+
+	// Generate the serialize/deserialize functions
+
+	// Generate the serialize function
+	printer.println("public boolean writeTo(EDF edf) throws Unidata.protobuf.Error");
+	printer.println("{");
+	for(AST.Field field: msg.getFields()) {
+	    AST.Type fieldtype = field.getType();
+	    if(fieldtype.getSort() == AST.Sort.PRIMITIVETYPE) {
+	        printer.printf("Unidata.protobuf.Runtime.%s_writeTo(edf,%s);\n",
+			field.getType().getName(),field.getName());
+	    } else if(fieldtype.getSort() == AST.Sort.ENUM) {
+	        printer.printf("Unidata.protobuf.Runtime.int_writeTo(edf,%s);\n",
+			       field.getName());
+	    } else { /User defined type
+	        printer.printf("%s.writeTo(edf);\n",field.getName());
+	    }
+ 	}
+	printer.println("} // writeTo"); // serialize function trailer
+
+	// Generate the deserialize function
+	printer.println("public boolean readFrom(EDF edf)");
+	printer.println("{");
+	printer.println("int key;");
+	printer.println("while((key = edf.readc() >= 0) {");
+        printer.println("int wiretype = (key|0x7);");
+        printer.println("int tag = (key >> 3);");
+        printer.println("switch (tag) {");
+	for(AST.Field field: msg.getFields()) {
+	    if(!generate_deserialize_field(field,printer)) return false;
+	    printer.println("} break;");
+	}
+        // add default
+        printer.println("default:");
+        printer->println("Unidata.protobuf.Runtime.skip_field(edf);");
+
+        printer.println("};\n"); // switch
+        printer.println("};\n"); // while
+	printer.println("} // readFrom"); // deserialize function trailer
+
+	// generate class trailer
+	printer.println("} //"+msg.getName())"
+    }
+
+
+    void 
+    fieldwriteto(AST.field field)
+    {
+        AST.Type fieldtype = field.getType();
+	if(fieldtype.getSort() == AST.Sort.PRIMITIVETYPE) {
+	    printer.printf("Unidata.protobuf.Runtime.%s_readFrom(edf,%s);\n",
+			   field.getType().getName(),field.getName());
+        } else if(fieldtype.getSort() == AST.Sort.ENUM) {// User defined enum
+	    printer.printf("Unidata.protobuf.Runtime.int_readFrom(edf,%s.getValue());\n",
+			   field.getName());
+        } else { //User defined msg type
+	    printer.printf("%s.readFrom(edf);\n",field.getName());
+        }
+    }
+
+    boolean
+    generate_deserialize_field(AST.Field field, Printer printer)
+    {
+	
+	printer.println("case %d: {",field.getId());
+	switch (field.getCardinality()) {	
+        case REQUIRED:
+	    fieldreadfrom(field);
+	    break;
+        case OPTIONAL:
+	    // Assume that every field has been initialized with some default value
+	    fieldreadfrom(field);
+	    break;
+        case REPEATED:
+	    // The assumption here is that the field is a list<T> with the default = empty list
+	    // Would prefer to use T[], but we do not know the size in advance
+	    fieldreadfromrepeated(field);
+	    break;
+	}
+	return true;
+    }
+
+    void 
+    fieldreadfrom(AST.field field)
+    {
+        AST.Type fieldtype = field.getType();
+	if(fieldtype.getSort() == AST.Sort.PRIMITIVETYPE) {
+	    printer.printf("Unidata.protobuf.Runtime.%s_readFrom(edf,%s);\n",
+			   field.getType().getName(),field.getName());
+        } else if(fieldtype.getSort() == AST.Sort.ENUM) {// User defined enum
+	    printer.printf("{int enumid = -1";");
+	    printer.printf("enumid = Unidata.protobuf.Runtime.int_readFrom(edf);\n",
+	    printer.printf("%s = %s.getEnum(enumid);",field.getName(),fieldtype.getName());
+        } else { //User defined msg type
+	    printer.printf("%s.readFrom(edf);\n",field.getName());
+        }
+    }
+
+    void 
+    fieldreadfromrepeated(AST.field field)
+    {
+	if(fieldtype == FieldDescriptor::TYPE_MESSAGE) {
+	    printer->Print(vars,"$fieldtype$* tmp;\n");
+	} else {
+	    printer->Print(vars,"$cfieldtype$ tmp;\n");
+        }
+        printer->Print(vars,"err = edf_$edffcnname$_decode(edf,&tmp);\n");
+	printer->Print(vars,"if(err) break;\n");
+	printer->Print(vars,"err = edf_append(edf,(void*)&$msgidname$->$fieldname$,sizeof(tmp),(void*)&tmp);\n");
+
+        AST.Type fieldtype = field.getType();
+	if(fieldtype.getSort() == AST.Sort.PRIMITIVETYPE) {
+	    printer.printf("Unidata.protobuf.Runtime.%s_readFromRepeated(edf,%s);\n",
+			   field.getType().getName(),field.getName());
+        } else if(fieldtype.getSort() == AST.Sort.ENUM) {// User defined enum
+	    printer.printf("{");
+	    printer.printf("int enumid = Unidata.protobuf.Runtime.int_readFrom(edf);\n",
+	    printer.printf("%s eval = %s.getEnum(enumid);",
+				field.getName(),
+				getrefname(fieldtype),
+				getrefname(fieldtype));
+        } else { //User defined msg type
+	    printer.println("{");
+	    printer.printf(%s value = %s.readFrom(edf);\n",
+				getrefname(fieldtype),
+				field.getName());
+	    printer.printf("%s.add(value);\n",field.getName())
+        }
+    }
 
     String
     computeouterclassname(AST.Package p)

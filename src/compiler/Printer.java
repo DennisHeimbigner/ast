@@ -70,9 +70,18 @@ class Printer
 	catch (IOException ioe) {};
     }
 
+    public void printf(String fmt, Object... args) throws IOException
+    {
+	String s = String.format(fmt,args);
+        print(s);
+    }
+
     public void println(String text) throws IOException {print(text + "\n");}
 
-    public void print(String text) throws IOException {pw.print(text);}
+    public void print(String text) throws IOException
+    {
+	pw.print(indent+text);
+    }
 
     public void print(Map<String,String> map, String text)
 	throws IOException 

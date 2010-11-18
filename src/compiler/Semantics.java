@@ -283,8 +283,9 @@ groupbypackage(AST.Root root)
 {
     // Root has no containing file or package
     // But does have top files
-    root.setTopFile(root.getSrcFile());
-    root.setPackage(root.getTopFile().getFilePackage());
+    AST.File f = root.getSrcFile();
+    root.setTopFile(f);
+    root.setPackage(f.getFilePackage());
 
     root.setSrcFile(null);
     root.setPackage(null);

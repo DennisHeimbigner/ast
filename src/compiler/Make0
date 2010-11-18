@@ -1,7 +1,7 @@
 W=-Wd
 
 #TEST=-I . -I./testdata1 t.proto
-TEST=-I./testdata1 unittest_lite_imports_nonlite.proto
+TEST=-I./testdata1 addressbook.proto
 
 TOPDIR=d:/IdeaProjects/ast/src/compiler
 
@@ -15,7 +15,8 @@ SRC=\
     ASTFactory.java ASTFactoryDefault.java \
     Generator.java \
     Getopt.java LongOpt.java \
-    ASTDefault.java
+    ASTDefault.java \
+    JavaGenerator.java
 
 COMPILERPATH=classes/unidate/protobuf/ast/compiler
 
