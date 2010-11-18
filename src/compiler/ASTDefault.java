@@ -354,6 +354,35 @@ static public class Option extends ASTDefault implements AST.Option
     public void setUserDefined(boolean userdefined) {this.userdefined = userdefined;}
 }
 
+static public class CompoundConstant extends ASTDefault implements AST.CompoundConstant
+{
+    List<AST.Pair> members = null;
+
+    public CompoundConstant(String name)
+    {
+	super(Sort.COMPOUNDCONSTANT);
+	setName(name);
+    }
+
+    public List<AST.Pair> getMembers() {return members;}
+    public void setMembers(List<AST.Pair> members) {this.members = members;}
+}
+
+static public class Pair extends ASTDefault implements AST.Pair
+{
+    Object value = null;
+
+    public Pair(String name, Object value)
+    {
+	super(Sort.PAIR);
+	setName(name);
+	setValue(value);
+    }
+
+    public Object getValue() {return value;}
+    public void setValue(Object value) {this.value = value;}
+}
+
 static public class Rpc extends ASTDefault implements AST.Rpc
 {
     AST.Type argtype = null;

@@ -58,7 +58,9 @@ public interface AST
 	EXTEND("extend"), EXTENSIONS("extensions"),
 	FIELD("field"), MESSAGE("message"), GROUP("group"),
 	OPTION("option"), RPC("rpc"), SERVICE("service"),
-	PRIMITIVETYPE("primitivetype"), FILE("file"), ROOT("root");
+	PRIMITIVETYPE("primitivetype"), FILE("file"), ROOT("root"),
+	PAIR("pair"), COMPOUNDCONSTANT("compoundconstant")
+	;
 
 	private final String name;
         Sort(String name) {this.name = name;}
@@ -285,6 +287,18 @@ public interface Option extends AST
     public boolean getUserDefined();
     public void setUserDefined(boolean userdefined);
 
+}
+
+public interface CompoundConstant extends AST
+{
+    public List<AST.Pair> getMembers();
+    public void setMembers(List<AST.Pair> pairs);
+}
+
+public interface Pair extends AST
+{
+    public Object getValue();
+    public void setValue(Object value);
 }
 
 public interface Rpc extends AST

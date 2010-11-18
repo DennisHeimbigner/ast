@@ -47,6 +47,8 @@ public interface ASTFactory
     AST.Group newGroup(String name, AST.Cardinality cardinality, int id);
     AST.Message newMessage(String name);
     AST.Option newOption(String name, String value);
+    AST.Pair newPair(String name, Object value);
+    AST.CompoundConstant newCompoundConstant(String name);
     AST.Rpc newRpc(String name, String argtype, String returntype);
     AST.Service newService(String name);
     AST.PrimitiveType newPrimitiveType(AST.PrimitiveSort sort);

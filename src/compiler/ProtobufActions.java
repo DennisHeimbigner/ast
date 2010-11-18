@@ -485,5 +485,30 @@ relpath(Object relpath0, Object segment0)
     return ((String)relpath0) + "." + ((String)segment0);
 }
 
+Object
+compound(Object list0)
+{
+    AST.CompoundConstant node = astfactory.newCompoundConstant("$compound");
+    node.setChildSet((List<AST>)list0);
+    return node;
+}
+
+
+Object
+pairlist(Object list0, Object decl0)
+{
+    List<AST.Pair> list = (List<AST.Pair>)list0;
+    if(list == null) list = new ArrayList<AST.Pair>();
+    if(decl0 != null) list.add((AST.Pair)decl0);
+    return list;
+}
+
+Object
+pair(Object name0, Object value0)
+{
+    AST.Pair node = astfactory.newPair((String)name0,value0);
+    return node;
+}
+
 
 } // class ProtobufActions

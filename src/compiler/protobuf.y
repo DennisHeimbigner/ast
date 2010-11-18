@@ -258,7 +258,7 @@ extensions:
 extensionlist:
           extensionrange
 	    {$$=extensionlist(null,$1);}
-        | extensions ',' extensionrange
+        | extensionlist ',' extensionrange
 	    {$$=extensionlist($1,$3);}
         ;
 
@@ -307,6 +307,7 @@ packagename:
 // In constants, paths will end up being treated as strings that just happen to be unquoted.
 constant:
           path  {$$=$1;}
+	| compound {$$=$1;}
 	| intconst {$$=$1;}
 	| floatconst {$$=$1;}
 	| STRINGCONST  {$$=$1;}
@@ -342,6 +343,21 @@ relpath:
 	| relpath '.' name
 	    {$$=relpath($1,$3);}
 	;
+
+compound:
+	'{' pairlist '}' {$$=compound($1);}
+	;
+
+pairlist:
+          pair
+	    {$$=pairlist(null,$1);}
+        | pairlist pair
+	    {$$=pairlist($1,$2);}
+        ;
+
+pair:
+	name ':' constant
+	    {$$=pair($1,$3);}
 
 /* A Name can be a keyword */
 name:

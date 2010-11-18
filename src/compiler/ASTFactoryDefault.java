@@ -58,6 +58,10 @@ public class ASTFactoryDefault implements ASTFactory
 	{return new ASTDefault.Message(name);}
     public AST.Option newOption(String name, String value)
 	{return new ASTDefault.Option(name, value);}
+    public AST.Pair newPair(String name, Object value)
+	{return new ASTDefault.Pair(name, value);}
+    public AST.CompoundConstant newCompoundConstant(String name)
+	{return new ASTDefault.CompoundConstant(name);}
     public AST.Rpc newRpc(String name, String argtype, String returntype)
 	{return new ASTDefault.Rpc(name, argtype, returntype);}
     public AST.Service newService(String name)

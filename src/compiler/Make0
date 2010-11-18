@@ -15,8 +15,9 @@ SRC=\
     ASTFactory.java ASTFactoryDefault.java \
     Generator.java \
     Getopt.java LongOpt.java \
-    ASTDefault.java \
-    JavaGenerator.java
+    ASTDefault.java
+
+#    JavaGenerator.java
 
 COMPILERPATH=classes/unidate/protobuf/ast/compiler
 
