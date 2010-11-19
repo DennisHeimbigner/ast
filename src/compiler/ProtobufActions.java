@@ -203,6 +203,7 @@ Object
 option(Object name0, Object value0)
 {
     AST.Option node = astfactory.newOption((String)name0,(String)value0);
+    node.setType(astfactory.newPrimitiveType(AST.PrimitiveSort.STRING));
     node.setPosition(position());
     return node;
 }

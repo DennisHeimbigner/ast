@@ -340,6 +340,7 @@ static public class Option extends ASTDefault implements AST.Option
 {
     String value;
     boolean userdefined = false;
+    AST.Type optiontype = null;
 
     public Option(String name, String value)
     {
@@ -352,6 +353,8 @@ static public class Option extends ASTDefault implements AST.Option
     public void setValue(String value) {this.value = value;}
     public boolean getUserDefined() {return this.userdefined;}
     public void setUserDefined(boolean userdefined) {this.userdefined = userdefined;}
+    public AST.Type getType() {return optiontype;}
+    public void setType(AST.Type t) {this.optiontype = t;}
 }
 
 static public class CompoundConstant extends ASTDefault implements AST.CompoundConstant

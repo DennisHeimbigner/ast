@@ -286,6 +286,8 @@ public interface Option extends AST
     public void setValue(String value);
     public boolean getUserDefined();
     public void setUserDefined(boolean userdefined);
+    public Type getType();
+    public void setType(Type t);
 
 }
 
