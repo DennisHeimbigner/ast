@@ -44,7 +44,7 @@ class Printer
     String filename = null;
     Writer writer = null;
     PrintWriter pw = null;
-    String indent = "    ";
+    String deltaindent = "    ";
 
     String indentation = "";
 
@@ -80,7 +80,7 @@ class Printer
 
     public void print(String text) throws IOException
     {
-	pw.print(indent+text);
+	pw.print(indentation+text);
     }
 
     public void print(Map<String,String> map, String text)
@@ -114,11 +114,14 @@ class Printer
         }
     }
 
-    public void Indent() {indentation += indent;}
+    public void blankline() {blankline(1);};
+    public void blankline(int n) {while(--n >= 0) pw.printf("\n");};
 
-    public void Outdent()
+    public void indent() {indentation += deltaindent;}
+
+    public void outdent()
     {
-        int newlen = indentation.length() + indent.length();
+        int newlen = indentation.length() + deltaindent.length();
 	if(newlen < 0)
 	    System.err.println("Attempt to Outdent past column 0");
 	else
@@ -130,9 +133,9 @@ class Printer
 	if(n < 0) return;
 	String newindent = "";
 	while(n-- > 0) newindent += " ";
-	indent = newindent;	
+	deltaindent = newindent;	
     }
 
-    public int getIndent() {return indent.length();}
+    public int getIndent() {return deltaindent.length();}
 
 } // class Printer

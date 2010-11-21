@@ -1,3 +1,5 @@
-message x {
-  repeated ServiceDescriptorProto service = 6;
+message t {
+  required int32 f1 = 1 [DEFAULT = 5];
+  optional float f2 = 2;
+  repeated sint32 f3 = 3;
 }

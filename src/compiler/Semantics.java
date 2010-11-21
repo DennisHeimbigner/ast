@@ -281,10 +281,9 @@ setpackagelink(AST node, AST.Package currentpackage)
 boolean
 groupbypackage(AST.Root root)
 {
-    // Root has no containing file or package
+    // Root has no containing package or file
     // But does have top files
-    AST.File f = root.getSrcFile();
-    root.setTopFile(f);
+    AST.File f = root.getTopFile();
     root.setPackage(f.getFilePackage());
 
     root.setSrcFile(null);
