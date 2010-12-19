@@ -1,0 +1,7 @@
+[0][332] root name=|| qualifiedname=|| rootfile=|./example.proto|
+[1][325]   package name=|example| qualifiedname=|.example| parent=|| file=|../example.proto| package=|.example|
+[2][327]     message name=|Word| qualifiedname=|.example.Word| parent=|.example| file=|../example.proto| package=|.example|
+[3][326]       field name=|word| qualifiedname=|.example.Word.word| parent=|.example.Word| file=|../example.proto| package=|.example| cardinality=required type=string id=1
+[2][330]     service name=|WordFuncs| qualifiedname=|.example.WordFuncs| parent=|.example| file=|../example.proto| package=|.example|
+[3][328]       rpc name=|Uppercase| qualifiedname=|.example.WordFuncs.Uppercase| parent=|.example.WordFuncs| file=|../example.proto| package=|.example| argtype=|.example.Word| returntype=|.example.Word|
+[3][329]       rpc name=|Lowercase| qualifiedname=|.example.WordFuncs.Lowercase| parent=|.example.WordFuncs| file=|../example.proto| package=|.example| argtype=|.example.Word| returntype=|.example.Word|

@@ -1,0 +1,12 @@
+[0][7696] root name=|| qualifiedname=|| rootfile=|./unittest_import.proto|
+[1][7686]   package name=|protobuf_unittest_import| qualifiedname=|.protobuf_unittest_import| parent=|| file=|../unittest_import.proto| package=|.protobuf_unittest_import|
+[2][7687]     option name=|optimize_for| qualifiedname=|.protobuf_unittest_import.optimize_for| parent=|.protobuf_unittest_import| file=|../unittest_import.proto| package=|.protobuf_unittest_import| value=|SPEED| ;
+
+[2][7688]     option name=|java_package| qualifiedname=|.protobuf_unittest_import.java_package| parent=|.protobuf_unittest_import| file=|../unittest_import.proto| package=|.protobuf_unittest_import| value=|com.google.protobuf.test| ;
+
+[2][7694]     enum name=|ImportEnum| qualifiedname=|.protobuf_unittest_import.ImportEnum| parent=|.protobuf_unittest_import| file=|../unittest_import.proto| package=|.protobuf_unittest_import|
+[3][7691]       enumvalue name=|IMPORT_FOO| qualifiedname=|.protobuf_unittest_import.ImportEnum.IMPORT_FOO| parent=|.protobuf_unittest_import.ImportEnum| file=|../unittest_import.proto| package=|.protobuf_unittest_import| value=7
+[3][7692]       enumvalue name=|IMPORT_BAR| qualifiedname=|.protobuf_unittest_import.ImportEnum.IMPORT_BAR| parent=|.protobuf_unittest_import.ImportEnum| file=|../unittest_import.proto| package=|.protobuf_unittest_import| value=8
+[3][7693]       enumvalue name=|IMPORT_BAZ| qualifiedname=|.protobuf_unittest_import.ImportEnum.IMPORT_BAZ| parent=|.protobuf_unittest_import.ImportEnum| file=|../unittest_import.proto| package=|.protobuf_unittest_import| value=9
+[2][7690]     message name=|ImportMessage| qualifiedname=|.protobuf_unittest_import.ImportMessage| parent=|.protobuf_unittest_import| file=|../unittest_import.proto| package=|.protobuf_unittest_import|
+[3][7689]       field name=|d| qualifiedname=|.protobuf_unittest_import.ImportMessage.d| parent=|.protobuf_unittest_import.ImportMessage| file=|../unittest_import.proto| package=|.protobuf_unittest_import| cardinality=optional type=int32 id=1
