@@ -18,7 +18,7 @@ SRC=\
     Generator.java \
     Getopt.java LongOpt.java \
     ASTDefault.java \
-    JavaGenerator.java
+    CGenerator.java
 
 COMPILERPATH=classes/unidate/protobuf/ast/compiler
 
@@ -39,10 +39,10 @@ compile: $(BUILDDIR) $(SRC)
 
 $(PARSER): $(GRAMMAR)
 	rm -f ./tmp 
-	bison -v -t -L java $(GRAMMAR) -o ./$(PARSER)
+	bison -v -t -L Java $(GRAMMAR) -o ./$(PARSER)
 
 # The sed operations are to fix some bugs in the generated java code
-#	bison -v -t -L java $(GRAMMAR) -o ./tmp
+#	bison -v -t -L Java $(GRAMMAR) -o ./tmp
 #	sed -e "s/(null,\ null)/(new Position())/" -e "s/public class Location/static public class Location/" <./tmp >$(PARSER)	
 
 $(BUILDDIR):

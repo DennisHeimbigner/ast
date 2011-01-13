@@ -20,7 +20,7 @@ public class Main
 	{"ruby","Ruby"}
     };
 
-    static final String DFALTLANGUAGE = "java";
+    static final String DFALTLANGUAGE = "c";
     static final String DFALTPACKAGE = "unidata.protobuf.compiler";
 
     static List<String> includePaths = new ArrayList<String>();

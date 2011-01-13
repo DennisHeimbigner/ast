@@ -121,16 +121,25 @@ class Printer
 
     public void outdent()
     {
-        int newlen = indentation.length() + deltaindent.length();
-	if(newlen < 0)
+        int newlen = indentation.length() - deltaindent.length();
+	if(newlen < 0) {
 	    System.err.println("Attempt to Outdent past column 0");
-	else
-	    indentation = indentation.substring(0,newlen);
+	    newlen = 0;
+	}
+        indentTo(newlen);
     }
+
+    public void indentTo(int n)
+    {
+	if(n < 0) n = 0;
+	indentation = "";
+	while(n-- > 0) indentation += " ";
+    }
+
 
     public void setIndent(int n)
     {
-	if(n < 0) return;
+	if(n <= 0) return;
 	String newindent = "";
 	while(n-- > 0) newindent += " ";
 	deltaindent = newindent;	

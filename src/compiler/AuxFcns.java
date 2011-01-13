@@ -271,5 +271,22 @@ static protected boolean isprefix(String packname, String prefix)
     return true;
 }
 */
+
+// Collect path of parent nodes upto
+// and (optionally) including the package
+static void
+collectpath(AST ast, List<AST> path, boolean thrupackage)
+{
+    path.clear();
+    AST parent = ast;
+    while(parent.getSort() != AST.Sort.ROOT) {
+        if(parent.getSort() == AST.Sort.PACKAGE && !thrupackage) break;
+        path.add(0,parent);
+        parent = parent.getParent();
+    }
+}
+
+
+
 } // class AuxFcns
 
