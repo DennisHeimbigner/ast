@@ -39,5 +39,5 @@ abstract public class Generator
     boolean getOptionFlatten() {return this.optionFlatten;}
     void setOptionFlatten(boolean tf) {this.optionFlatten = tf;}
 
-    public abstract boolean generate(String[] argv, AST.Root root) throws Exception;
+    public abstract boolean generate(AST.Root root, String[] argv) throws Exception;
 }

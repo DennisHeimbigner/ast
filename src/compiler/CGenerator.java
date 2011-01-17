@@ -51,6 +51,8 @@ public class CGenerator extends Generator
 
     static final String LANGUAGE = "C";
 
+    static final String FCNPREFIX = "ast_";
+
     //////////////////////////////////////////////////
 
     static final String DFALTDIR = ".";
@@ -71,7 +73,6 @@ public class CGenerator extends Generator
     static public class Annotation
     {
 	String filebase = null;
-	String refpath = null;
     }
 
     //////////////////////////////////////////////////
@@ -133,7 +134,7 @@ public class CGenerator extends Generator
        and the free function.
 */
 
-    public boolean generate(String[] argv, AST.Root root) throws Exception
+    public boolean generate(AST.Root root, String[] argv) throws Exception
     {
 	List<String> arglist = processcommandline(argv);
 
@@ -176,18 +177,6 @@ public class CGenerator extends Generator
 	    filewriterC.close();
 	} catch (Exception e) {};
 
-	// Compute the java reference path for each message and enum
-        List<AST> path = new ArrayList<AST>();
-	for(AST ast: root.getNodeSet()) {
-	    a = (Annotation)ast.getAnnotation();
-	    switch (ast.getSort()) {
-	    case MESSAGE: case ENUM:
-		AuxFcns.collectpath(ast,path,false);
-//fix		a.refpath = computejavapath(path,filebase);
-		break;
-	    default: break;
-	    }
-	}
 
 	// Generate the top package's <filebase>.[hc] content
         Printer printer = null;
@@ -258,6 +247,7 @@ public class CGenerator extends Generator
 	Annotation a = (Annotation)e.getAnnotation();
 	printer.blankline();
 	printer.printf("typedef enum %s {\n",e.getName());
+	printer.indent();
         List<AST.EnumValue> values = e.getEnumValues();
         int nvalues = values.size();
         for(int i=0;i<nvalues;i++) {
@@ -267,6 +257,7 @@ public class CGenerator extends Generator
                 eval.getValue(),
                 (i == (nvalues - 1)?";":","));
         }
+	printer.outdent();
 	printer.printf("} %s;\n",e.getName());
     }
 
@@ -275,7 +266,7 @@ public class CGenerator extends Generator
         Annotation a = (Annotation)msg.getAnnotation();
 	printer.blankline();
 	printer.printf("typedef struct %s {\n",msg.getName());
-
+	printer.indent();
 	// Generate the fields
 	for(AST.Field field: msg.getFields()) {
 	    if(field.getCardinality() == AST.Cardinality.REQUIRED) {
@@ -292,18 +283,23 @@ public class CGenerator extends Generator
 			cfieldname(field.getName()));
 	    }
  	}
+	printer.outdent();
 	printer.printf("} %s;\n",msg.getName());
 
 	// Generate the per-message-type function prototypes
 	printer.blankline();
 	printer.printf("extern int %s_write(Runtime*,%s*);\n",
-			msg.getName(),msg.getName());
+			cfcnname(msg),
+			msg.getName());
 	printer.printf("extern int %s_read(Runtime*,%s**);\n",
-			msg.getName(),msg.getName());
+			cfcnname(msg),
+			msg.getName());
 	printer.printf("extern int %s_reclaim(Runtime*,%s*);\n",
-			msg.getName(),msg.getName());
+			cfcnname(msg),
+			msg.getName());
 	printer.printf("extern int %s_default(Runtime*,%s**);\n",
-			msg.getName(),msg.getName());
+			cfcnname(msg),
+			msg.getName());
     }
 
 
@@ -332,7 +328,6 @@ public class CGenerator extends Generator
 	}
     }
 
-
     void generate_messagefunctions(AST.Message msg, Printer printer)
 	throws Exception
     {
@@ -345,7 +340,7 @@ public class CGenerator extends Generator
 	throws Exception
     {
 	printer.printf("static int %s_write(Runtime* rt, %s* %s)\n",
-			msg.getName(),
+			cfcnname(msg),
 			msg.getName(), cfieldname(msg.getName()));
 	printer.println("{");
 	printer.indent();
@@ -357,7 +352,7 @@ public class CGenerator extends Generator
 	for(AST.Field field: msg.getFields()) {
 	    if(field.getCardinality() == AST.Cardinality.REQUIRED) {
 	        printer.printf("status = %s_write(rt,%s.%s);\n",
-				field.getType().getName(),
+				cfcnname(field.getType()),
 				msg.getName(),field.getName());
 		printer.println("if(!status) {goto done;}");
 	    } else if(field.getCardinality() == AST.Cardinality.OPTIONAL) {
@@ -365,7 +360,7 @@ public class CGenerator extends Generator
 				msg.getName(),field.getName());
 		printer.indent();
 	        printer.printf("status = %s_write(rt,%s->%s.value);\n",
-				field.getType().getName(),
+				cfcnname(field.getType()),
 				msg.getName(),field.getName(),field.getName());
 		printer.println("if(!status) {goto done;}");
 		printer.outdent();
@@ -375,7 +370,7 @@ public class CGenerator extends Generator
 				msg.getName(),field.getName());
 		printer.indent();
 	        printer.printf("status = %s_write(rt,%s->%s.values[i]);\n",
-				field.getType().getName(),
+				cfcnname(field.getType()),
 				msg.getName(),field.getName(),field.getName());
 		printer.println("if(!status) {goto done;}");
 		printer.outdent();
@@ -396,7 +391,7 @@ public class CGenerator extends Generator
 	throws Exception
     {
 	printer.printf("static int %s_reclaim(Runtime* rt, %s* %s)\n",
-			msg.getName(),
+			cfcnname(msg),
 			msg.getName(), cfieldname(msg.getName()));
 	printer.println("{");
 	printer.indent();
@@ -422,7 +417,7 @@ public class CGenerator extends Generator
 
 	    if(field.getCardinality() == AST.Cardinality.REQUIRED) {
 	        printer.printf("status = %s_free(rt,%s.%s);\n",
-				field.getType().getName(),
+				cfcnname(field.getType()),
 				msg.getName(),field.getName());
 		printer.println("if(!status) {goto done;}");
 	    } else if(field.getCardinality() == AST.Cardinality.OPTIONAL) {
@@ -430,7 +425,7 @@ public class CGenerator extends Generator
 				msg.getName(),field.getName());
 		printer.indent();
 	        printer.printf("status = %s_free(rt,%s->%s.value);\n",
-				field.getType().getName(),
+				cfcnname(field.getType()),
 				msg.getName(),field.getName(),field.getName());
 		printer.println("if(!status) {goto done;}");
 		printer.outdent();
@@ -440,7 +435,7 @@ public class CGenerator extends Generator
 				msg.getName(),field.getName());
 		printer.indent();
 	        printer.printf("status = %s_free(rt,%s->%s.values[i]);\n",
-				field.getType().getName(),
+				cfcnname(field.getType()),
 				msg.getName(),field.getName(),field.getName());
 		printer.println("if(!status) {goto done;}");
 		printer.outdent();
@@ -470,11 +465,20 @@ public class CGenerator extends Generator
 
 
     String
-    getrefname(AST ast)
+    cfcnname(AST.Type asttype)
     {
-	Annotation a = (Annotation)ast.getAnnotation();
-	if(a == null) return ast.getName();
-	return a.refpath;
+        String typename = null;
+	if(asttype.getSort() == AST.Sort.PRIMITIVETYPE) {
+	    typename = ((AST.PrimitiveType)asttype).getPrimitiveSort().getName();
+	    typename = FCNPREFIX + typename;
+	} else if(asttype.getSort() == AST.Sort.ENUM
+	          || asttype.getSort() == AST.Sort.MESSAGE) {
+	    typename = asttype.getName();
+	} else { // Illegal
+	    System.err.println("Illegal type: "+asttype.getName());
+	
+        }
+	return typename;
     }
 
     String
@@ -506,10 +510,9 @@ public class CGenerator extends Generator
 	    // No default because we want the compiler to complain if any new
 	    // types are added.
 	    }
-	} else if(asttype.getSort() == AST.Sort.ENUM) {
-	    typ = getrefname(asttype);
-	} else if(asttype.getSort() == AST.Sort.MESSAGE) {
-	    typ = getrefname(asttype);
+	} else if(asttype.getSort() == AST.Sort.ENUM
+	          || asttype.getSort() == AST.Sort.MESSAGE) {
+	    typ = asttype.getName();
 	} else { // Illegal
 	    System.err.println("Cannot translate type to C Type: "+asttype.getName());
 	
@@ -534,14 +537,11 @@ public class CGenerator extends Generator
 	        return (String)value;
 	    } else if(fieldtype.getSort() == AST.Sort.MESSAGE) {
 	        return String.format("%s.getDefaultInstance()",
-					getrefname(fieldtype));
+					fieldtype.getName());
 	    }
 	}
 	return "null";	
     } 
-
-
-
 
 
 } // CGenerator

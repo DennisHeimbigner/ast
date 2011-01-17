@@ -13,12 +13,12 @@ GRAMMAR=protobuf.y
 
 SRC=\
     ProtobufActions.java ProtobufLexer.java $(PARSER) AST.java \
-    Semantics.java AuxFcns.java Printer.java Debug.java  \
-    ASTFactory.java ASTFactoryDefault.java \
-    Generator.java \
-    Getopt.java LongOpt.java \
-    ASTDefault.java \
-    CGenerator.java
+    AuxFcns.java Printer.java Debug.java  \
+    ASTFactory.java ASTFactoryDefault.java ASTDefault.java \
+    Semantics.java Generator.java \
+    ProtobufSemantics.java \
+    CSemantics.java CGenerator.java \
+    Getopt.java LongOpt.java
 
 COMPILERPATH=classes/unidate/protobuf/ast/compiler
 

@@ -4,7 +4,6 @@ import unidata.protobuf.compiler.*;
 
 import java.util.*;
 import java.io.*;
-//import java.lang.reflection.*;
 
 public class Main
 {
@@ -127,6 +126,9 @@ public class Main
 	    System.exit(1);
 	}
 
+	// Compute the post-getopt argv.
+        String[] finalargv = arglist.toArray(new String[arglist.size()]);
+
 	// Semantic Processing
 	if(optionSemanticStepsDebug) Debug.setTag("trace.semantics.steps");
 	if(optionSemanticStepsDebug) Debug.setTag("trace.semantics.steps");
@@ -134,23 +136,41 @@ public class Main
 	if(optionDuplicate) {
 	    Debug.setTag("trace.duplicate.package");
 	}
-	Semantics sem = new Semantics();
-	pass = sem.process(parser.getAST());
+	Semantics sem = new ProtobufSemantics();
+	pass = sem.process(parser.getAST(),finalargv);
 	if(!pass) {
-	    System.err.println("Semantic processing failed");
+	    System.err.println("Protobuf semantic error detected.");
 	    System.exit(1);
 	}
 
-	// Try to locate the language specific Generator using reflection
+	// Try to locate language specific classes using reflection
+        ClassLoader classLoader = Main.class.getClassLoader();
+
+	// Try to locate the language specific Semantics checking class.
+	String semanticsclassname = DFALTPACKAGE
+				    + "."
+				    + classLanguageTag
+				    + "Semantics";
+        try {
+            Class semanticsclass = Class.forName(semanticsclassname);
+	    Semantics semantics = (Semantics)semanticsclass.newInstance();
+	    pass = semantics.process(parser.getAST(),finalargv);
+	    if(!pass) {
+	        System.err.println("C Generation semantic error detected.");
+	        System.exit(1);
+	    }
+        } catch (ClassNotFoundException e) {
+	    // Ignore
+        }
+	// Try to locate the language specific Generator class
 	String generatorclassname = DFALTPACKAGE
 				    + "."
 				    + classLanguageTag
 				    + "Generator";
-        ClassLoader classLoader = Main.class.getClassLoader();
         try {
             Class generatorclass = Class.forName(generatorclassname);
 	    Generator generator = (Generator)generatorclass.newInstance();
-	    generator.generate(arglist.toArray(new String[arglist.size()]),parser.getAST());
+	    generator.generate(parser.getAST(),finalargv);
         } catch (ClassNotFoundException e) {
 	    System.err.println("Generator class not found: "+generatorclassname);
 	    System.exit(1);
