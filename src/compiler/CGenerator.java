@@ -30,6 +30,38 @@
  * WITH THE ACCESS, USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+// For code taken from google protobuf src:
+//
+// Protocol Buffers - Google's data interchange format
+// Copyright 2008 Google Inc.  All rights reserved.
+// http://code.google.com/p/protobuf/
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//     * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//     * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 /*
 This generator generates two files per package:
 1. <package>.h and
@@ -276,11 +308,11 @@ public class CGenerator extends Generator
 	    } else if(field.getCardinality() == AST.Cardinality.OPTIONAL) {
 	        printer.printf("struct {int exists; %s value;} %s;\n",
 			ctypefor(field.getType()),
-			cfieldname(field.getName()));
+			cfieldvar(field));
 	    } else { // field.getCardinality() == AST.Cardinality.REPEATED
 	        printer.printf("struct {int count; %s* values;} %s;\n",
 			ctypefor(field.getType()),
-			cfieldname(field.getName()));
+			cfieldvar(field));
 	    }
  	}
 	printer.outdent();
@@ -298,6 +330,9 @@ public class CGenerator extends Generator
 			cfcnname(msg),
 			msg.getName());
 	printer.printf("extern int %s_default(Runtime*,%s**);\n",
+			cfcnname(msg),
+			msg.getName());
+	printer.printf("extern long %s_size(Runtime*,%s**);\n",
 			cfcnname(msg),
 			msg.getName());
     }
@@ -333,15 +368,19 @@ public class CGenerator extends Generator
     {
 	generate_writefunction(msg,printer);
 	printer.blankline();
+	generate_readfunction(msg,printer);
+	printer.blankline();
 	generate_reclaimfunction(msg,printer);
+	printer.blankline();
+	generate_sizefunction(msg,printer);
     }
 
     void generate_writefunction(AST.Message msg, Printer printer)
 	throws Exception
     {
-	printer.printf("static int %s_write(Runtime* rt, %s* %s)\n",
+	printer.printf("static int\n%s_write(Runtime* rt, %s* %s)\n",
 			cfcnname(msg),
-			msg.getName(), cfieldname(msg.getName()));
+			ctypefor(msg), cmsgvar(msg));
 	printer.println("{");
 	printer.indent();
 	printer.println("int status = NOERR;");
@@ -351,7 +390,7 @@ public class CGenerator extends Generator
 	// Generate the fields serializations
 	for(AST.Field field: msg.getFields()) {
 	    if(field.getCardinality() == AST.Cardinality.REQUIRED) {
-	        printer.printf("status = %s_write(rt,%s.%s);\n",
+	        printer.printf("status = %s_write(rt,%s->%s);\n",
 				cfcnname(field.getType()),
 				msg.getName(),field.getName());
 		printer.println("if(!status) {goto done;}");
@@ -387,12 +426,63 @@ public class CGenerator extends Generator
 	printer.printf("} /*%s_write*/\n",msg.getName());
     }
 
+    void generate_readfunction(AST.Message msg, Printer printer)
+	throws Exception
+    {
+	printer.printf("static int\n%s_read(Runtime* rt, %s* %s)\n",
+			cfcnname(msg),
+			ctypefor(msg), cmsgvar(msg));
+	printer.println("{");
+	printer.indent();
+	printer.println("int status = NOERR;");
+	printer.println("int i = 0;");
+	printer.blankline();
+
+	// Generate the fields serializations
+	for(AST.Field field: msg.getFields()) {
+	    if(field.getCardinality() == AST.Cardinality.REQUIRED) {
+	        printer.printf("status = %s_write(rt,%s->%s);\n",
+				cfcnname(field.getType()),
+				msg.getName(),field.getName());
+		printer.println("if(!status) {goto done;}");
+	    } else if(field.getCardinality() == AST.Cardinality.OPTIONAL) {
+	        printer.printf("if(%s->%s.exists) {\n",
+				msg.getName(),field.getName());
+		printer.indent();
+	        printer.printf("status = %s_write(rt,%s->%s.value);\n",
+				cfcnname(field.getType()),
+				msg.getName(),field.getName(),field.getName());
+		printer.println("if(!status) {goto done;}");
+		printer.outdent();
+	        printer.printf("}\n");
+	    } else { // field.getCardinality() == AST.Cardinality.REPEATED
+	        printer.printf("for(i=0;i<%s->%s.count;i++) {\n",
+				msg.getName(),field.getName());
+		printer.indent();
+	        printer.printf("status = %s_write(rt,%s->%s.values[i]);\n",
+				cfcnname(field.getType()),
+				msg.getName(),field.getName(),field.getName());
+		printer.println("if(!status) {goto done;}");
+		printer.outdent();
+	        printer.printf("}\n");
+	    }
+ 	}
+	printer.outdent();
+	printer.blankline();
+	printer.println("done:");
+	printer.indent();
+	printer.println("return status;");
+	printer.outdent();
+	printer.blankline();
+	printer.printf("} /*%s_read*/\n",msg.getName());
+    }
+
     void generate_reclaimfunction(AST.Message msg, Printer printer)
 	throws Exception
     {
-	printer.printf("static int %s_reclaim(Runtime* rt, %s* %s)\n",
+	printer.printf("static int\n%s_reclaim(Runtime* rt, %s* %s)\n",
 			cfcnname(msg),
-			msg.getName(), cfieldname(msg.getName()));
+			msg.getName(), msg.getName());
 	printer.println("{");
 	printer.indent();
 	printer.println("int status = NOERR;");
@@ -416,7 +506,7 @@ public class CGenerator extends Generator
 	    }
 
 	    if(field.getCardinality() == AST.Cardinality.REQUIRED) {
-	        printer.printf("status = %s_free(rt,%s.%s);\n",
+	        printer.printf("status = %s_free(rt,%s->%s);\n",
 				cfcnname(field.getType()),
 				msg.getName(),field.getName());
 		printer.println("if(!status) {goto done;}");
@@ -436,10 +526,12 @@ public class CGenerator extends Generator
 		printer.indent();
 	        printer.printf("status = %s_free(rt,%s->%s.values[i]);\n",
 				cfcnname(field.getType()),
-				msg.getName(),field.getName(),field.getName());
+				msg.getName(),field.getName());
 		printer.println("if(!status) {goto done;}");
 		printer.outdent();
 	        printer.printf("}\n");
+		printer.printf("free(%s->%s.values)\n",
+				msg.getName(),field.getName());
 	    }
  	}
 	printer.outdent();
@@ -453,13 +545,77 @@ public class CGenerator extends Generator
     }
 
 
+    void generate_sizefunction(AST.Message msg, Printer printer)
+	throws Exception
+    {
+	printer.printf("static long\n%s_size(Runtime* rt, %s* %s)\n",
+			cfcnname(msg),
+			ctypefor(msg), msg.getName());
+	printer.println("{");
+	printer.indent();
+	printer.println("int status = NOERR;");
+	printer.println("int i = 0;");
+	printer.println("long totalsize = 0;");
+	printer.blankline();
+
+	// sum the field sizes
+	for(AST.Field field: msg.getFields()) {
+	    switch (field.getType().getSort()) {
+	    case MESSAGE: break;
+	    case ENUM: break;
+	    case PRIMITIVETYPE: break;
+	    default: continue;
+	    }
+
+	    if(field.getCardinality() == AST.Cardinality.REQUIRED) {
+	        printer.printf("totalsize += %s_write_size(rt,%d,&%s->%s);\n",
+				cfcnname(field.getType()),
+				field.getId(),
+				msg.getName(),cfieldvar(field));
+	    } else if(field.getCardinality() == AST.Cardinality.OPTIONAL) {
+	        printer.printf("if(%s->%s.exists) {\n",
+				msg.getName(),field.getName());
+		printer.indent();
+	        printer.printf("totalsize += %s_write_size(rt,%d,&%s->%s);\n",
+				cfcnname(field.getType()),
+				field.getId(),
+				msg.getName(),cfieldvar(field));
+		printer.outdent();
+	        printer.printf("}\n");
+	    } else { // field.getCardinality() == AST.Cardinality.REPEATED
+	        printer.printf("for(i=0;i<%s->%s.count;i++) {\n",
+				msg.getName(),field.getName());
+		printer.indent();
+	        printer.printf("totalsize += %s_write_size(rt,%d,&%s->%s);\n",
+				cfcnname(field.getType()),
+				field.getId(),
+				msg.getName(),cfieldvar(field));
+		printer.outdent();
+	        printer.printf("}\n");
+	    }
+ 	}
+	printer.println("return status;");
+	printer.outdent();
+	printer.blankline();
+	printer.printf("} /*%s_write_size*/\n",msg.getName());
+    }
+
+
     //////////////////////////////////////////////////
+
+    // Convert a msg name to an acceptable C variable name
+    String
+    cmsgvar(AST.Message msg)
+    {
+	String cname = msg.getName().toLowerCase();
+	return cname;
+    }
 
     // Convert a field name to an acceptable C variable name
     String
-    cfieldname(String name)
+    cfieldvar(AST.Field field)
     {
-	String cname = name.toLowerCase();
+	String cname = field.getName().toLowerCase();
 	return cname;
     }
 
@@ -545,5 +701,6 @@ public class CGenerator extends Generator
 
 
 } // CGenerator
-
-
+    
+    
+    
