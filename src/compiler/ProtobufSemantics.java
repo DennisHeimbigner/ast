@@ -661,6 +661,7 @@ checkduplicates(List<AST> allnodes)
 /**
  * Pass does the following:
  * - Copy the raw options for each node into the optionmap for that node
+ * - Canonicalize certain names (e.g. DEFAULT)
  *
  * @param root The AST tree root
  * @return true if the processing succeeded.
@@ -669,9 +670,11 @@ boolean
 mapoptions(AST.Root root)
 {
     for(AST ast: root.getNodeSet()) {
-	if(ast.getOptions() != null)
+	if(ast.getOptions() != null && ast.getOptions().size() > 0)
 	    for(AST.Option option: ast.getOptions()) {
-		ast.setOptionMap(option.getName(),option.getValue());
+                String optionname = option.getName();
+                if(optionname.equalsIgnoreCase("default")) optionname = "DEFAULT";
+		ast.setOptionMap(optionname,option.getValue());
 	    }
     }
     return true;

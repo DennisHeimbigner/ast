@@ -1,9 +1,10 @@
 W=-Wd
 
-#TEST=-I . -I./testdata1 t.proto
-#TEST=-I./testdata1 addressbook.proto
-TEST=-I. t.proto
+T=testprim1
 
+#TEST=-I . -I./testdata1 ${T}.proto
+#TEST=-I./testdata1 addressbook.proto
+TEST=-I. ${T}.proto
 
 TOPDIR=d:/IdeaProjects/ast/src/compiler
 
@@ -28,7 +29,7 @@ BUILDDIR=classes
 
 .PHONEY: compile test
 
-all: test
+all: gen
 
 clean::
 	rm -f  $(PARSER) Protobuf.output
@@ -48,11 +49,18 @@ $(PARSER): $(GRAMMAR)
 $(BUILDDIR):
 	mkdir $(BUILDDIR)
 
-test: compile
-	javac -d $(BUILDDIR) -classpath $(BUILDDIR) Main.java
-	java -cp $(BUILDDIR) Main ${W} $(TEST)
-
 fix::
 	for f in $(SRC) ; do \
 	    sed -e 's/ast.protobuf/unidata.protobuf.ast/g'  <save/$$f >./$$f ; \
 	done
+
+gen: compile
+	javac -d $(BUILDDIR) -classpath $(BUILDDIR) Main.java
+	java -cp $(BUILDDIR) Main ${W} $(TEST)
+
+RTSRC=ast_runtime.c ast_internal.c
+
+c:
+	gcc -c -I. ${T}.c ${RTSRC}
+	gcc -o ${T} ${T}.o ${RTSRC:.c=.o}
+

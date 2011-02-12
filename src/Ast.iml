@@ -12,6 +12,7 @@
       <excludeFolder url="file://$MODULE_DIR$/cpp" />
       <excludeFolder url="file://$MODULE_DIR$/java" />
       <excludeFolder url="file://$MODULE_DIR$/runtime" />
+      <excludeFolder url="file://$MODULE_DIR$/test" />
       <excludeFolder url="file://$MODULE_DIR$/test/baseline" />
       <excludeFolder url="file://$MODULE_DIR$/test/jdata" />
       <excludeFolder url="file://$MODULE_DIR$/test/testdata1" />

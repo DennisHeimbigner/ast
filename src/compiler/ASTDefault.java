@@ -111,7 +111,10 @@ abstract public class ASTDefault implements AST
     public void setOptions(List<AST.Option> options) {this.options = options;}
 
     // Map oriented option access
-    public String optionLookup(String key) {return this.optionmap.get(key);}
+    public String optionLookup(String key) {
+        return this.optionmap.get(key);
+    }
+
     public void setOptionMap(String key, String value)
 	{this.optionmap.put(key,value);}
 
