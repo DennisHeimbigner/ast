@@ -83,6 +83,11 @@ class Printer
 	pw.print(indentation+text);
     }
 
+    public void printcpp(String text) throws IOException
+    {
+	pw.print(text);
+    }
+
     public void print(Map<String,String> map, String text)
 	throws IOException 
    {

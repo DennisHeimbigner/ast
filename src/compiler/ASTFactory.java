@@ -41,7 +41,7 @@ public interface ASTFactory
     AST.Package newPackage(String name);
     AST.Enum newEnum(String name);
     AST.EnumValue newEnumValue(String name, int value);
-    AST.Extend newExtend(String name, String msgname);
+    AST.Extend newExtend(String msgname);
     AST.Extensions newExtensions(String name);
     AST.Field newField(String name, AST.Cardinality cardinality, String fieldtype, int id);
     AST.Group newGroup(String name, AST.Cardinality cardinality, int id);
@@ -49,7 +49,7 @@ public interface ASTFactory
     AST.Option newOption(String name, String value);
     AST.Pair newPair(String name, Object value);
     AST.CompoundConstant newCompoundConstant(String name);
-    AST.Rpc newRpc(String name, String argtype, String returntype);
+    AST.RPC newRPC(String name, String argtype, String returntype);
     AST.Service newService(String name);
     AST.PrimitiveType newPrimitiveType(AST.PrimitiveSort sort);
 }

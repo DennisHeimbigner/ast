@@ -37,6 +37,9 @@ import java.util.*;
 
 import static unidata.protobuf.compiler.AST.*;
 
+/* Debug includes Debug and Error related functions */
+
+
 public class Debug
 {
     static class PrintProps {
@@ -188,7 +191,7 @@ static void printR(AST node, int depth, PrintWriter writer)
 	writer.println(";");
 	break;
     case RPC:
-	AST.Rpc astrpc = (AST.Rpc)node;
+	AST.RPC astrpc = (AST.RPC)node;
 	String argtype = qualnamefor(astrpc.getArgType());
 	String returntype = qualnamefor(astrpc.getReturnType());
 	writer.printf("%srpc %s (%s) returns (%s);\n",indent(depth),name,argtype,returntype);
@@ -310,8 +313,8 @@ static void printTreeR(AST node, int depth,
                 for(AST subnode : svc.getOptions())
                     printTreeR(subnode,depth+1,writer,presemantic);
             }
-            if(svc.getRpcs() != null) {
-                for(AST subnode : svc.getRpcs())
+            if(svc.getRPCs() != null) {
+                for(AST subnode : svc.getRPCs())
                     printTreeR(subnode,depth+1,writer,presemantic);
             }
             break;
@@ -378,11 +381,6 @@ static void printTreeNode(AST node, int depth,PrintWriter writer)
 	qname = qualnamefor(node.getSrcFile());
 	writer.printf(" file=|%s|",qname);
     }
-    if(node.getPackage() != null) {
-	qname = qualnamefor(node.getPackage());
-	writer.printf(" package=|%s|",qname);
-    }
-
     // switch to print any additional parameters
     switch (node.getSort()) {
     case ROOT:
@@ -427,7 +425,7 @@ static void printTreeNode(AST node, int depth,PrintWriter writer)
 	writer.println(";");
 	break;
     case RPC:
-	AST.Rpc astrpc = (AST.Rpc)node;
+	AST.RPC astrpc = (AST.RPC)node;
         String argtype;
         String returntype;
         if(astrpc.getAnnotation() != null) {
@@ -497,6 +495,41 @@ static void printChildSets(AST.Root root, PrintWriter w)
     w.flush();
 }
 
+
+static boolean
+semerror(AST node, String msg)
+    {return semreport(node,msg,true);}
+
+static boolean
+semwarning(AST node, String msg)
+    {return semreport(node,msg,false);}
+
+
+static boolean
+semreport(AST node, String msg, boolean err)
+{
+    System.err.print(err?"Semantic error ":"Warning ");
+    if(node != null && node.getPosition() != null) {
+	System.err.print(String.format("%s @ %s\n",
+			   msg, node.getPosition()));
+    } else {
+	System.err.print(String.format("%s\n",msg));
+    }
+    return !err;
+}
+
+static public boolean
+duperror(AST node1, AST node2, String msg)
+{
+    System.err.print(msg);
+    if(node1 != null && node1.getPosition() != null
+       && node2 != null && node2.getPosition() != null) {
+	System.err.print(String.format(" ; node1 @ %s node2 @ %s",
+			   node1.getPosition(),node2.getPosition()));
+    }
+    System.err.println();
+    return false;
+}
 
 
 } // class Debug

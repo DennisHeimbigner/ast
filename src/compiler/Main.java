@@ -1,3 +1,4 @@
+package unidata.protobuf.compiler;
 
 import gnu.getopt.Getopt;
 import unidata.protobuf.compiler.*;

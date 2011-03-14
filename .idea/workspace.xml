@@ -25,6 +25,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
+  <component name="CoverageDataManager" choice="3" />
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
     <option name="REVERSE_PATCH" value="false" />
@@ -125,47 +126,6 @@
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
     </exception_breakpoints>
-    <line_breakpoints>
-      <breakpoint url="file://$PROJECT_DIR$/src/compiler/CGenerator.java" line="900" class="unidata.protobuf.compiler.CGenerator" package="unidata.protobuf.compiler">
-        <option name="ENABLED" value="true" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="false" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/compiler/CGenerator.java" line="959" class="unidata.protobuf.compiler.CGenerator" package="unidata.protobuf.compiler">
-        <option name="ENABLED" value="true" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="false" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/compiler/CGenerator.java" line="637" class="unidata.protobuf.compiler.CGenerator" package="unidata.protobuf.compiler">
-        <option name="ENABLED" value="true" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="false" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
-    </line_breakpoints>
     <breakpoint_any>
       <breakpoint>
         <option name="NOTIFY_CAUGHT" value="true" />
@@ -227,19 +187,19 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="CGenerator.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="CGenerator.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/compiler/CGenerator.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="639" column="0" selection-start="21610" selection-end="21610" vertical-scroll-proportion="0.02724359">
+            <state line="321" column="0" selection-start="10322" selection-end="10322" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ASTDefault.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/compiler/ASTDefault.java">
+      <file leaf-file-name="AuxFcns.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/compiler/AuxFcns.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="118" column="0" selection-start="5087" selection-end="5087" vertical-scroll-proportion="0.0">
+            <state line="195" column="87" selection-start="6835" selection-end="6835" vertical-scroll-proportion="0.3219697">
               <folding />
             </state>
           </provider>
@@ -248,7 +208,34 @@
       <file leaf-file-name="ProtobufSemantics.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufSemantics.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="673" column="0" selection-start="21954" selection-end="21954" vertical-scroll-proportion="0.0">
+            <state line="277" column="0" selection-start="8637" selection-end="8637" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Debug.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/compiler/Debug.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="523" column="0" selection-start="16997" selection-end="16997" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AST.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/compiler/AST.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="178" column="18" selection-start="6135" selection-end="6135" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ASTDefault.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/compiler/ASTDefault.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="282" column="8" selection-start="10103" selection-end="10103" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -262,27 +249,27 @@
     </FindUsagesManager>
   </component>
   <component name="Git.Settings">
-    <option name="GIT_EXECUTABLE" value="git.exe" />
     <option name="CHECKOUT_INCLUDE_TAGS" value="false" />
+    <option name="UPDATE_CHANGES_POLICY" value="STASH" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/src/test/TestAST.java" />
-        <option value="$PROJECT_DIR$/src/compiler/Util.java" />
-        <option value="$PROJECT_DIR$/src/compiler/Main.java" />
-        <option value="$PROJECT_DIR$/src/compiler/AuxFcns.java" />
-        <option value="$PROJECT_DIR$/src/compiler/ASTFactoryDefault.java" />
         <option value="$PROJECT_DIR$/src/compiler/ASTFactory.java" />
         <option value="$PROJECT_DIR$/src/test/TestFiles.java" />
         <option value="$PROJECT_DIR$/src/compiler/ProtobufLexer.java" />
-        <option value="$PROJECT_DIR$/src/compiler/ProtobufActions.java" />
         <option value="$PROJECT_DIR$/src/compiler/Semantics.java" />
         <option value="$PROJECT_DIR$/src/compiler/ckp1/JavaGenerator.java" />
         <option value="$PROJECT_DIR$/src/compiler/AST.java" />
         <option value="$PROJECT_DIR$/src/compiler/JavaGenerator.java" />
-        <option value="$PROJECT_DIR$/src/compiler/CGenerator.java" />
+        <option value="$PROJECT_DIR$/src/compiler/Constant.java" />
+        <option value="$PROJECT_DIR$/src/compiler/CSemantics.java" />
+        <option value="$PROJECT_DIR$/src/compiler/AuxSemantics.java" />
         <option value="$PROJECT_DIR$/src/compiler/ASTDefault.java" />
+        <option value="$PROJECT_DIR$/src/compiler/ProtobufActions.java" />
+        <option value="$PROJECT_DIR$/src/test/TestAST.java" />
+        <option value="$PROJECT_DIR$/src/compiler/CGenerator.java" />
+        <option value="$PROJECT_DIR$/src/compiler/AuxFcns.java" />
         <option value="$PROJECT_DIR$/src/compiler/ProtobufSemantics.java" />
       </list>
     </option>
@@ -296,7 +283,7 @@
       <profile-state />
     </entry>
   </component>
-  <component name="ProjectLevelVcsManager">
+  <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
     <OptionsSetting value="true" id="Remove" />
     <OptionsSetting value="true" id="Checkout" />
@@ -324,7 +311,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -346,6 +332,7 @@
         </subPane>
       </pane>
       <pane id="PackagesPane" />
+      <pane id="Scope" />
       <pane id="Favorites" />
     </panes>
   </component>
@@ -355,7 +342,7 @@
     <property name="GoToFile.includeJavaFiles" value="false" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="options.splitter.main.proportions" value="0.3" />
-    <property name="options.lastSelected" value="preferences.externalResources" />
+    <property name="options.lastSelected" value="preferences.sourceCode.General" />
     <property name="recentsLimit" value="5" />
     <property name="MemberChooser.sorted" value="false" />
     <property name="GenerateAntBuildDialog.generateSingleFile" value="true" />
@@ -397,7 +384,6 @@
     </configuration>
     <configuration default="true" type="TestNG" factoryName="TestNG">
       <extension name="coverage" enabled="false" merge="false" />
-      <extension name="snapshooter" />
       <module name="" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
@@ -449,7 +435,6 @@
     </configuration>
     <configuration default="true" type="Application" factoryName="Application">
       <extension name="coverage" enabled="false" merge="false" />
-      <extension name="snapshooter" />
       <option name="MAIN_CLASS_NAME" />
       <option name="VM_PARAMETERS" />
       <option name="PROGRAM_PARAMETERS" />
@@ -470,7 +455,6 @@
     </configuration>
     <configuration default="true" type="JUnit" factoryName="JUnit">
       <extension name="coverage" enabled="false" merge="false" />
-      <extension name="snapshooter" />
       <module name="" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
@@ -497,10 +481,9 @@
     </configuration>
     <configuration default="false" name="Main" type="Application" factoryName="Application">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <extension name="snapshooter" />
-      <option name="MAIN_CLASS_NAME" value="Main" />
-      <option name="VM_PARAMETERS" value="" />
-      <option name="PROGRAM_PARAMETERS" value="-Wd testprim1.proto" />
+      <option name="MAIN_CLASS_NAME" value="unidata.protobuf.compiler.Main" />
+      <option name="VM_PARAMETERS" value="-ea -Dgenerate=&quot;xxx,yyy&quot;" />
+      <option name="PROGRAM_PARAMETERS" value="-Wd ./yyy.proto" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/src/compiler" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" value="" />
@@ -521,7 +504,6 @@
     </configuration>
     <configuration default="false" name="TestAST" type="JUnit" factoryName="JUnit">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <extension name="snapshooter" />
       <module name="Ast" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" value="" />
@@ -577,7 +559,6 @@
     <option name="USER" value="" />
     <option name="PASSWORD" value="" />
     <option name="LAST_MERGED_REVISION" />
-    <option name="UPDATE_RUN_STATUS" value="false" />
     <option name="MERGE_DRY_RUN" value="false" />
     <option name="MERGE_DIFF_USE_ANCESTRY" value="true" />
     <option name="UPDATE_LOCK_ON_DEMAND" value="false" />
@@ -586,7 +567,8 @@
     <option name="CHECK_NESTED_FOR_QUICK_MERGE" value="false" />
     <option name="IGNORE_SPACES_IN_ANNOTATE" value="true" />
     <option name="SHOW_MERGE_SOURCES_IN_ANNOTATE" value="true" />
-    <configuration useDefault="true">C:\Documents and Settings\dennis\Application Data\Subversion</configuration>
+    <option name="FORCE_UPDATE" value="false" />
+    <configuration useDefault="true">C:\Users\dennis\AppData\Roaming\Subversion</configuration>
     <myIsUseDefaultProxy>false</myIsUseDefaultProxy>
     <supportedVersion>125</supportedVersion>
   </component>
@@ -624,22 +606,22 @@
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32876712" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.22854786" sideWeight="0.7885196" order="1" side_tool="true" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.22854786" sideWeight="0.19939578" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3713851" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.5251142" sideWeight="0.0" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32615384" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.6057839" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.49619484" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4063927" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4733638" sideWeight="0.998993" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32876712" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.26815182" sideWeight="0.50380516" order="1" side_tool="true" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.22765073" sideWeight="0.19308943" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.51141554" sideWeight="0.0" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39421612" sideWeight="0.79372936" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
@@ -657,6 +639,7 @@
     <option name="ENABLE_BACKGROUND_PROCESSES" value="false" />
     <option name="CHANGED_ON_SERVER_INTERVAL" value="60" />
     <option name="SHOW_ONLY_CHANGED_IN_SELECTION_DIFF" value="true" />
+    <option name="CHECK_COMMIT_MESSAGE_SPELLING" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
     <option name="LAST_COMMIT_MESSAGE" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
@@ -672,6 +655,40 @@
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
     <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
   </component>
+  <component name="VssConfiguration">
+    <option name="CLIENT_PATH" value="" />
+    <option name="SRCSAFEINI_PATH" value="" />
+    <option name="USER_NAME" value="" />
+    <option name="PWD" value="" />
+    <CheckoutOptions>
+      <option name="COMMENT" value="" />
+      <option name="DO_NOT_GET_LATEST_VERSION" value="false" />
+      <option name="REPLACE_WRITABLE" value="false" />
+      <option name="RECURSIVE" value="false" />
+    </CheckoutOptions>
+    <CheckinOptions>
+      <option name="COMMENT" value="" />
+      <option name="KEEP_CHECKED_OUT" value="false" />
+      <option name="RECURSIVE" value="false" />
+    </CheckinOptions>
+    <AddOptions>
+      <option name="STORE_ONLY_LATEST_VERSION" value="false" />
+      <option name="CHECK_OUT_IMMEDIATELY" value="false" />
+    </AddOptions>
+    <UndocheckoutOptions>
+      <option name="MAKE_WRITABLE" value="false" />
+      <option name="REPLACE_LOCAL_COPY" value="2" />
+      <option name="RECURSIVE" value="false" />
+    </UndocheckoutOptions>
+    <GetOptions>
+      <option name="REPLACE_WRITABLE" value="0" />
+      <option name="MAKE_WRITABLE" value="false" />
+      <option name="ANSWER_NEGATIVELY" value="false" />
+      <option name="ANSWER_POSITIVELY" value="false" />
+      <option name="RECURSIVE" value="false" />
+      <option name="VERSION" />
+    </GetOptions>
+  </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
   </component>
@@ -680,84 +697,84 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufParser.java">
+    <entry file="file://$PROJECT_DIR$/src/compiler/CSemantics.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="560" column="98" selection-start="15626" selection-end="15626" vertical-scroll-proportion="0.40784982" />
+        <state line="102" column="18" selection-start="3821" selection-end="3821" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/compiler/Constant.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="35" column="7" selection-start="2033" selection-end="2033" vertical-scroll-proportion="0.44444445" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/compiler/ASTFactoryDefault.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="36" column="50" selection-start="2052" selection-end="2052" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/compiler/ASTFactory.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="43" column="38" selection-start="2275" selection-end="2275" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/TestFiles.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="71" column="8" selection-start="2782" selection-end="2782" vertical-scroll-proportion="0.0" />
+        <state line="48" column="28" selection-start="2517" selection-end="2517" vertical-scroll-proportion="0.0543131" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufLexer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="448" column="0" selection-start="13544" selection-end="13544" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufActions.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="235" column="60" selection-start="6283" selection-end="6283" vertical-scroll-proportion="0.028428094" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/compiler/AuxFcns.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="159" column="0" selection-start="5843" selection-end="5843" vertical-scroll-proportion="0.028428094" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/compiler/Printer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="74" column="0" selection-start="2825" selection-end="2825" vertical-scroll-proportion="0.33146068" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/compiler/Semantics.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="287" column="0" selection-start="8841" selection-end="8841" vertical-scroll-proportion="0.029259896" />
-      </provider>
-    </entry>
-    <entry file="jar://T:/jdk1.6/src.zip!/java/io/PrintWriter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="759" column="0" selection-start="24640" selection-end="24640" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="jar://T:/jdk1.6/src.zip!/java/util/Formatter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="2431" column="0" selection-start="100896" selection-end="100896" vertical-scroll-proportion="0.0" />
+        <state line="524" column="0" selection-start="15582" selection-end="15582" vertical-scroll-proportion="0.044270832" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/TestAST.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="135" column="36" selection-start="4490" selection-end="4490" vertical-scroll-proportion="0.0" />
+        <state line="33" column="8" selection-start="1949" selection-end="1949" vertical-scroll-proportion="0.02724359" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/compiler/AST.java">
+    <entry file="file://$PROJECT_DIR$/src/compiler/Semantics.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="177" column="18" selection-start="6058" selection-end="6058" vertical-scroll-proportion="0.20193861" />
+        <state line="38" column="24" selection-start="2087" selection-end="2087" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/compiler/ASTDefault.java">
+    <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufParser.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="118" column="0" selection-start="5087" selection-end="5087" vertical-scroll-proportion="0.0" />
+        <state line="53" column="13" selection-start="1994" selection-end="1994" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufSemantics.java">
+    <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufActions.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="673" column="0" selection-start="21954" selection-end="21954" vertical-scroll-proportion="0.0" />
+        <state line="253" column="37" selection-start="7639" selection-end="7639" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/compiler/ckp.file/ProtobufSemantics.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="41" column="7" selection-start="2155" selection-end="2155" vertical-scroll-proportion="0.030035336" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/compiler/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="44" column="126" selection-start="1339" selection-end="1339" vertical-scroll-proportion="0.027823241" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/compiler/CGenerator.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="639" column="0" selection-start="21610" selection-end="21610" vertical-scroll-proportion="0.02724359">
+        <state line="321" column="0" selection-start="10322" selection-end="10322" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufSemantics.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="277" column="0" selection-start="8637" selection-end="8637" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/compiler/Debug.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="523" column="0" selection-start="16997" selection-end="16997" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/compiler/AST.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="178" column="18" selection-start="6135" selection-end="6135" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/compiler/ASTDefault.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="282" column="8" selection-start="10103" selection-end="10103" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/compiler/AuxFcns.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="195" column="87" selection-start="6835" selection-end="6835" vertical-scroll-proportion="0.3219697">
           <folding />
         </state>
       </provider>
@@ -765,28 +782,9 @@
   </component>
   <component name="masterDetails">
     <states>
-      <state key="ArtifactsStructureConfigurable.UI">
+      <state key="Copyright.UI">
         <settings>
-          <artifact-editor />
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="FacetStructureConfigurable.UI">
-        <settings>
-          <last-edited>Android</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-              </list>
-            </option>
-          </splitter-proportions>
+          <splitter-proportions />
         </settings>
       </state>
       <state key="GlobalLibrariesConfigurable.UI">
@@ -800,40 +798,9 @@
           </splitter-proportions>
         </settings>
       </state>
-      <state key="JdkListConfigurable.UI">
+      <state key="ScopeChooserConfigurable.UI">
         <settings>
-          <last-edited>1.6</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="ModuleStructureConfigurable.UI">
-        <settings>
-          <last-edited>Ast</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-                <option value="0.5" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="ProjectLibrariesConfigurable.UI">
-        <settings>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-              </list>
-            </option>
-          </splitter-proportions>
+          <splitter-proportions />
         </settings>
       </state>
     </states>

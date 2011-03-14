@@ -20,6 +20,7 @@ import unidata.protobuf.compiler.AST.Position;
 }
 
 %code {
+
 //////////////////////////////////////////////////
 // Constructors
 
@@ -62,8 +63,9 @@ import unidata.protobuf.compiler.AST.Position;
 %token BOOL STRING BYTES
 %token ENDFILE
 
-%token NAME INTCONST FLOATCONST STRINGCONST TRUE FALSE POSNAN POSINF NEGNAN NEGINF
-
+%token INTCONST FLOATCONST STRINGCONST
+%token TRUE FALSE POSNAN POSINF NEGNAN NEGINF
+%token NAME
 
 %start root
 
@@ -230,11 +232,11 @@ messageelement:
 
 // tag number must be 2^28-1 or lower
 field:
-	  cardinality type name '=' INTCONST  ';'
+	  cardinality type name '=' intconst  ';'
 	    {$$=field($1,$2,$3,$5,null);}
-	| cardinality type name '=' INTCONST '[' fieldoptionlist ']'  ';'
+	| cardinality type name '=' intconst '[' fieldoptionlist ']'  ';'
 	    {$$=field($1,$2,$3,$5,$7);}
-	| cardinality type name '=' INTCONST  messagebody 
+	| cardinality type name '=' intconst  messagebody 
 	    {$$=group($1,$2,$3,$5,$6);}
 	;
 
@@ -304,31 +306,30 @@ packagename:
 	path {$$=$1;}
 	;
 
-// In constants, paths will end up being treated as strings that just happen to be unquoted.
 constant:
           path  {$$=$1;}
 	| compound {$$=$1;}
 	| intconst {$$=$1;}
 	| floatconst {$$=$1;}
-	| STRINGCONST  {$$=$1;}
-	| TRUE {$$=$1;}
-	| FALSE {$$=$1;}
-	| POSNAN {$$=$1;}
-	| POSINF {$$=$1;}
-	| '-' POSNAN {$$ = "-nan";}
-	| '-' POSINF {$$ = "-inf";}
+	| STRINGCONST  {$$=new Constant(STRINGCONST,$1);}
+	| TRUE {$$=new Constant(TRUE,$1);}
+	| FALSE {$$=new Constant(FALSE,$1);}
+	| POSNAN {$$=new Constant(POSNAN,$1);}
+	| POSINF {$$=new Constant(POSINF,$1);}
+	| '-' POSNAN {$$=new Constant(POSNAN, "-nan");}
+	| '-' POSINF {$$=new Constant(POSINF, "-inf");}
         ;
 
 intconst:
-	  INTCONST {$$=$1;}
-	| '+' INTCONST {$$=("+"+$2);}
-	| '-' INTCONST {$$=("-"+$2);}
+	  INTCONST {$$=new Constant(INTCONST,$1);}
+	| '+' INTCONST {$$=new Constant(INTCONST,("+"+$2));}
+	| '-' INTCONST {$$=new Constant(INTCONST,("+"+$2));}
 	;
 
 floatconst:
-	  FLOATCONST {$$=$1;}
-	| '+' FLOATCONST {$$=("+"+$1);}
-	| '-' FLOATCONST {$$=("-"+$1);}
+	  FLOATCONST {$$=new Constant(FLOATCONST,$1);}
+	| '+' FLOATCONST {$$=new Constant(FLOATCONST,("+"+$1));}
+	| '-' FLOATCONST {$$=new Constant(FLOATCONST,("-"+$1));}
 	;
 
 /* Relative or absolute */
@@ -360,7 +361,11 @@ pair:
 	    {$$=pair($1,$3);}
 
 /* A Name can be a keyword */
+
 name:
+	text {$$=new Constant(NAME,$1);}
+	;
+text:
 	  NAME		{$$=$1;}
 	| IMPORT	{$$=$1;}
 	| PACKAGE	{$$=$1;}

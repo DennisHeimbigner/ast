@@ -39,10 +39,18 @@ public abstract class ProtobufActions
 {
 
 //////////////////////////////////////////////////
-// Class State
+// Class constants
 
 static String GROUPKEYWORD = "group";
 static String GOOGLEKEYWORD = "google.protobuf";
+
+static class Constant
+{
+    int token;
+    String lval;
+    public Constant(int token, Object lval)
+	{this.token=token; this.lval=lval.toString();}
+}
 
 //////////////////////////////////////////////////
 // Instance State
@@ -117,31 +125,9 @@ protobufroot(Object file0)
     this.ast = root;
     root.setTopFile(file);
     root.getChildSet().add(file);
+    root.setTopPackage(file.getFilePackage());
     // Place the set of primitive type nodes in the root
     root.setPrimitiveTypes(primitives);
-
-    // Create, if necessary, a pseudo-package for root file
-    if(file.getFilePackage() == null) {
-        AST.Package  p = astfactory.newPackage(null);
-        p.setPosition(position());
-	file.getChildSet().add(0,p);
-	file.setFilePackage(p);
-    }
-    // If the file's package has no name, then make it
-    // have basename of the file (i.e. without any trailing extension).
-    // If the file name has no extension, add .proto to the package name
-    if(file.getFilePackage().getName() == null) {
-	String basename;
-	int index = filename.lastIndexOf('.');
-	if(index < 0) { // no extension
-	    basename = filename + ".proto";
-	} else {
-	    basename = filename.substring(0,index);
-	}
-        // Escape the resulting name to convert dots to underscores
-        file.getFilePackage().setName(AuxFcns.escapedname(basename));
-    }
-    root.setTopPackage(file.getFilePackage());
 }
 
 Object
@@ -150,27 +136,31 @@ protobuffile(Object decllist0)
     AST.File f = astfactory.newFile(null);
     f.getChildSet().addAll((List<AST>)decllist0);
     f.setPosition(position());
+    // See if the file has a (single) package declaration (must be top level)
+    // If so, then capture it and attach it to the file
     AST.Package p = null;
-    // See if the file has a package declaration (must be top level)
-    // If so, then capture it and move to be first element in the decllist
     for(AST ast: f.getChildSet()) {
-	if(ast.getSort() == AST.Sort.PACKAGE && p == null) {// First found is chosen package
-	    p = (AST.Package)ast;
+	if(ast.getSort() == AST.Sort.PACKAGE) {
+	    if(p == null) {// First found is chosen package
+	        p = (AST.Package)ast;
+		break;
+	    }
 	}
     }
-    if(p != null) { // move package to the front of the decl list
-        f.getChildSet().remove(p);
+    if(p != null) { // attach to file and move to front of decllist
+	f.getChildSet().remove(p);
 	f.getChildSet().add(0,p);
+        f.setFilePackage(p);
+	p.setSrcFile(f);
     }
-    f.setFilePackage(p);
     return f;
 }
 
 Object
 packagedecl(Object name0)
 {
-    String name = (String)name0;
-    AST.Package node = astfactory.newPackage(name);
+    Constant name = (Constant)name0;
+    AST.Package node = astfactory.newPackage(name.lval);
     node.setPosition(position());
     return node;
 }
@@ -197,7 +187,7 @@ Object
 importprefix(Object filename0)
 {
     // temporarily store the filename
-    importfilename = (String)filename0;
+    importfilename =  (String)filename0;
     return filename0;
 }
 
@@ -230,9 +220,13 @@ decllist(Object list0, Object decl0)
 }
 
 Object
-option(Object name0, Object value0)
+option(Object name0, Object constant0)
 {
-    AST.Option node = astfactory.newOption((String)name0,(String)value0);
+    AST.Option node;
+    Constant name = (Constant)name0;
+    Constant con = (Constant)constant0;
+    node = astfactory.newOption(name.lval,con.lval);
+    if(con.token == ProtobufParser.STRINGCONST) node.setStringValued(true);
     node.setType(astfactory.newPrimitiveType(AST.PrimitiveSort.STRING));
     node.setPosition(position());
     return node;
@@ -242,7 +236,8 @@ option(Object name0, Object value0)
 Object
 message(Object name0, Object body0)
 {
-    AST.Message node = astfactory.newMessage((String)name0);
+    Constant name = (Constant)name0;
+    AST.Message node = astfactory.newMessage(name.lval);
     node.getChildSet().addAll((List<AST>)body0);
     node.setPosition(position());
     return node;
@@ -250,15 +245,16 @@ message(Object name0, Object body0)
 
 /* The protobuf user defined option mechanism is easily one of the most foolish 
    ideas I have ever seen; some one at Google was trying too clever by half;
-   => I do not implement
+   => I do not implement completely
 */
 Object
 extend(Object msg0, Object fieldlist0)
 {
+    Constant msg = (Constant)msg0;
     // Check for user defined options
-    if(((String)msg0).startsWith(GOOGLEKEYWORD))
-	    return parseWarning("Google-style user defined options not supported: "+msg0);
-    AST.Extend node = astfactory.newExtend("$extend",(String)msg0);
+    if(msg.lval.startsWith(GOOGLEKEYWORD))
+	    return parseWarning("Google-style user defined options not supported: "+msg.lval);
+    AST.Extend node = astfactory.newExtend(msg.lval);
     node.getChildSet().addAll((List<AST>)fieldlist0);
     node.setPosition(position());
     return node;
@@ -277,7 +273,8 @@ fieldlist(Object list0, Object decl0)
 Object
 enumtype(Object name0, Object enumlist0)
 {
-    AST.Enum node = astfactory.newEnum((String)name0);
+    Constant name = (Constant)name0;
+    AST.Enum node = astfactory.newEnum(name.lval);
     node.getChildSet().addAll((List<AST>)enumlist0);
     node.setPosition(position());
     return node;
@@ -296,13 +293,15 @@ enumlist(Object list0, Object decl0)
 Object
 enumvalue(Object name0, Object intvalue0, Object options0)
 {
+    Constant name = (Constant)name0;
+    Constant con = (Constant)intvalue0;
     int value = 0;
     try {
-	value = Integer.parseInt((String)intvalue0);
+	value = Integer.parseInt(con.lval);
     } catch (NumberFormatException nfe) {
 	return parseError("Illegal enum field value: "+intvalue0);
     }
-    AST.EnumValue node = astfactory.newEnumValue((String)name0,value);
+    AST.EnumValue node = astfactory.newEnumValue(name.lval,value);
     if(options0 == null) options0 = new ArrayList<AST.Option>();
     node.getChildSet().addAll((List<AST>)options0);
     node.setPosition(position());
@@ -321,7 +320,8 @@ enumoptionlist(Object list0, Object decl0)
 Object
 service(Object name0, Object caselist0)
 {
-    AST.Service node = astfactory.newService((String)name0);
+    Constant name = (Constant)name0;
+    AST.Service node = astfactory.newService(name.lval);
     node.getChildSet().addAll((List<AST>)caselist0);
     node.setPosition(position());
     return node;
@@ -339,7 +339,8 @@ servicecaselist(Object list0, Object decl0)
 Object
 rpc(Object name0, Object type0, Object returntype0, Object optionlist)
 {
-    AST.Rpc node = astfactory.newRpc((String)name0,(String)type0,(String)returntype0);
+    Constant name = (Constant)name0;
+    AST.RPC node = astfactory.newRPC(name.lval,(String)type0,(String)returntype0);
     node.setChildSet((List<AST>)optionlist);
     node.setPosition(position());
     return node;
@@ -366,10 +367,14 @@ messageelementlist(Object list0, Object decl0)
 Object
 field(Object cardinality0, Object type0, Object name0, Object id0, Object options0)
 {
+    Constant name = (Constant)name0;
+    Constant con = (Constant)id0;
     AST.Cardinality cardinality = null;
     int id;
 
     if(options0 == null) options0 = new ArrayList<AST.Option>();
+
+    if(type0 instanceof Constant) type0 = ((Constant)type0).lval;
 
     for(AST.Cardinality card: AST.Cardinality.values()) {
         if(card.getName().equalsIgnoreCase((String)cardinality0))
@@ -379,11 +384,11 @@ field(Object cardinality0, Object type0, Object name0, Object id0, Object option
   	return parseError("Illegal field cardinality: "+cardinality0);
 
     try {
-	id = Integer.parseInt((String)id0);
+	id = Integer.parseInt(con.lval);
     } catch (NumberFormatException nfe) {
-  	return parseError("Illegal message field id: "+id0);
+  	return parseError("Illegal message field id: "+con.lval);
     }
-    AST.Field node = astfactory.newField((String)name0,
+    AST.Field node = astfactory.newField(name.lval,
 			cardinality,
 			(String)type0,
 			id);
@@ -404,6 +409,8 @@ fieldoptionlist(Object list0, Object decl0)
 Object
 group(Object cardinality0, Object grouptag, Object name0, Object id0, Object msgbody)
 {
+    Constant name = (Constant)name0;
+    Constant con = (Constant)id0;
     if(!GROUPKEYWORD.equals((String)grouptag))
   	return parseError("Illegal group declaration");
 
@@ -417,11 +424,11 @@ group(Object cardinality0, Object grouptag, Object name0, Object id0, Object msg
 
     int id = -1;
     try {
-	id = Integer.parseInt((String)id0);
+	id = Integer.parseInt(con.lval);
     } catch (NumberFormatException nfe) {
-  	return parseError("Illegal group id: "+id0);
+  	return parseError("Illegal group id: "+con.lval);
     }
-    AST.Group node = astfactory.newGroup((String)name0,cardinality,id);
+    AST.Group node = astfactory.newGroup(name.lval,cardinality,id);
     node.getChildSet().addAll((List<AST>)msgbody);
     node.setPosition(position());
     return node;
@@ -504,16 +511,16 @@ notimplemented(String s)
 Object
 path(Object relpath0, boolean absolute)
 {
-    String pathstring = (String)relpath0;
+    String pathstring = ((Constant)relpath0).lval;
     if(absolute) pathstring = "." + pathstring;
-    return pathstring;
+    return new Constant(ProtobufParser.STRINGCONST,pathstring);
 }
 
 Object
 relpath(Object relpath0, Object segment0)
 {
     if(relpath0 == null) return segment0;
-    return ((String)relpath0) + "." + ((String)segment0);
+    return new Constant(ProtobufParser.NAME,((Constant)relpath0).lval + "." + ((Constant)segment0).lval);
 }
 
 Object
@@ -537,7 +544,9 @@ pairlist(Object list0, Object decl0)
 Object
 pair(Object name0, Object value0)
 {
-    AST.Pair node = astfactory.newPair((String)name0,value0);
+    Constant name = (Constant)name0;
+    Constant value = (Constant)value0;
+    AST.Pair node = astfactory.newPair(name.lval,value.lval);
     return node;
 }
 

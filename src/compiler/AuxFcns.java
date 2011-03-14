@@ -38,31 +38,62 @@ import java.io.*;
 public class AuxFcns
 {
 
+enum EscapeMode {EMODE_C};
+
 static int uid = 0; // for generating unique ids.
 
 static int nextuid() {return ++uid;}
 
-static String qualify(String relpath, AST node)
+// Define which nodes are scope units
+static boolean
+isscopeunit(AST node)
 {
-    if(relpath.startsWith(".")) return relpath;
-    // prepend the qualified name of the node
-    String qname = node.getQualifiedName() + "." + relpath;
-    return qname;
+    switch (node.getSort()) {
+    case FILE: case FIELD: case ENUM: case MESSAGE: return true;
+    default: break;
+    }
+    return false;
 }
 
-
-static List<AST> concat(List<AST> list1, List<AST> list2)
+/* Compute the scope name for any kind of node */
+static String
+computescopename(AST node)
 {
-    List<AST> catlist = new ArrayList<AST>();
-    if(list1 != null) for(AST e1: list1) catlist.add(e1);
-    if(list2 != null) for(AST e2: list2) catlist.add(e2);
-    return catlist;
+    String scopename = node.getName(); // default
+    // For some nodes, we may need to modify the qualified name
+    switch (node.getSort()) {
+    case EXTEND:
+	scopename = String.format("%s_%d","$extend",nextuid());
+	break;
+    case FILE:    
+	// If the file has a package, then use that name.
+	// If the file is the topfile, then construct a scope name
+        // from the file name
+	AST.File file = (AST.File)node;
+	if(file.getFilePackage() != null) {
+	    scopename = file.getFilePackage().getName();
+	} else {
+	    scopename = file.getName();
+	    // remove leading path
+	    int index = scopename.lastIndexOf("/");
+	    if(index >= 0)
+		scopename = scopename.substring(index+1,scopename.length());
+	    // remove trailing .proto (if any) unless remaining name is "" */
+	    if(scopename.endsWith(".proto")) {
+	        index = scopename.lastIndexOf(".");
+	        if(index > 0) // not >= to avoid ""
+		    scopename = scopename.substring(0,index);
+	    }
+	} break;
+    default: break; // use default
+    }
+    return scopename;
 }
-
 
 // Compute path from root to this node.
-// Root is 0 entry, package is 1 entry  and the node is last entry
-static List<AST> computepath(AST node)
+// Root is 0 entry, file is 1 entry  and the node is last entry
+static List<AST>
+computepath(AST node)
 {
     List<AST> path = new ArrayList<AST>();
     while(node != null) {
@@ -72,32 +103,26 @@ static List<AST> computepath(AST node)
     return path;
 }
 
-static String computequalifiedname(AST node)
+/* Compute the qualified name for any kind of node */
+static String
+computequalifiedname(AST node)
 {
     List<AST> path = computepath(node);
-    String qualname = node.getRoot().getQualifiedName();
-    for(int i=1;i<path.size();i++)  // do not include root
-        qualname = qualname + "." + path.get(i).getName();
-    // For some nodes, we need to modify the qualified name
-    switch (node.getSort()) {
-    case EXTEND:
-        qualname = qualname + "." +nextuid();
-	break;
-    case EXTENSIONS:
-        qualname = qualname + "." + nextuid();
-	break;
-/*IGNORE
-    case OPTION:
-        qualname = qualname + ".$option." + nextuid();
-        break;
-*/
-    default: break;
+    String qualname = "";
+    for(int i=1;i<path.size()-1;i++) {
+	AST p = path.get(i);
+	if(AuxFcns.isscopeunit(p))
+            qualname = qualname + "." + p.getScopeName();
     }
+    // Unconditionally add final node
+    AST p = path.get(path.size()-1);
+    qualname = qualname + "." + p.getScopeName();
 
     return qualname;
 }
 
-static public String locatefile(String suffix, List<String> includepaths)
+static public String
+locatefile(String suffix, List<String> includepaths)
 {
     suffix = suffix.trim();
     if(suffix.charAt(0) == '/') return suffix;
@@ -114,20 +139,31 @@ static public String locatefile(String suffix, List<String> includepaths)
 }
 
 // Replace '.' characters with '_'
-static public String escapedname(String name)
+static public String
+escapedname(String name)
 {
     return name.replace('.','_');
 }
 
-// Given a reference to a type name in the context of a specified node,
-// Try to locate all nodes that might match using scope rules:
-// 1. Check for primitive type names or absolute path typename
-// 2. Walk up the parent chain until the root is reached.
-// 3. At each parent, try to match the typename against all possible
-//    paths starting at that parent and ending at a type node
+/**
+Given a reference to a type name in the context of a specified node,
+Try to locate all nodes that might match using the following rules:
+1. Check for primitive type names or absolute path typename
+2. Walk up the parent chain until the root file is reached.
+3. At each parent, try to match the typename against all possible
+   paths starting at that parent and ending at a type node
+4. return the complete set of matching types to allow caller to
+   decide which is the correct one.
 
-static List<AST.Type> findtypebyname(String typename, AST node, AST.Root root)
+ * @param typename to search for
+ * @param node defining the innermost context for the name
+ & @return List<AST.Type> of matching nodes
+ */
+
+static List<AST.Type>
+findtypebyname(String typename, AST node)
 {
+    AST.Root root = node.getRoot();
     List<AST.Type> typematches = new ArrayList<AST.Type>();
     // First, see is this a primitive type name
     List<AST.PrimitiveType> primitives = root.getPrimitiveTypes();
@@ -137,56 +173,42 @@ static List<AST.Type> findtypebyname(String typename, AST node, AST.Root root)
     // If the typename is absolute, then find it
     if(typename.charAt(0) == '.') {
 	// find exact match(es)
-	for(AST ast : root.getNodeSet()) {
-	    if(ast instanceof AST.Type && ast.getQualifiedName().equals(typename))
-		typematches.add((AST.Type)ast);
+	for(AST.File file : root.getFileSet()) {
+	    for(AST ast: file.getNodeSet()) {
+	        if(ast instanceof AST.Type
+		   && ast.getQualifiedName().equals(typename))
+		    typematches.add((AST.Type)ast);
+	    }
 	}
         return typematches;
     }
 
-    // Walk up the scopenode chain to the specified root looking for matches
-    // Start by finding the innermost enclosing type
-    AST scopenode;
-    List<AST> matches = new ArrayList<AST>();
-    List<String> path = parsepath(typename);
-    for(scopenode = node; scopenode != root; scopenode = scopenode.getParent()) {
-	    // See if any of the children of this node will match
-	    if(AuxFcns.isscope(scopenode) && scopenode.getChildSet() != null) {
-            for(AST ast : scopenode.getChildSet())
-		        matchpath(path,ast,matches);
-            if(matches.size() > 0) break;
+    // Finally, collect all the type nodes whose qualified name
+    // suffix matches the typename
+    // Note that since multiple files may be equivalent in scope
+    // because they have no associated package, but we can skip
+    // all files that have a different package name
+    AST.File file1 = node.getSrcFile();
+    AST.Package p1 = file1.getFilePackage();
+    for(AST.File file2: root.getFileSet()) {
+        AST.Package p2 = file2.getFilePackage();
+        if(file2 != file1 && p1 != p2) {
+            // See if the package names match
+            if(p1 == null || p2 == null || !p1.getName().equals(p2.getName()))
+                continue; // not a match
+        }
+        for(AST subnode: file2.getNodeSet()) {
+            if(subnode instanceof AST.Type
+               && subnode.getQualifiedName().endsWith(typename)) {
+               typematches.add((AST.Type)subnode);
+            }
         }
     }
-    // Search in other packages in two ways
-    if(matches.size() == 0) {
-	// 1. test for path against the package.
-	for(AST.Package p: root.getPackageSet()) {
-	    if(p.getName().equals(path.get(0))) 
-	        matchpath(path,p,matches);
-	    if(matches.size() > 0) break; // stop when something is found
-	}
-    }
-    // 2. test for path.subList(1,path.size()) against
-    //    the children of the package
-    //    This, of course, is inherently ambiguous because
-    //    There is actually no defined order for the packages
-    //    (although the original c++ parser probably has one).
-    if(matches.size() == 0) {
-	for(AST.Package p: root.getPackageSet()) {
-	    for(AST ast: p.getChildSet())
-                matchpath(path,ast,matches);
-	    if(matches.size() > 0) break; // stop when something is found
-	}
-    }
-    // Transfer all type instances
-    for(AST ast: matches) {
-	if(ast instanceof AST.Type)
-	    typematches.add((AST.Type)ast);
-    }
     return typematches;
-}    
+}
 
-static List<String> parsepath(String name)
+static List<String>
+parsepath(String name)
 {
     String[] segments = name.split("[.]");
     List<String> slist = new ArrayList<String>();
@@ -197,7 +219,8 @@ static List<String> parsepath(String name)
 /*
 Given a node, see if the given path can match starting at that node
 */
-static boolean matchpath(List<String> path, AST node, List<AST> matches)
+static boolean
+matchpath(List<String> path, AST node, List<AST> matches)
 {
     assert(path.size() > 0);
     // match the first element against this node
@@ -216,62 +239,6 @@ static boolean matchpath(List<String> path, AST node, List<AST> matches)
     return (matches.size() > 0);
 }
 
-// The scope definers are messages and packages
-static boolean isscope(AST node)
-{
-    return node.getSort() == AST.Sort.MESSAGE || node.getSort() == AST.Sort.PACKAGE;
-}
-
-
-/* IGNORE
-static protected boolean searchpackage(String typename, AST parent,
-                                    List<AST.Type> matches)
-{
-    if(parent.getChildSet() != null) {
-        for(AST ast : parent.getChildSet()) {
-	    if(ast instanceof AST.Type) {
-	        if(issuffix(ast.getQualifiedName(),typename))
-                    matches.add((AST.Type)ast);
-	    }
-	    if(matches.size() > 0) return true;
-	    if(searchpackage(typename,ast,matches)) return true; // recurse
-	}
-    }
-    return false;
-}
-
-
-static protected boolean issuffix(String qualname, String suffix)
-{
-    // Test suffix against the segments of the qualname
-    String[] qualsegments = qualname.split("[.]");
-    String[] suffixsegments = suffix.split("[.]");
-    if(qualsegments.length < suffixsegments.length) return false;
-    int qlen = qualsegments.length;
-    int slen = suffixsegments.length;
-    for(int i=1;i<=slen;i++) {
-        if(!qualsegments[qlen-i].equals(suffixsegments[slen-i]))
-            return false;
-    }
-    return true;
-}
-
-static protected boolean isprefix(String packname, String prefix)
-{
-    // Test prefix against the segments of the packname
-    String[] packsegments = packname.split("[.]");
-    String[] prefixsegments = prefix.split("[.]");
-    if(packsegments.length > prefixsegments.length) return false;
-    int plen = packsegments.length;
-    int prelen = prefixsegments.length;
-    for(int i=0;i<plen;i++) {
-        if(!packsegments[i].equals(prefixsegments[i]))
-            return false;
-    }
-    return true;
-}
-*/
-
 // Collect path of parent nodes upto
 // and (optionally) including the package
 static void
@@ -287,6 +254,77 @@ collectpath(AST ast, List<AST> path, boolean thrupackage)
 }
 
 
+// Printable chars that must be escaped
+
+// Add in escapes to a string
+static String
+escapify(String s, char quotemark, EscapeMode emode)
+{
+    StringBuilder es = new StringBuilder();
+    for(char c: s.toCharArray()) {
+	switch (emode) {
+	case EMODE_C:
+	    if(c == '\n') es.append("\\n");
+	    else if(c == '\r') es.append("\\r");
+	    else if(c == '\t') es.append("\\t");
+	    else if(c < ' ' || c == '\177') {
+		// octal encoding
+		String octal = Integer.toOctalString((int)c);
+		while(octal.length() < 3) octal = '0' + octal;
+		es.append("\\"+octal);
+	    } else if(c == quotemark) {
+		es.append("\\\"");
+	    } else
+		es.append(c);
+	    break;
+	}
+    }    
+    return es.toString();
+}
+
+
+static String
+getBaseName(String base)
+{
+    // strip off the path part
+    int index = base.lastIndexOf("/");
+    if(index >= 0) base = base.substring(index+1,base.length());
+    // strip off any extension
+    index = base.lastIndexOf(".");
+    if(index > 0) base = base.substring(0,index);
+    return base;
+}
+
+static String
+getFilePrefix(String path)
+{
+    // strip off the path part and return it
+    int index = path.lastIndexOf("/");
+    if(index < 0)
+	path = "";
+    else
+	path = path.substring(0,index);
+    return path;
+}
+
+static public List<AST.Field>
+sortFieldIds(List<AST.Field> fields)
+{
+    if(fields == null) return null;
+    // Assume # fields is small enough that an insertion sort is ok
+    List<AST.Field> local = new ArrayList<AST.Field>(fields);
+    List<AST.Field> sorted = new ArrayList<AST.Field>();
+    AST.Field min = null;
+    while(local.size() > 0) {
+	min = null;
+	for(AST.Field field: local) {
+	    if(min == null || (field.getId() < min.getId()))
+		min = field;
+	}
+	sorted.add(min);  local.remove(min);
+    }
+    return sorted;
+}
 
 } // class AuxFcns
 

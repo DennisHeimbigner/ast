@@ -46,8 +46,8 @@ public class ASTFactoryDefault implements ASTFactory
 	{return new ASTDefault.Enum(name);}
     public AST.EnumValue newEnumValue(String name, int value)
 	{return new ASTDefault.EnumValue(name, value);}
-    public AST.Extend newExtend(String name, String msgname)
-	{return new ASTDefault.Extend(name,msgname);}
+    public AST.Extend newExtend(String msgname)
+	{return new ASTDefault.Extend(msgname);}
     public AST.Extensions newExtensions(String name)
 	{return new ASTDefault.Extensions(name);}
     public AST.Field newField(String name, AST.Cardinality cardinality, String fieldtype, int id)
@@ -62,8 +62,8 @@ public class ASTFactoryDefault implements ASTFactory
 	{return new ASTDefault.Pair(name, value);}
     public AST.CompoundConstant newCompoundConstant(String name)
 	{return new ASTDefault.CompoundConstant(name);}
-    public AST.Rpc newRpc(String name, String argtype, String returntype)
-	{return new ASTDefault.Rpc(name, argtype, returntype);}
+    public AST.RPC newRPC(String name, String argtype, String returntype)
+	{return new ASTDefault.RPC(name, argtype, returntype);}
     public AST.Service newService(String name)
 	{return new ASTDefault.Service(name);}
     public AST.PrimitiveType newPrimitiveType(AST.PrimitiveSort sort)

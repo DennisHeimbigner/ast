@@ -36,7 +36,8 @@ import java.util.*;
 
 // An instance of AST serves as the tree root
 
-abstract public class ASTDefault implements AST
+abstract public class
+ASTDefault implements AST
 {
 
     //////////////////////////////////////////////////
@@ -55,6 +56,7 @@ abstract public class ASTDefault implements AST
     AST.Package packageroot = null; // immediately containing package
     AST parent = null;
     String name = null;
+    String scopename = null;
     String qualifiedname = null;
     Object annotation = null;
     List<AST> childset= new ArrayList<AST>(); // immediate children
@@ -64,6 +66,9 @@ abstract public class ASTDefault implements AST
     Map<String,String> optionmap = new HashMap<String,String>();
 
     int refcount = 0;
+
+    // Track selected common true/false options
+    boolean ispacked = false;    
 
     public ASTDefault(Sort sort)
     {
@@ -100,10 +105,16 @@ abstract public class ASTDefault implements AST
 
     public AST getParent() {return parent;}
     public void setParent(AST parent) {this.parent = parent;}
+
     public String getName() {return name;}
     public void setName(String name) {this.name = name;}
+
     public String getQualifiedName() {return qualifiedname;}
     public void setQualifiedName(String qualifiedname) {this.qualifiedname = qualifiedname;}
+
+    public String getScopeName() {return scopename;}
+    public void setScopeName(String name) {scopename = name;}
+
     public Object getAnnotation() {return annotation;}
     public void setAnnotation(Object annotation) {this.annotation = annotation;}
 
@@ -118,6 +129,9 @@ abstract public class ASTDefault implements AST
     public void setOptionMap(String key, String value)
 	{this.optionmap.put(key,value);}
 
+    public boolean isPacked() {return ispacked;}
+    public void setIsPacked(boolean tf) {ispacked = tf;}
+
     public String toString() {
         if(getQualifiedName() != null) return getQualifiedName();
         if(getName() != null) return getName();
@@ -125,20 +139,22 @@ abstract public class ASTDefault implements AST
     }
 
 // Convenience grouping class
-static public abstract class Type extends ASTDefault implements AST.Type
+static public abstract class
+Type extends ASTDefault implements AST.Type
 {
     public Type(Sort sort) {super(sort);}
 }
 
 // An instance of this is the root of the AST tree
-static public class Root extends ASTDefault implements AST.Root
+static public class
+Root extends ASTDefault implements AST.Root
 {
     List<AST.Package> packageset = new ArrayList<AST.Package>();
     List<AST.File> fileset = new ArrayList<AST.File>();
     List<AST.PrimitiveType> primitivetypes = null;
 
-    AST.File topfile = null;
     AST.Package toppackage = null;
+    AST.File topfile = null;
 
     public Root(String name)
     {
@@ -157,16 +173,18 @@ static public class Root extends ASTDefault implements AST.Root
     public List<AST.PrimitiveType> getPrimitiveTypes() {return this.primitivetypes;}
     public void setPrimitiveTypes(List<AST.PrimitiveType> primitivetypes) {this.primitivetypes = primitivetypes;}
 
-    public AST.File getTopFile() {return this.topfile;}
-    public void setTopFile(AST.File f) {this.topfile = f;}
-
     public AST.Package getTopPackage() {return this.toppackage;}
     public void setTopPackage(AST.Package p) {this.toppackage = p;}
+
+    public AST.File getTopFile() {return this.topfile;}
+    public void setTopFile(AST.File p) {this.topfile = p;}
 }
 
-static public class File extends ASTDefault implements AST.File
+static public class
+File extends ASTDefault implements AST.File
 {
     AST.Package filepackage = null;
+    AST.File parentfile = null;
     List<AST.File> imports = null;
     List<AST> decls = new ArrayList<AST>();
 
@@ -176,13 +194,16 @@ static public class File extends ASTDefault implements AST.File
 	setName(name);
     }
 
+    public AST.File getParentFile() {return parentfile;}
+    public void setParentFile(AST.File f) {parentfile = f;}
     public AST.Package getFilePackage() {return this.filepackage;}
     public void setFilePackage(AST.Package astpackage) {this.filepackage = astpackage;}
     public List<AST.File> getImports() {return this.imports;}
     public void setImports(List<AST.File> imports) {this.imports = imports;}
 }
 
-static public class Package extends ASTDefault implements AST.Package
+static public class
+Package extends ASTDefault implements AST.Package
 {
     AST.File packagefile = null; // inverse of AST.File.filepackage
 
@@ -190,6 +211,8 @@ static public class Package extends ASTDefault implements AST.Package
     List<AST.Extend> extenders = new ArrayList<AST.Extend>();
     List<AST.Enum> enums = new ArrayList<AST.Enum>();
     List<AST.Service> services = new ArrayList<AST.Service>();
+
+    boolean ispseudo = false;
 
     public Package(String name)
     {
@@ -199,6 +222,9 @@ static public class Package extends ASTDefault implements AST.Package
 
     public AST.File getPackageFile() {return this.packagefile;}
     public void setPackageFile(AST.File astfile) {this.packagefile = astfile;}
+
+    public boolean isPseudoPackage() {return ispseudo;}
+    public void setPseudoPackage(boolean tf) {ispseudo = tf;}
 
     public List<AST.Message> getMessages() {return this.messages;}
     public void setMessages(List<AST.Message> sessages) {this.messages = messages;}
@@ -211,7 +237,8 @@ static public class Package extends ASTDefault implements AST.Package
 
 }
 
-static public class Enum extends ASTDefault implements AST.Enum
+static public class
+Enum extends ASTDefault implements AST.Enum
 {
     List<AST.EnumValue> enumvalues = new ArrayList<AST.EnumValue>();
 
@@ -225,7 +252,8 @@ static public class Enum extends ASTDefault implements AST.Enum
     public void setEnumValues(List<AST.EnumValue> enumvalues) {this.enumvalues = enumvalues;}
 }
 
-static public class EnumValue extends ASTDefault implements AST.EnumValue
+static public class
+EnumValue extends ASTDefault implements AST.EnumValue
 {
     int value;
 
@@ -240,17 +268,17 @@ static public class EnumValue extends ASTDefault implements AST.EnumValue
     public void setValue(int value) {this.value = value;}
 }
 
-static public class Extend extends ASTDefault implements AST.Extend
+static public class
+Extend extends ASTDefault implements AST.Extend
 {
     AST.Message message = null;
     List<AST.Field> fields = new ArrayList<AST.Field>();
     List<AST.Group> groups = new ArrayList<AST.Group>();
 
-    public Extend(String name, String msgname)
+    public Extend(String msgname)
     {
 	super(Sort.EXTEND);
-        setName(name);
-	setAnnotation(msgname); // temporary storage place
+        setName(msgname);
     }
 
     public AST.Message getMessage() {return this.message;}
@@ -261,7 +289,8 @@ static public class Extend extends ASTDefault implements AST.Extend
     public void setGroups(List<AST.Group> groups) {this.groups = groups;}
 }
 
-static public class Extensions extends ASTDefault implements AST.Extensions
+static public class
+Extensions extends ASTDefault implements AST.Extensions
 {
     List<AST.Range> ranges = new ArrayList<AST.Range>();
 
@@ -275,11 +304,13 @@ static public class Extensions extends ASTDefault implements AST.Extensions
     public void setRanges(List<AST.Range> ranges) {this.ranges = ranges;}
 }
 
-static public class Field extends ASTDefault implements AST.Field
+static public class
+Field extends ASTDefault implements AST.Field
 {
     Cardinality cardinality = null;
     AST.Type fieldtype = null;
     int id;
+    AST.Extend extend = null;    
 
     public Field(String name, Cardinality cardinality, String fieldtype, int id)
     {
@@ -296,10 +327,13 @@ static public class Field extends ASTDefault implements AST.Field
     public void setType(AST.Type fieldtype) {this.fieldtype = fieldtype;}
     public int getId() {return this.id;}
     public void setId(int id) {this.id = id;}
+    public AST.Extend getExtend() {return extend;}
+    public void setExtend(AST.Extend ex) {extend = ex;}
 }
 
 // A group node is a special case of field
-static public class Group extends Field implements AST.Group
+static public class
+Group extends Field implements AST.Group
 {
     public Group(String name, Cardinality cardinality, int id)
     {
@@ -309,7 +343,8 @@ static public class Group extends Field implements AST.Group
     }
 }
 
-static public class Message extends Type implements AST.Message
+static public class
+Message extends Type implements AST.Message
 {
     // Filled in during Semantic processing
     List<AST.Field> fields = new ArrayList<AST.Field>();
@@ -339,11 +374,13 @@ static public class Message extends Type implements AST.Message
     public void setGroups(List<AST.Group> groups) {this.groups = groups;}
 }
 
-static public class Option extends ASTDefault implements AST.Option
+static public class
+Option extends ASTDefault implements AST.Option
 {
     String value;
     boolean userdefined = false;
     AST.Type optiontype = null;
+    boolean isstringvalued = false;
 
     public Option(String name, String value)
     {
@@ -358,9 +395,12 @@ static public class Option extends ASTDefault implements AST.Option
     public void setUserDefined(boolean userdefined) {this.userdefined = userdefined;}
     public AST.Type getType() {return optiontype;}
     public void setType(AST.Type t) {this.optiontype = t;}
+    public boolean isStringValued() {return isstringvalued;}
+    public void setStringValued(boolean tf) {isstringvalued = tf;}
 }
 
-static public class CompoundConstant extends ASTDefault implements AST.CompoundConstant
+static public class
+CompoundConstant extends ASTDefault implements AST.CompoundConstant
 {
     List<AST.Pair> members = null;
 
@@ -374,7 +414,8 @@ static public class CompoundConstant extends ASTDefault implements AST.CompoundC
     public void setMembers(List<AST.Pair> members) {this.members = members;}
 }
 
-static public class Pair extends ASTDefault implements AST.Pair
+static public class
+Pair extends ASTDefault implements AST.Pair
 {
     Object value = null;
 
@@ -389,12 +430,13 @@ static public class Pair extends ASTDefault implements AST.Pair
     public void setValue(Object value) {this.value = value;}
 }
 
-static public class Rpc extends ASTDefault implements AST.Rpc
+static public class
+RPC extends ASTDefault implements AST.RPC
 {
     AST.Type argtype = null;
     AST.Type returntype = null;
 
-    public Rpc(String name, String argtype, String returntype)
+    public RPC(String name, String argtype, String returntype)
     {
 	super(Sort.RPC);
 	setName(name);
@@ -411,10 +453,11 @@ static public class Rpc extends ASTDefault implements AST.Rpc
     public void setReturnType(AST.Type returntype) {this.returntype = returntype;}
 }
 
-static public class Service extends ASTDefault implements AST.Service
+static public class
+Service extends ASTDefault implements AST.Service
 {
     // Filled in during semantic processing
-    List<AST.Rpc> rpcs = new ArrayList<AST.Rpc>();
+    List<AST.RPC> rpcs = new ArrayList<AST.RPC>();
 
     public Service(String name)
     {
@@ -422,11 +465,12 @@ static public class Service extends ASTDefault implements AST.Service
 	setName(name);
     }
 
-    public List<AST.Rpc> getRpcs() {return this.rpcs;}
-    public void setRpcs(List<AST.Rpc> rpcs) {this.rpcs = rpcs;}
+    public List<AST.RPC> getRPCs() {return this.rpcs;}
+    public void setRPCs(List<AST.RPC> rpcs) {this.rpcs = rpcs;}
 }
 
-static public class PrimitiveType extends Type implements AST.PrimitiveType
+static public class
+PrimitiveType extends Type implements AST.PrimitiveType
 {
     PrimitiveSort primitivesort = null;
 

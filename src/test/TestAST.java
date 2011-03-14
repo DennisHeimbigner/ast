@@ -133,8 +133,8 @@ public class TestAST extends TestFiles
 			break loop;
 		    }
 	   	    // Semantic Processing
-		    Semantics sem = new Semantics();
-		    pass = sem.process(parser.getAST());
+		    Semantics sem = new ProtobufSemantics();
+		    pass = sem.process(parser.getAST(),new String[0]);
 		    if(!pass) {
 			System.err.println("Semantic processing failed");
 			break loop;
@@ -212,8 +212,8 @@ public class TestAST extends TestFiles
 			break loop;
 		    }
 	   	    // Semantic Processing
-		    Semantics sem = new Semantics();
-		    pass = sem.process(parser.getAST());
+		    Semantics sem = new ProtobufSemantics();
+		    pass = sem.process(parser.getAST(),new String[0]);
 		    if(!pass) {
 			System.err.println("Semantic processing failed");
 			break loop;
@@ -280,7 +280,7 @@ public class TestAST extends TestFiles
             if(Debug.enabled("trace.parse")) parser.setDebugLevel(1);
 	    boolean pass = parser.parse(protopath,rdr);
 	    if(!pass) {System.err.println("Parse Failure: "+protopath); continue;}
-	    pass = new Semantics().process(parser.getAST());
+	    pass = new ProtobufSemantics().process(parser.getAST(),new String[0]);
 	    if(!pass) {System.err.println("Parse Failure: "+protopath); continue;}
 
 	    FileWriter capture = new FileWriter(path+".pp");
@@ -293,7 +293,7 @@ public class TestAST extends TestFiles
 	    parser = new ProtobufParser();
 	    pass = parser.parse(protopath,rdr);
 	    if(!pass) {System.err.println("Parse Failure: "+protopath); continue;}
-	    pass = new Semantics().process(parser.getAST());
+	    pass = new ProtobufSemantics().process(parser.getAST(),new String[0]);
 	    if(!pass) {System.err.println("Parse Failure: "+protopath); continue;}
 	    capture = new FileWriter(path+".ast");
             pw = new PrintWriter(capture);

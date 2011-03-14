@@ -34,7 +34,8 @@ package unidata.protobuf.compiler;
 
 import java.util.*;
 
-public interface AST
+public interface
+AST
 {
     static final int MAXEXTENSION = 536870911 ; //0x1FFFFFFF
 
@@ -46,52 +47,52 @@ public interface AST
     static final int MAXGOOGLERANGE = 19999;
 
     public enum Cardinality {
-	REQUIRED("required"), OPTIONAL("optional"), REPEATED("repeated");
-	private final String name;
+        REQUIRED("required"), OPTIONAL("optional"), REPEATED("repeated");
+        private final String name;
         Cardinality(String name) {this.name = name;}
-	public String getName()   { return name; }
-    }	
+        public String getName()   { return name; }
+    }
 
     // Define the kinds of AST objects to avoid having to do instanceof.
     public enum Sort {
-	PACKAGE("package"), ENUM("enum"), ENUMVALUE("enumvalue"),
-	EXTEND("extend"), EXTENSIONS("extensions"),
-	FIELD("field"), MESSAGE("message"), GROUP("group"),
-	OPTION("option"), RPC("rpc"), SERVICE("service"),
-	PRIMITIVETYPE("primitivetype"), FILE("file"), ROOT("root"),
-	PAIR("pair"), COMPOUNDCONSTANT("compoundconstant")
-	;
+        PACKAGE("package"), ENUM("enum"), ENUMVALUE("enumvalue"),
+        EXTEND("extend"), EXTENSIONS("extensions"),
+        FIELD("field"), MESSAGE("message"), GROUP("group"),
+        OPTION("option"), RPC("rpc"), SERVICE("service"),
+        PRIMITIVETYPE("primitivetype"), FILE("file"), ROOT("root"),
+        PAIR("pair"), COMPOUNDCONSTANT("compoundconstant")
+        ;
 
-	private final String name;
+        private final String name;
         Sort(String name) {this.name = name;}
-	public String getName()   { return name; }
+        public String getName()   { return name; }
     }
 
     // Define the kinds or primitive types
     public enum PrimitiveSort {
-	DOUBLE("double"), FLOAT("float"),
-	INT32("int32"), INT64("int64"),
-	UINT32("uint32"), UINT64("uint64"),
-	SINT32("sint32"), SINT64("sint64"),
-	FIXED32("fixed32"), FIXED64("fixed64"),
-	SFIXED32("sfixed32"), SFIXED64("sfixed64"),
-	STRING("string"), BYTES("bytes"),
-	BOOL("bool");
-	
-	private final String name;
+        DOUBLE("double"), FLOAT("float"),
+        INT32("int32"), INT64("int64"),
+        UINT32("uint32"), UINT64("uint64"),
+        SINT32("sint32"), SINT64("sint64"),
+        FIXED32("fixed32"), FIXED64("fixed64"),
+        SFIXED32("sfixed32"), SFIXED64("sfixed64"),
+        STRING("string"), BYTES("bytes"),
+        BOOL("bool");
+
+        private final String name;
         PrimitiveSort(String name) {this.name = name;}
-	public String getName()   { return name; }
+        public String getName()   { return name; }
     }
 
     static public class Position
     {
-	int lineno = 0;
-	int charno = 0;
-	String filename = null;
+        int lineno = 0;
+        int charno = 0;
+        String filename = null;
 
         public Position() {}
         public Position(int line, int charno, String filename)
-	{setLine(line); setChar(charno); setFile(filename);}
+        {setLine(line); setChar(charno); setFile(filename);}
 
         public int getLine() {return lineno;}
         public int getChar() {return charno;}
@@ -102,29 +103,29 @@ public interface AST
         public void setFile(String file) {this.filename = file;}
 
         public void moveLine(int delta)
-	    {this.lineno += delta; if(this.lineno < 0) this.lineno = 0;}
+            {this.lineno += delta; if(this.lineno < 0) this.lineno = 0;}
         public void moveChar(int delta)
-	    {this.charno += delta; if(this.charno < 0) this.charno = 0;}
+            {this.charno += delta; if(this.charno < 0) this.charno = 0;}
 
-	public boolean equals(Object o)
-	{
-	    if(o instanceof Position) {
-		Position p = (Position)o;
-		return (p.getLine() == lineno && p.getChar() == charno
-		        && p.getFile().equals(filename));
-	    }
-	    return false;
-	}
-
-	public String toString()
+        public boolean equals(Object o)
         {
-	    return String.format("%s:%d.%d",filename,lineno,charno);
-	}
+            if(o instanceof Position) {
+                Position p = (Position)o;
+                return (p.getLine() == lineno && p.getChar() == charno
+                        && p.getFile().equals(filename));
+            }
+            return false;
+        }
 
-	public Position clone()
-	{
-	    return new Position(lineno,charno,filename);
-	}
+        public String toString()
+        {
+            return String.format("%s:%d.%d",filename,lineno,charno);
+        }
+
+        public Position clone()
+        {
+            return new Position(lineno,charno,filename);
+        }
 
     }
 
@@ -136,192 +137,229 @@ public interface AST
         public Range(int start, int stop) {this.start=start; this.stop=stop;}
     }
 
-    public void setuid();
-    public int getId();
+    void setuid();
+    int getId();
 
-    public int setRefCount(int n);
-    public void addRefCount(int n);
+    int setRefCount(int n);
+    void addRefCount(int n);
 
-    public List<AST> getChildSet();
-    public void setChildSet(List<AST> children);
+    List<AST> getChildSet();
+    void setChildSet(List<AST> children);
 
-    public List<AST> getNodeSet();
-    public void setNodeSet(List<AST> nodeset);
+    List<AST> getNodeSet();
+    void setNodeSet(List<AST> nodeset);
 
-    public Position getPosition();
-    public void setPosition(Position position);
-    public Sort getSort();
-    public void setSort(Sort astclass);
+    Position getPosition();
+    void setPosition(Position position);
+    Sort getSort();
+    void setSort(Sort astclass);
 
-    public Root getRoot();
-    public void setRoot(Root root);
+    Root getRoot();
+    void setRoot(Root root);
 
-    public Package getPackage();
-    public void setPackage(Package packageroot);
+    File getSrcFile();
+    void setSrcFile(File srcfile);
 
-    public File getSrcFile();
-    public void setSrcFile(File srcfile);
+    Package getPackage();
+    void setPackage(Package srcpackage);
 
-    public AST getParent();
-    public void setParent(AST parent);
-    public String getName();
-    public void setName(String name);
-    public String getQualifiedName();
-    public void setQualifiedName(String qualifiedname);
+    AST getParent();
+    void setParent(AST parent);
 
-    public Object getAnnotation();
-    public void setAnnotation(Object annotation);
+    String getName();
+    void setName(String name);
 
-    public List<Option> getOptions();
-    public void setOptions(List<Option> options);
+    String getScopeName();
+    void setScopeName(String name);
 
-    public String optionLookup(String key);
-    public void setOptionMap(String key, String value);
+    String getQualifiedName();
+    void setQualifiedName(String qualifiedname);
 
-    public String toString();
+    Object getAnnotation();
+    void setAnnotation(Object annotation);
 
-public interface Type extends AST {}
+    List<Option> getOptions();
+    void setOptions(List<Option> options);
 
-public interface Root extends AST 
+    String optionLookup(String key);
+    void setOptionMap(String key, String value);
+
+    // Add specific checks for certain true/false options
+    boolean isPacked();
+    void setIsPacked(boolean tf);
+
+    String toString();
+
+public interface
+Type extends AST
+{}
+
+public interface
+Root extends AST
 {
-    public List<File> getFileSet();
-    public void setFileSet(List<File> fileset);
+    List<File> getFileSet();
+    void setFileSet(List<File> fileset);
 
-    public List<Package> getPackageSet();
-    public void setPackageSet(List<Package> packageset);
+    List<Package> getPackageSet();
+    void setPackageSet(List<Package> packageset);
 
-    public List<PrimitiveType> getPrimitiveTypes();
-    public void setPrimitiveTypes(List<PrimitiveType> primitivetypes);
-
-    File getTopFile();
-    void setTopFile(File f);
+    List<PrimitiveType> getPrimitiveTypes();
+    void setPrimitiveTypes(List<PrimitiveType> primitivetypes);
 
     Package getTopPackage();
     void setTopPackage(Package p);
+
+    File getTopFile();
+    void setTopFile(File p);
 }
 
-public interface File extends AST 
+public interface
+File extends AST
 {
+    File getParentFile();
+    void setParentFile(File f);
     Package getFilePackage();
     void setFilePackage(Package astpackage);
     List<File> getImports();
     void setImports(List<File> imports);
 }
 
-public interface Package extends AST
+public interface
+Package extends AST
 {
     File getPackageFile();
     void setPackageFile(File astfile);
 
-    public List<Message> getMessages();
-    public void setMessages(List<Message> sessages);
-    public List<Extend> getExtenders();
-    public void setExtenders(List<Extend> extenders);
+    // Define a pseudo package for use with files with no package decl.
+    boolean isPseudoPackage();
+    void setPseudoPackage(boolean tf);
 
-    public List<Enum> getEnums();
-    public void setEnums(List<Enum> enums);
-    public List<Service> getServices();
-    public void setServices(List<Service> services);
+    List<Message> getMessages();
+    void setMessages(List<Message> sessages);
+    List<Extend> getExtenders();
+    void setExtenders(List<Extend> extenders);
+
+    List<Enum> getEnums();
+    void setEnums(List<Enum> enums);
+    List<Service> getServices();
+    void setServices(List<Service> services);
 }
 
-public interface Enum extends AST.Type
+public interface
+Enum extends Type
 {
-    public List<EnumValue> getEnumValues();
-    public void setEnumValues(List<EnumValue> enumvalues);
+    List<EnumValue> getEnumValues();
+    void setEnumValues(List<EnumValue> enumvalues);
 }
 
-public interface EnumValue extends AST
+public interface
+EnumValue extends AST
 {
-    public int getValue();
-    public void setValue(int value);
+    int getValue();
+    void setValue(int value);
 }
 
-public interface Extend extends AST
+public interface
+Extend extends AST
 {
-    public Message getMessage();
-    public void setMessage(Message message);
-    public List<Field> getFields();
-    public void setFields(List<Field> fields);
-    public List<Group> getGroups();
-    public void setGroups(List<Group> groups);
+    Message getMessage();
+    void setMessage(Message message);
+    List<Field> getFields();
+    void setFields(List<Field> fields);
+    List<Group> getGroups();
+    void setGroups(List<Group> groups);
 }
 
-public interface Extensions extends AST
+public interface
+Extensions extends AST
 {
-    public List<AST.Range> getRanges();
-    public void setRanges(List<AST.Range> ranges);
+    List<AST.Range> getRanges();
+    void setRanges(List<AST.Range> ranges);
 }
 
-public interface Field extends AST
+public interface
+Field extends AST
 {
-    public Cardinality getCardinality();
-    public void setCardinality(Cardinality cardinality);
-    public Type getType();
-    public void setType(Type fieldtype);
-    public int getId();
-    public void setId(int id);
+    Cardinality getCardinality();
+    void setCardinality(Cardinality cardinality);
+    Type getType();
+    void setType(Type fieldtype);
+    int getId();
+    void setId(int id);
+    AST.Extend getExtend();
+    void setExtend(AST.Extend ex);
 }
 
-public interface Group extends AST.Field {}
+public interface
+Group extends AST.Field
+{}
 
-public interface Message extends Type
+public interface
+Message extends Type
 {
-    public List<Field> getFields();
-    public void setFields(List<Field> fields);
-    public List<Enum> getEnums();
-    public void setEnums(List<Enum> enums);
-    public List<Message> getMessages();
-    public void setMessages(List<Message> messages);
-    public List<Extend> getExtenders();
-    public void setExtenders(List<Extend> extenders);
-    public List<Extensions> getExtensions();
-    public void setExtensions(List<Extensions> extension);
-    public List<Group> getGroups();
-    public void setGroups(List<Group> group);
+    List<Field> getFields();
+    void setFields(List<Field> fields);
+    List<Enum> getEnums();
+    void setEnums(List<Enum> enums);
+    List<Message> getMessages();
+    void setMessages(List<Message> messages);
+    List<Extend> getExtenders();
+    void setExtenders(List<Extend> extenders);
+    List<Extensions> getExtensions();
+    void setExtensions(List<Extensions> extension);
+    List<Group> getGroups();
+    void setGroups(List<Group> group);
 }
 
-public interface Option extends AST
+public interface
+Option extends AST
 {
-    public String getValue();
-    public void setValue(String value);
-    public boolean getUserDefined();
-    public void setUserDefined(boolean userdefined);
-    public Type getType();
-    public void setType(Type t);
-
+    String getValue();
+    void setValue(String value);
+    boolean getUserDefined();
+    void setUserDefined(boolean userdefined);
+    Type getType();
+    void setType(Type t);
+    // Specifically call out string valued options
+    boolean isStringValued();
+    void setStringValued(boolean tf);
 }
 
-public interface CompoundConstant extends AST
+public interface
+CompoundConstant extends AST
 {
-    public List<AST.Pair> getMembers();
-    public void setMembers(List<AST.Pair> pairs);
+    List<AST.Pair> getMembers();
+    void setMembers(List<AST.Pair> pairs);
 }
 
-public interface Pair extends AST
+public interface
+Pair extends AST
 {
-    public Object getValue();
-    public void setValue(Object value);
+    Object getValue();
+    void setValue(Object value);
 }
 
-public interface Rpc extends AST
+public interface
+RPC extends AST
 {
-    public Type getArgType();
-    public void setArgType(Type argtype);
-    public Type getReturnType();
-    public void setReturnType(Type returntype);
+    Type getArgType();
+    void setArgType(Type argtype);
+    Type getReturnType();
+    void setReturnType(Type returntype);
 }
 
-public interface Service extends AST
+public interface
+Service extends AST
 {
-    public List<Rpc> getRpcs();
-    public void setRpcs(List<Rpc> rpcs);
+    List<RPC> getRPCs();
+    void setRPCs(List<RPC> rpcs);
 }
 
-public interface PrimitiveType extends Type
+public interface
+PrimitiveType extends Type
 {
-    public PrimitiveSort getPrimitiveSort();
-    public void setPrimitiveSort(PrimitiveSort PrimitiveSort);
+    PrimitiveSort getPrimitiveSort();
+    void setPrimitiveSort(PrimitiveSort PrimitiveSort);
 }
 
 }// interface AST
-

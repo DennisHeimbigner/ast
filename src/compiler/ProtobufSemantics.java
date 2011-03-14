@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.io.*;
 
 import static unidata.protobuf.compiler.AST.*;
+import static unidata.protobuf.compiler.Debug.*;
 
 public class ProtobufSemantics extends Semantics
 {
@@ -49,39 +50,47 @@ static boolean ctrl = true;
 
 //////////////////////////////////////////////////
 
-public boolean process(AST.Root root, String[] argv)
+public boolean
+process(AST.Root root, String[] argv)
 {
     PrintWriter w = new PrintWriter(System.err);
     Debug.printprops.qualified = true;
 //    Debug.printprops.useuid = true;
-    if(!collectnodes(root,root)) return false;
+
+    if(!collectglobalnodesets(root,root)) return false;
     if(ctrl && Debug.enabled("trace.semantics.steps")) {
-        w.println("\ncollectnodes:");
+        w.println("\ncollectglobalnodesets:");
         Debug.printTreeNodes(root,w);        
     }
+
+    if(!collectsubtrees(root)) return false;
+    if(ctrl && Debug.enabled("trace.semantics.steps")) {
+        w.println("\ncollectsubtrees:");
+	Debug.printTreeNodes(root,w);
+    }
+
     if(!setfilelink(root,null)) return false;
     if(ctrl&& Debug.enabled("trace.semantics.steps")) {
-        w.println("\nsetcontainers:");
+        w.println("\nsetfilelink:");
 	Debug.printTreeNodes(root,w);
     }
-    if(!setpackagelink(root,null)) return false;
-    if(ctrl && Debug.enabled("trace.semantics.steps")) {
-        w.println("\nsetcontainers:");
+
+    if(!setpackagelink(root)) return false;
+    if(ctrl&& Debug.enabled("trace.semantics.steps")) {
+        w.println("\nsetpackagelink:");
 	Debug.printTreeNodes(root,w);
     }
-    if(!groupbypackage(root)) return false;
+
+    if(!collectnodesets(root)) return false;
     if(ctrl && Debug.enabled("trace.semantics.steps")) {
-        w.println("\ngroupbypackages:");
+        w.println("\ncollectnodesets:");
 	Debug.printTreeNodes(root,w);
     }
-    if(!collectpackagenodesets(root)) return false;
+
+    if(!setscopenames(root)) return false;
+    Debug.printprops.useuid = false;
     if(ctrl && Debug.enabled("trace.semantics.steps")) {
-        w.println("\ncollectpackagenodesets:");
-	Debug.printTreeNodes(root,w);
-    }
-    if(!setnodegroups(root)) return false;
-    if(ctrl && Debug.enabled("trace.semantics.steps")) {
-        w.println("\nsetnodegroups:");
+        w.println("\nsetscopenames:");
 	Debug.printTreeNodes(root,w);
     }
 
@@ -92,13 +101,22 @@ public boolean process(AST.Root root, String[] argv)
 	Debug.printTreeNodes(root,w);
     }
 
+    if(!checkduplicatenames(root)) return false;
+    Debug.printprops.useuid = false;
+    if(ctrl && Debug.enabled("trace.semantics.steps")) {
+        w.println("\ncheckduplicatenames:");
+	Debug.printTreeNodes(root,w);
+    }
+
     if(!dereference(root)) return false;
     if(ctrl && Debug.enabled("trace.semantics.steps")) {
         w.println("\ndereference:");
 	Debug.printTreeNodes(root,w);
     }
 
-    if(!checkduplicates(root.getNodeSet())) return false;
+    if(!applyExtensions(root)) return false;
+
+    if(!checkmisc1(root)) return false;
     if(!mapoptions(root)) return false;
 
     Debug.resetprintprops();
@@ -125,7 +143,7 @@ void verify(AST.Root root)
     // verify that everynode is in allnodes
     for(AST ast : root.getNodeSet()) ast.visited = true;
     System.err.println("begin missing");
-    for(AST ast : root.nodeset) {
+    for(AST ast : root.getNodeSet()) {
 	if(ast.visited) continue;
         if(ast instanceof AST.PrimitiveType) continue;
 	// We have an uncaptured node
@@ -148,7 +166,7 @@ void verify(AST.Root root)
 */
 
 boolean
-collectnodes(AST node, AST.Root root)
+collectglobalnodesets(AST node, AST.Root root)
 {
     if(node == null) return true;
     root.getNodeSet().add(node);
@@ -157,6 +175,8 @@ collectnodes(AST node, AST.Root root)
     switch (node.getSort()) {
     case FILE:
 	root.getFileSet().add((AST.File)node);
+	// Make sure the package is included
+	if(!collectglobalnodesets(((AST.File)node).getFilePackage(),root)) return false;
 	break;
     case PACKAGE:
 	AST.Package p = (AST.Package)node;
@@ -182,9 +202,49 @@ collectnodes(AST node, AST.Root root)
     if(node.getChildSet() != null) {
         for(AST subnode: node.getChildSet()) {
             subnode.setParent(node);
-            if(!collectnodes(subnode,root)) return false;
+            if(!collectglobalnodesets(subnode,root)) return false;
         }
     }
+    return true;
+}
+
+/**
+ * Pass does the following:
+ * - for each node collect the set of nodes in the subtree below it
+ *   [this is, roughly, the transitive closure of the child set]
+ *   Special cases:
+ *   1. Each file node excludes any contained file subtrees
+ *
+ * @param root AST.Root
+ * @return true if the processing succeeded.
+*/
+boolean
+collectsubtrees(AST.Root root)
+{
+    for(AST.File file: root.getFileSet()) {
+        if(!collectsubtreesr(file)) return false;
+    }
+    return true;
+}
+ 
+/**
+ * Recursive part of collectsubtrees
+ *
+ * @param thisnode An AST node whose subtree will be computed
+ * @return true if no error, false otherwise
+*/
+boolean
+collectsubtreesr(AST thisnode)
+{
+    List<AST> thisset = new ArrayList<AST>();
+    for(AST node: thisnode.getChildSet()) {
+	if(node.getSort() != AST.Sort.FILE) {
+	    if(!collectsubtreesr(node)) return false;
+        }
+        thisset.add(node);
+        thisset.addAll(node.getNodeSet());
+    }
+    thisnode.setNodeSet(thisset);
     return true;
 }
 
@@ -193,8 +253,8 @@ collectnodes(AST node, AST.Root root)
  * - Link subnodes to src file
  * - Verify that each file has at most one package 
  *
- * @param node The current node being walked
- * @param currentfile The currently enclosing file
+ * @param node The current root for a subtree
+ * @param currentfile The currently containing file
  * @return true if the processing succeeded.
 */
 
@@ -202,131 +262,49 @@ boolean
 setfilelink(AST node, AST.File currentfile)
 {
     node.setSrcFile(currentfile);
-    switch (node.getSort()) {
-    case FILE:
-	AST.File f = (AST.File)node;
-	// Check the child set for multiple packages
-	if(f.getChildSet() != null) {
-	    AST p = null;
-	    for(AST ast: f.getChildSet()) {
-		if(ast.getSort() == AST.Sort.PACKAGE) {
-		    if(p != null) {
-                        semerror(f,"File: "+f.getName()+"; multiple package declarations");
-		    }
-		    p = ast;
-		}
+    for(AST ast: node.getChildSet()) {
+	if(ast.getSort() == AST.Sort.FILE) {
+	    AST.File f = (AST.File)ast;
+	    // verify only one package
+	    AST.Package p = null;
+	    for(AST n: f.getChildSet()) {
+	        if(n.getSort() != AST.Sort.PACKAGE) continue;
+	        if(p == null)
+		    p = (AST.Package)n;
+	        else if(n != p) {
+                    semerror(f,"File: "+f.getName()+"; multiple package declarations");
+	        }
 	    }
+	    currentfile = f;
 	}
-	f.setSrcFile(currentfile); 
-        currentfile = f; // Make this the current file
-	break;
-    default: break;
-    }
-
-    // Recurse on child set 
-    if(node.getChildSet() != null) {
-        // Recurse on child set
-        for(AST subnode: node.getChildSet()) {
-            if(!setfilelink(subnode,currentfile)) return false;
-        }
+	// recurse using this file as the current file
+	for(AST subnode: ast.getChildSet()) {
+            if(subnode.getSort() == AST.Sort.FILE) continue; // files will be handled above
+	    if(!setfilelink(subnode,currentfile)) return false;
+	}
     }
     return true;
 }
 
 /**
  * Pass does the following:
- * - Link subnodes to package
- * - Link package and file
+ * - Link subnodes to closest containing package
+ *   [note: implements #include semantics]
  *
- * @param node The current node being walked
- * @param currentpackage The currently enclosing package
+ * @param node The current root for a subtree
+ * @param currentpackage The currently containing package
  * @return true if the processing succeeded.
 */
 
 boolean
-setpackagelink(AST node, AST.Package currentpackage)
+setpackagelink(AST.Root root)
 {
-    AST.Root root = node.getRoot();
-    node.setPackage(currentpackage);
-    if(node.getSort() == AST.Sort.FILE) {
-	AST.File f = (AST.File)node;
+    for(AST.File f: root.getFileSet()) {
 	AST.Package p = f.getFilePackage();
-	// Set the linkages properly for the file and its package
-	if(p != null) {
-	    p.setPackage(currentpackage);
-            currentpackage = p; // Make this the current package
-	    // Cross link file and the package
-	    p.setPackageFile(f);
+        if(p == null) continue;
+	for(AST ast: f.getNodeSet()) {
+	    ast.setPackage(p);
 	}
-    }
-    // Recurse on child set
-    if(node.getChildSet() != null) {
-        // Recurse on child set
-        for(AST subnode: node.getChildSet()) {
-            if(!setpackagelink(subnode,currentpackage)) return false;
-        }
-    }
-    return true;
-}
-
-/**
- * Pass does the following:
- * - move packages to be the children of the root
- * - move file children to be children of the file's package
- *
- * @param root The AST tree root
- * @return true if the processing succeeded.
-*/
-
-boolean
-groupbypackage(AST.Root root)
-{
-    // Root has no containing package or file
-    // But does have top files
-    AST.File f = root.getTopFile();
-    root.setPackage(f.getFilePackage());
-
-    root.setSrcFile(null);
-    root.setPackage(null);
-
-    root.setRoot(root); // true for all nodes
-
-    // Make root's children become the set of packages    
-    root.getChildSet().clear();
-    for(AST.Package p: root.getPackageSet()) {
-	root.getChildSet().add(p);
-	p.setParent(root);
-    }
-
-    // Make each file's children to be children of the containing package
-    for(AST.File file: root.getFileSet()) {
-	AST.Package p = file.getFilePackage();
-	for(AST fnode: file.getChildSet()) {
-	    if(fnode == p) continue;
-	    p.getChildSet().add(fnode);
-	    fnode.setParent(p);
-            fnode.setPackage(p);
-	}
-        file.setChildSet(null);
-    }
-    return true;
-}
-
-/**
- * Pass does the following:
- * - collect the nodeset for each package in no specified order
- *
- * @param root The AST tree root
- * @return true if the processing succeeded.
-*/
-boolean
-collectpackagenodesets(AST.Root root)
-{
-    for(AST node: root.getNodeSet()) {
-	AST.Package p = node.getPackage();
-	if(p == null) continue;
-	if(p.getNodeSet() == null) p.setNodeSet(new ArrayList<AST>());
-	p.getNodeSet().add(node);
     }
     return true;
 }
@@ -340,7 +318,7 @@ collectpackagenodesets(AST.Root root)
 */
 
 boolean
-setnodegroups(AST.Root root)
+collectnodesets(AST.Root root)
 {
     List<AST> allnodes = root.getNodeSet();
     // Divide children lists
@@ -400,11 +378,11 @@ setnodegroups(AST.Root root)
         case SERVICE:
             AST.Service svc = (AST.Service)node;
             svc.setOptions(new ArrayList<AST.Option>());
-            svc.setRpcs(new ArrayList<AST.Rpc>());
+            svc.setRPCs(new ArrayList<AST.RPC>());
             for(AST ast: svc.getChildSet()) {
                 switch(ast.getSort()) {
                 case OPTION: svc.getOptions().add((AST.Option)ast); break;
-                case RPC: svc.getRpcs().add((AST.Rpc)ast); break;
+                case RPC: svc.getRPCs().add((AST.RPC)ast); break;
                 default: assert(false) : "Illegal ast case"; break;
                 }
             }
@@ -440,7 +418,7 @@ setnodegroups(AST.Root root)
             for(AST ast: astfield.getChildSet()) {
                 switch(ast.getSort()) {
                 case OPTION: astfield.getOptions().add((AST.Option)ast); break;
-                case PACKAGE: astfield.setPackage((AST.Package)ast); break;
+                case PACKAGE: /*astfield.setPackage((AST.Package)ast);*/ assert(false); break;
                 default: assert(false) : "Illegal ast case"; break;
                 }
             }
@@ -474,6 +452,24 @@ setnodegroups(AST.Root root)
 
 /**
  * Pass does the following:
+ * - compute scope names
+ *
+ * @param root of the tree
+ * @return true if the processing succeeded.
+*/
+
+boolean
+setscopenames(AST.Root root)
+{
+    // Assign the scope names
+    for(AST ast : root.getNodeSet()) {
+	ast.setScopeName(AuxFcns.computescopename(ast));
+    }
+    return true;
+}
+
+/**
+ * Pass does the following:
  * - assign qualified names
  * - check for duplicate qualified names
  *
@@ -484,30 +480,91 @@ setnodegroups(AST.Root root)
 boolean
 qualifynames(AST.Root root)
 {
-    // Assign first the name for root, then all files, then all packages
-    root.setQualifiedName("");    
-    for(AST ast1 : root.getFileSet()) {
-	ast1.setQualifiedName("."+ast1.getName());
-    }    
-    for(AST ast1 : root.getPackageSet()) {
-	ast1.setQualifiedName("."+ast1.getName());
-    }    
+    for(AST.File file : root.getFileSet()) {
+	String qname = file.getScopeName();
+	for(AST ast: file.getChildSet()) {
+   	    if(!qualifynamesr(ast,qname)) return false;
+	}
+    }
+    return true;
+}
+
+/**
+ * Recursive companion to qualifynames
+ *
+ * @param root of the tree
+ * @return true if the processing succeeded.
+*/
+
+boolean
+qualifynamesr(AST ast, String qualprefix)
+{
+    String qname = null;
+    switch (ast.getSort()) {
+
+    // Following cases all do simple suffixing
+    case ENUM:
+    case ENUMVALUE:
+    case FIELD:
+    case MESSAGE:
+    case RPC:
+    case SERVICE:
+	if(qualprefix == null) qualprefix = "";
+	qname = qualprefix + "." + ast.getScopeName();
+	break;
+
+    case FILE:
+	AST.File file = (AST.File)ast;
+        if(file.getFilePackage() != null) {
+	    qname = file.getFilePackage().getScopeName();
+	} else {
+	    qname = "";
+	}
+	break;	    
+
+    // Ignore the prefix
+    case PACKAGE:
+    case PRIMITIVETYPE:
+	qname = ast.getScopeName();
+	break;
+
+    // These do not have qualifiednames
+    case EXTEND:
+    case OPTION:
+    case GROUP:
+    case EXTENSIONS:
+    case ROOT:
+    case PAIR:
+    case COMPOUNDCONSTANT:
+    default: break;
+    }
+    ast.setQualifiedName(qname);
+    for(AST subnode: ast.getChildSet()) {
+   	if(!qualifynamesr(subnode,qname)) return false;
+    }
+    return true;
+}
+
+/**
+ * Pass does the following:
+ * - check for duplicate qualified names
+ *
+ * @param root of the tree
+ * @return true if the processing succeeded.
+*/
+
+boolean
+checkduplicatenames(AST.Root root)
+{
     List<AST> allnodes = root.getNodeSet();
-    // Assign all other qualified names (assumes allnodes in preorder)
     for(AST ast1 : allnodes) {
-	switch (ast1.getSort()) {
-	case ROOT: case PACKAGE: break;
-	default:
-            String qualname = AuxFcns.computequalifiedname(ast1);
-            ast1.setQualifiedName(qualname);
-            if(ast1.getQualifiedName() == null) continue;
-            for(AST ast2 : allnodes) {
-                if(ast2 == ast1 || ast2.getQualifiedName() == null) continue;
-		if(ast2.getQualifiedName().equals(ast1.getQualifiedName())) {
-		    duperror(ast1,ast2,"Duplicate qualified name: "
-			     +ast1.getName());
-		    break;
-                }
+        for(AST ast2 : allnodes) {
+	    if(ast2 == ast1 || ast2.getQualifiedName() == null) continue;
+	    // special case testing
+	    if(ast2.getQualifiedName().equals(ast1.getQualifiedName())) {
+		// report and keep going
+		duperror(ast1,ast2,"Duplicate qualified name: "
+			     +ast1.getQualifiedName());
             }
 	}
     }
@@ -534,10 +591,13 @@ dereference(AST.Root root)
 	case EXTEND:
 	    // deref the msg name
 	    AST.Extend extender = (AST.Extend)node;
-	    String msgname = (String)extender.getAnnotation();
-	    extender.setAnnotation(null);
-	    matches = AuxFcns.findtypebyname(msgname,node,root);
+	    String msgname = extender.getName();
+	    matches = AuxFcns.findtypebyname(msgname,node);
+	    if(matches.size() > 1)
+	        return semerror(node,"Extend msg name is ambiguous: "
+				     + msgname);
 	    found = false;
+	    AST match = null;
 	    for(AST ast : matches) {
 		if(ast instanceof AST.Message) {
 		    extender.setMessage((AST.Message)ast);
@@ -556,7 +616,7 @@ dereference(AST.Root root)
 	    String typename = (String)field.getAnnotation();
 	    field.setAnnotation(null);
             // Compute absolute name relative to the parent message
-	    List<AST.Type> typematches = AuxFcns.findtypebyname(typename,node,root);
+	    List<AST.Type> typematches = AuxFcns.findtypebyname(typename,node);
 	    if(typematches.size() == 0) {
 	        return semerror(node,"Field refers to undefined type: "+typename);
 	    } else if(typematches.size() > 1) {
@@ -570,10 +630,10 @@ dereference(AST.Root root)
 
 	case RPC:
 	    // deref the argtype name and the returntype name
-	    AST.Rpc rpc = (AST.Rpc)node;
+	    AST.RPC rpc = (AST.RPC)node;
 	    String[] names = (String[])rpc.getAnnotation();
 	    rpc.setAnnotation(null);
-	    typematches = AuxFcns.findtypebyname(names[0],node,root);
+	    typematches = AuxFcns.findtypebyname(names[0],node);
 	    if(typematches.size() == 0) {
 	        return semerror(node,"RPC returntype refers to undefined type: "+names[0]);
 	    } else if(typematches.size() > 1) {
@@ -583,7 +643,7 @@ dereference(AST.Root root)
 	    } else {// typematches.size() == 1
    	        rpc.setArgType(typematches.get(0));
 	    }
-	    typematches = AuxFcns.findtypebyname(names[1],node,root);
+	    typematches = AuxFcns.findtypebyname(names[1],node);
 	    if(typematches.size() == 0) {
 	        return semerror(node,"RPC returntype refers to undefined type: "+names[1]);
 	    } else if(typematches.size() > 1) {
@@ -601,19 +661,62 @@ dereference(AST.Root root)
     return true;
 }
 
+static public boolean
+applyExtensions(AST.Root root)
+{
+    List<AST> allnodes = root.getNodeSet();
+    // Locate extension nodes and insert into the corresponding
+    // base message; also mark fields as extensions
+    for(AST ast1 : allnodes) {
+	if(ast1.getSort() != AST.Sort.EXTEND) continue;
+	AST.Extend extend = (AST.Extend)ast1;
+	AST.Message base = extend.getMessage();
+	List<Field> basefields = base.getFields();
+	List<Field> newfields = new ArrayList<Field>();
+	for(AST.Field efield: extend.getFields()) {
+	    boolean ok = true;
+	    boolean more = true;
+	    // Check to see if a field of the same name or id
+            // already exists
+	    for(AST.Field mfield: basefields) {
+		if(mfield.getName().equals(efield.getName())
+		   || mfield.getId() == efield.getId()) {
+		    System.err.printf("Extension field %s.%s duplicates Message field %s.%s\n",
+					extend.getName(),efield.getName(),
+					base.getName(),mfield.getName());
+
+		} else
+		    newfields.add(efield); // capture fields to add
+	    }
+        }
+	for(AST.Field field: newfields) {
+	    field.setExtend(extend);
+	    basefields.add(field);
+	    // fix links : package and parent
+	    field.setSrcFile(base.getSrcFile());
+	    field.setParent(base.getParent());
+	    base.getFields().add(field);
+	    // Recompute qualified name
+	    field.setQualifiedName(AuxFcns.computequalifiedname(field));
+	}
+	base.setFields(AuxFcns.sortFieldIds(basefields));
+    }
+    return true;
+}
+
 /**
  * Pass does the following:
  * - Check that all msg ids appear legal and are not duplicates
  * - Check for duplicate enum field values 
  *
- * @param allnodes The set of all collected nodes
+ * @param root AST.root
  * @return true if the processing succeeded.
 */
 
 boolean
-checkduplicates(List<AST> allnodes)
+checkmisc1(AST.Root root)
 {
-    for(AST node: allnodes) {
+    for(AST node: root.getNodeSet()) {
         switch (node.getSort()) {
         case ENUM:
             // check for duplicates
@@ -662,6 +765,9 @@ checkduplicates(List<AST> allnodes)
  * Pass does the following:
  * - Copy the raw options for each node into the optionmap for that node
  * - Canonicalize certain names (e.g. DEFAULT)
+ * - capture value of selected true/false options (e.g. packed)
+ * - Also add the -D flags from the command line to the top file's
+ *   global option map
  *
  * @param root The AST tree root
  * @return true if the processing succeeded.
@@ -669,53 +775,43 @@ checkduplicates(List<AST> allnodes)
 boolean
 mapoptions(AST.Root root)
 {
+    /* Add in -D flags  and make default be to generate code*/
+    AST.File topfile = root.getTopFile();
+    for(String key: System.getProperties().stringPropertyNames()) {
+	String value = System.getProperty(key);
+	if(value != null) {
+	    topfile.setOptionMap(key,value);
+	}
+    }
+
     for(AST ast: root.getNodeSet()) {
 	if(ast.getOptions() != null && ast.getOptions().size() > 0)
 	    for(AST.Option option: ast.getOptions()) {
                 String optionname = option.getName();
+                String optionvalue = option.getValue();
                 if(optionname.equalsIgnoreCase("default")) optionname = "DEFAULT";
-		ast.setOptionMap(optionname,option.getValue());
+		ast.setOptionMap(optionname,optionvalue);
+		if(optionname.equalsIgnoreCase("packed"))
+		    ast.setIsPacked(getbooleanvalue(optionvalue));
 	    }
     }
     return true;
 }
 
-boolean
-semerror(AST node, String msg)
-    {return semreport(node,msg,true);}
-
-boolean
-semwarning(AST node, String msg)
-    {return semreport(node,msg,false);}
-
-
-boolean
-semreport(AST node, String msg, boolean err)
+static boolean
+getbooleanvalue(String optionvalue)
 {
-    System.err.print(err?"Semantic error ":"Warning ");
-    if(node != null && node.getPosition() != null) {
-	System.err.print(String.format("%s @ %s\n",
-			   msg, node.getPosition()));
-    } else {
-	System.err.print(String.format("%s\n",msg));
-    }
-    return !err;
+    boolean ispacked = false;
+    if(optionvalue.equalsIgnoreCase("true"))
+	ispacked = true;
+    else if(optionvalue.equalsIgnoreCase("false"))
+	ispacked = false;
+    else try {
+	int num = Integer.parseInt(optionvalue);
+	ispacked = (num != 0);
+	} catch (NumberFormatException nfe) {} // ignore
+    return ispacked;
 }
-
-
-static public boolean
-duperror(AST node1, AST node2, String msg)
-{
-    System.err.print(msg);
-    if(node1 != null && node1.getPosition() != null
-       && node2 != null && node2.getPosition() != null) {
-	System.err.print(String.format(" ; node1 @ %s node2 @ %s",
-			   node1.getPosition(),node2.getPosition()));
-    }
-    System.err.println();
-    return false;
-}
-
 
 } // class Semantics
 
