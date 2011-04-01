@@ -77,7 +77,8 @@ AST
         FIXED32("fixed32"), FIXED64("fixed64"),
         SFIXED32("sfixed32"), SFIXED64("sfixed64"),
         STRING("string"), BYTES("bytes"),
-        BOOL("bool");
+        BOOL("bool"),
+        ;
 
         private final String name;
         PrimitiveSort(String name) {this.name = name;}
@@ -137,6 +138,25 @@ AST
         public Range(int start, int stop) {this.start=start; this.stop=stop;}
     }
 
+    // Helper class for options
+    static public class OptionDef
+    {
+	String name;
+	String typeref;
+	AST.Type typedef;
+	boolean userdefined;
+
+	public OptionDef() {this(null,null,false);}
+
+	public OptionDef(String name, String typeref, boolean user)
+        {
+	    this.name = name;
+	    this.typeref = typeref;
+	    this.userdefined = user;
+	    this.typedef = null;
+        }
+    }
+
     void setuid();
     int getId();
 
@@ -180,12 +200,16 @@ AST
 
     List<Option> getOptions();
     void setOptions(List<Option> options);
+    void addOption(Option option);
 
     String optionLookup(String key);
     void setOptionMap(String key, String value);
     void unsetOptionMap(String key);
 
-    // Add specific checks for certain true/false options
+    // manage the option definitions
+    boolean setOptionDef(List<OptionDef> defs);
+    List<OptionDef> getOptionDefs();
+
     boolean isPacked();
     void setIsPacked(boolean tf);
 

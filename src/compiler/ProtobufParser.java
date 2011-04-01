@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 2.4.2.  */
+/* A Bison parser, made by GNU Bison 2.4.3.  */
 
 /* Skeleton implementation for Bison LALR(1) parsers in Java
    
-      Copyright (C) 2007-2010 Free Software Foundation, Inc.
+      Copyright (C) 2007, 2008, 2009, 2010 Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@ import unidata.protobuf.compiler.AST.Position;
 public class ProtobufParser extends ProtobufActions
 {
     /** Version number for the Bison executable that generated this parser.  */
-  public static final String bisonVersion = "2.4.2";
+  public static final String bisonVersion = "2.4.3";
 
   /** Name of the skeleton that generated this parser.  */
   public static final String bisonSkeleton = "lalr1.java";

@@ -37,7 +37,7 @@ import java.util.*;
 // An instance of AST serves as the tree root
 
 abstract public class
-        ASTDefault implements AST
+ASTDefault implements AST
 {
 
 //////////////////////////////////////////////////
@@ -63,7 +63,8 @@ List<AST> childset = new ArrayList<AST>(); // immediate children
 List<AST> nodeset = new ArrayList<AST>(); // All nodes under this node;
 // null except for root and packages
 List<AST.Option> options = new ArrayList<AST.Option>();
-Map<String, String> optionmap = new HashMap<String, String>();
+Map<String, String> optionmap = new HashMap<OptionDef, String>();
+List<AST.OptionDef> optiondefs = new ArrayList<AST.OptionDef>();
 
 int refcount = 0;
 
@@ -228,6 +229,15 @@ public void setOptions(List<AST.Option> options)
     this.options = options;
 }
 
+public void addOption(AST.Option option)
+{
+    for(Option opt: options) {
+	if(opt.getName().equals(option.getName()))
+	    semerror(option,"Duplicate option names:"+opt.getName());
+    }
+    this.options.add(option);
+}
+
 // Map oriented option access
 public String optionLookup(String key)
 {
@@ -243,6 +253,18 @@ public void unsetOptionMap(String key)
 {
     this.optionmap.remove(key);
 }
+
+public boolean
+setOptionDef(List<AST.OptionDef> defs)
+{
+    this.optiondefs = defs;
+}
+
+public List<AST.OptionDef> getOptionDefs()
+{
+    return this.optiondefs;
+}
+
 
 public boolean isPacked()
 {
@@ -263,7 +285,7 @@ public String toString()
 
 // Convenience grouping class
 static public abstract class
-        Type extends ASTDefault implements AST.Type
+Type extends ASTDefault implements AST.Type
 {
     public Type(Sort sort)
     {
@@ -273,7 +295,7 @@ static public abstract class
 
 // An instance of this is the root of the AST tree
 static public class
-        Root extends ASTDefault implements AST.Root
+Root extends ASTDefault implements AST.Root
 {
     List<AST.Package> packageset = new ArrayList<AST.Package>();
     List<AST.File> fileset = new ArrayList<AST.File>();
@@ -331,7 +353,7 @@ static public class
 }
 
 static public class
-        File extends ASTDefault implements AST.File
+File extends ASTDefault implements AST.File
 {
     AST.Package filepackage = null;
     AST.File parentfile = null;
@@ -421,7 +443,7 @@ static public class
 }
 
 static public class
-        Package extends ASTDefault implements AST.Package
+Package extends ASTDefault implements AST.Package
 {
     AST.File packagefile = null; // inverse of AST.File.filepackage
 
@@ -445,7 +467,7 @@ static public class
 }
 
 static public class
-        Enum extends ASTDefault implements AST.Enum
+Enum extends ASTDefault implements AST.Enum
 {
     List<AST.EnumValue> enumvalues = new ArrayList<AST.EnumValue>();
 
@@ -467,7 +489,7 @@ static public class
 }
 
 static public class
-        EnumValue extends ASTDefault implements AST.EnumValue
+EnumValue extends ASTDefault implements AST.EnumValue
 {
     int value;
 
@@ -490,7 +512,7 @@ static public class
 }
 
 static public class
-        Extend extends ASTDefault implements AST.Extend
+Extend extends ASTDefault implements AST.Extend
 {
     AST.Message message = null;
     List<AST.Field> fields = new ArrayList<AST.Field>();
@@ -534,7 +556,7 @@ static public class
 }
 
 static public class
-        Extensions extends ASTDefault implements AST.Extensions
+Extensions extends ASTDefault implements AST.Extensions
 {
     List<AST.Range> ranges = new ArrayList<AST.Range>();
 
@@ -556,7 +578,7 @@ static public class
 }
 
 static public class
-        Field extends ASTDefault implements AST.Field
+Field extends ASTDefault implements AST.Field
 {
     Cardinality cardinality = null;
     AST.Type fieldtype = null;
@@ -615,7 +637,7 @@ static public class
 
 // A group node is a special case of field
 static public class
-        Group extends Field implements AST.Group
+Group extends Field implements AST.Group
 {
     public Group(String name, Cardinality cardinality, int id)
     {
@@ -626,7 +648,7 @@ static public class
 }
 
 static public class
-        Message extends Type implements AST.Message
+Message extends Type implements AST.Message
 {
     // Filled in during Semantic processing
     List<AST.Field> fields = new ArrayList<AST.Field>();
@@ -704,7 +726,7 @@ static public class
 }
 
 static public class
-        Option extends ASTDefault implements AST.Option
+Option extends ASTDefault implements AST.Option
 {
     String value;
     boolean userdefined = false;
@@ -760,7 +782,7 @@ static public class
 }
 
 static public class
-        CompoundConstant extends ASTDefault implements AST.CompoundConstant
+CompoundConstant extends ASTDefault implements AST.CompoundConstant
 {
     List<AST.Pair> members = null;
 
@@ -782,7 +804,7 @@ static public class
 }
 
 static public class
-        Pair extends ASTDefault implements AST.Pair
+Pair extends ASTDefault implements AST.Pair
 {
     Object value = null;
 
@@ -805,7 +827,7 @@ static public class
 }
 
 static public class
-        RPC extends ASTDefault implements AST.RPC
+RPC extends ASTDefault implements AST.RPC
 {
     AST.Type argtype = null;
     AST.Type returntype = null;
@@ -843,7 +865,7 @@ static public class
 }
 
 static public class
-        Service extends ASTDefault implements AST.Service
+Service extends ASTDefault implements AST.Service
 {
     // Filled in during semantic processing
     List<AST.RPC> rpcs = new ArrayList<AST.RPC>();
@@ -866,7 +888,7 @@ static public class
 }
 
 static public class
-        PrimitiveType extends Type implements AST.PrimitiveType
+PrimitiveType extends Type implements AST.PrimitiveType
 {
     PrimitiveSort primitivesort = null;
 

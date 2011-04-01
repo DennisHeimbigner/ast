@@ -61,6 +61,7 @@ static class Constant
     AST.Root ast = null; // root node of the AST
     String filename = null;
     String importfilename = null; // temporary storage    
+    List<AST.OptionDef> optiondefs = new ArrayList<AST.OptionDef>();
 
 //////////////////////////////////////////////////
 // Constructors
@@ -204,7 +205,6 @@ option(Object name0, Object constant0)
     Constant con = (Constant)constant0;
     node = astfactory.newOption(name.lval,con.lval);
     if(con.token == ProtobufParser.STRINGCONST) node.setStringValued(true);
-    node.setType(astfactory.newPrimitiveType(AST.PrimitiveSort.STRING));
     node.setPosition(position());
     return node;
 }
@@ -228,13 +228,23 @@ Object
 extend(Object msg0, Object fieldlist0)
 {
     Constant msg = (Constant)msg0;
+    List<AST.Field> fields = (List<AST.Field>)fieldlist0;
     // Check for user defined options
-    if(msg.lval.startsWith(GOOGLEKEYWORD))
-	    return parseWarning("Google-style user defined options not supported: "+msg.lval);
-    AST.Extend node = astfactory.newExtend(msg.lval);
-    node.getChildSet().addAll((List<AST>)fieldlist0);
-    node.setPosition(position());
-    return node;
+    if(msg.lval.startsWith(GOOGLEKEYWORD)) {
+	// Extract the option and store
+	for(AST.Field field: fields) {
+	     AST.OptionDef od = new AST.OptionDef(field.getName(),
+					          (String)field.getAnnotation(),
+						  true);
+	     optiondefs.add(od); // check for validity later
+	}
+	return null;
+    } else {
+        AST.Extend node = astfactory.newExtend(msg.lval);
+        node.getChildSet().addAll((List<AST>)fieldlist0);
+        node.setPosition(position());
+        return node;
+    }
 }
 
 

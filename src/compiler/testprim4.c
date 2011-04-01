@@ -1,8 +1,8 @@
 #undef FILL
 #undef COMPARE
 
-#define RFILLS(input,val) input->f_string = val
-#define RFILLB(input,val) input->f_bytes.nbytes = strlen(val); input->f_bytes.bytes = val
+#define RFILLS(input,val) input->f_string = (val)
+#define RFILLB(input,val) input->f_bytes.nbytes = strlen(val); input->f_bytes.bytes = (uint8_t*)(val)
 
 #define RCOMPARES(input,output) if(strcmp(input->f_string,output->f_string)!=0) return n_string
 #define RCOMPAREB(input,output) {\
@@ -14,9 +14,9 @@
 	input->f_string.defined = ex; input->f_string.value = val
 
 #define OFILLB(input,ex,val) \
-    input->f_bytes.defined = ex; \
+    input->f_bytes.defined = (ex); \
         input->f_bytes.value.nbytes = strlen(val); \
-        input->f_bytes.value.bytes = val
+        input->f_bytes.value.bytes = (uint8_t*)(val)
 
 #define OCOMPARES(input,output) \
 	if(input->f_string.defined \
@@ -38,7 +38,7 @@
     input->f_bytes.values = (bytes_t*)calloc(cnt,sizeof(bytes_t)); \
     for(i=0;i<cnt;i++) { \
 	input->f_bytes.values[i].nbytes = strlen(val[i]); \
-	input->f_bytes.values[i].bytes = val[i]; \
+	input->f_bytes.values[i].bytes = (uint8_t*)val[i]; \
     }
 
 #define PCOMPARES(input,output) \
