@@ -37,239 +37,460 @@ import java.util.*;
 // An instance of AST serves as the tree root
 
 abstract public class
-ASTDefault implements AST
+        ASTDefault implements AST
 {
 
-    //////////////////////////////////////////////////
-    // Assign indices to all nodes
-    static int uid = 0;
-    static int primitiveuid = 0; // separate numbering for primitives
-    int index;
+//////////////////////////////////////////////////
+// Assign indices to all nodes
+static int uid = 0;
+static int primitiveuid = 0; // separate numbering for primitives
+int index;
 
-    //////////////////////////////////////////////////
-    // Instance variables
+//////////////////////////////////////////////////
+// Instance variables
 
-    Position position = null;
-    Sort sort = null;
-    AST.Root root = null; // top-level root
-    AST.File srcfile = null; // immediately containing src file node
-    AST.Package packageroot = null; // immediately containing package
-    AST parent = null;
-    String name = null;
-    String scopename = null;
-    String qualifiedname = null;
-    Object annotation = null;
-    List<AST> childset= new ArrayList<AST>(); // immediate children
-    List<AST> nodeset = new ArrayList<AST>(); // All nodes under this node;
-     			                      // null except for root and packages
-    List<AST.Option> options = new ArrayList<AST.Option>();
-    Map<String,String> optionmap = new HashMap<String,String>();
+Position position = null;
+Sort sort = null;
+AST.Root root = null; // top-level root
+AST.File srcfile = null; // immediately containing src file node
+AST.Package packageroot = null; // immediately containing package
+AST parent = null;
+String name = null;
+String scopename = null;
+String qualifiedname = null;
+Object annotation = null;
+List<AST> childset = new ArrayList<AST>(); // immediate children
+List<AST> nodeset = new ArrayList<AST>(); // All nodes under this node;
+// null except for root and packages
+List<AST.Option> options = new ArrayList<AST.Option>();
+Map<String, String> optionmap = new HashMap<String, String>();
 
-    int refcount = 0;
+int refcount = 0;
 
-    // Track selected common true/false options
-    boolean ispacked = false;    
+// Track selected common true/false options
+boolean ispacked = false;
 
-    public ASTDefault(Sort sort)
-    {
-	this.sort = sort;
-        setuid();
-    }
+public ASTDefault(Sort sort)
+{
+    this.sort = sort;
+    setuid();
+}
 
-    public void setuid() {index = ++uid;}
-    public int getId() {return index;}
+public void setuid()
+{
+    index = ++uid;
+}
 
-    public int setRefCount(int n)
-	{int old = refcount ; refcount = n; return old;}
-    public void addRefCount(int n) {refcount += n;}
+public int getId()
+{
+    return index;
+}
 
-    public List<AST> getChildSet() {return this.childset;}
-    public void setChildSet(List<AST> children) {this.childset = children;}
+public int setRefCount(int n)
+{
+    int old = refcount;
+    refcount = n;
+    return old;
+}
 
-    public List<AST> getNodeSet() {return this.nodeset;}
-    public void setNodeSet(List<AST> nodeset) {this.nodeset = nodeset;}
+public void addRefCount(int n)
+{
+    refcount += n;
+}
 
-    public Position getPosition() {return position;}
-    public void setPosition(Position position) {this.position = position;}
+public List<AST> getChildSet()
+{
+    return this.childset;
+}
 
-    public Sort getSort() {return this.sort;}
-    public void setSort(Sort astclass) {this.sort = astclass;}
+public void setChildSet(List<AST> children)
+{
+    this.childset = children;
+}
 
-    public AST.Root getRoot() {return root;}
-    public void setRoot(AST.Root root) {this.root = root;}
+public List<AST> getNodeSet()
+{
+    return this.nodeset;
+}
 
-    public AST.Package getPackage() {return packageroot;}
-    public void setPackage(AST.Package packageroot) {this.packageroot = packageroot;}
-    public AST.File getSrcFile() {return srcfile;}
-    public void setSrcFile(AST.File srcfile) {this.srcfile = srcfile;}
+public void setNodeSet(List<AST> nodeset)
+{
+    this.nodeset = nodeset;
+}
 
-    public AST getParent() {return parent;}
-    public void setParent(AST parent) {this.parent = parent;}
+public Position getPosition()
+{
+    return position;
+}
 
-    public String getName() {return name;}
-    public void setName(String name) {this.name = name;}
+public void setPosition(Position position)
+{
+    this.position = position;
+}
 
-    public String getQualifiedName() {return qualifiedname;}
-    public void setQualifiedName(String qualifiedname) {this.qualifiedname = qualifiedname;}
+public Sort getSort()
+{
+    return this.sort;
+}
 
-    public String getScopeName() {return scopename;}
-    public void setScopeName(String name) {scopename = name;}
+public void setSort(Sort astclass)
+{
+    this.sort = astclass;
+}
 
-    public Object getAnnotation() {return annotation;}
-    public void setAnnotation(Object annotation) {this.annotation = annotation;}
+public AST.Root getRoot()
+{
+    return root;
+}
 
-    public List<AST.Option> getOptions() {return this.options;}
-    public void setOptions(List<AST.Option> options) {this.options = options;}
+public void setRoot(AST.Root root)
+{
+    this.root = root;
+}
 
-    // Map oriented option access
-    public String optionLookup(String key) {
-        return this.optionmap.get(key);
-    }
+public AST.Package getPackage()
+{
+    return packageroot;
+}
 
-    public void setOptionMap(String key, String value)
-	{this.optionmap.put(key,value);}
+public void setPackage(AST.Package packageroot)
+{
+    this.packageroot = packageroot;
+}
 
-    public boolean isPacked() {return ispacked;}
-    public void setIsPacked(boolean tf) {ispacked = tf;}
+public AST.File getSrcFile()
+{
+    return srcfile;
+}
 
-    public String toString() {
-        if(getQualifiedName() != null) return getQualifiedName();
-        if(getName() != null) return getName();
-        return super.toString();
-    }
+public void setSrcFile(AST.File srcfile)
+{
+    this.srcfile = srcfile;
+}
+
+public AST getParent()
+{
+    return parent;
+}
+
+public void setParent(AST parent)
+{
+    this.parent = parent;
+}
+
+public String getName()
+{
+    return name;
+}
+
+public void setName(String name)
+{
+    this.name = name;
+}
+
+public String getQualifiedName()
+{
+    return qualifiedname;
+}
+
+public void setQualifiedName(String qualifiedname)
+{
+    this.qualifiedname = qualifiedname;
+}
+
+public String getScopeName()
+{
+    return scopename;
+}
+
+public void setScopeName(String name)
+{
+    scopename = name;
+}
+
+public Object getAnnotation()
+{
+    return annotation;
+}
+
+public void setAnnotation(Object annotation)
+{
+    this.annotation = annotation;
+}
+
+public List<AST.Option> getOptions()
+{
+    return this.options;
+}
+
+public void setOptions(List<AST.Option> options)
+{
+    this.options = options;
+}
+
+// Map oriented option access
+public String optionLookup(String key)
+{
+    return this.optionmap.get(key);
+}
+
+public void setOptionMap(String key, String value)
+{
+    this.optionmap.put(key, value);
+}
+
+public void unsetOptionMap(String key)
+{
+    this.optionmap.remove(key);
+}
+
+public boolean isPacked()
+{
+    return ispacked;
+}
+
+public void setIsPacked(boolean tf)
+{
+    ispacked = tf;
+}
+
+public String toString()
+{
+    if (getQualifiedName() != null) return getQualifiedName();
+    if (getName() != null) return getName();
+    return super.toString();
+}
 
 // Convenience grouping class
 static public abstract class
-Type extends ASTDefault implements AST.Type
+        Type extends ASTDefault implements AST.Type
 {
-    public Type(Sort sort) {super(sort);}
+    public Type(Sort sort)
+    {
+        super(sort);
+    }
 }
 
 // An instance of this is the root of the AST tree
 static public class
-Root extends ASTDefault implements AST.Root
+        Root extends ASTDefault implements AST.Root
 {
     List<AST.Package> packageset = new ArrayList<AST.Package>();
     List<AST.File> fileset = new ArrayList<AST.File>();
     List<AST.PrimitiveType> primitivetypes = null;
 
-    AST.Package toppackage = null;
     AST.File topfile = null;
 
     public Root(String name)
     {
-	super(Sort.ROOT);
-	setName("");
+        super(Sort.ROOT);
+        setName("");
         setPackage(null);
         setSrcFile(null);
     }
 
-    public List<AST.File> getFileSet() {return this.fileset;}
-    public void setFileSet(List<AST.File> fileset) {this.fileset = fileset;}
+    public List<AST.File> getFileSet()
+    {
+        return this.fileset;
+    }
 
-    public List<AST.Package> getPackageSet() {return this.packageset;}
-    public void setPackageSet(List<AST.Package> packageset) {this.packageset = packageset;}
+    public void setFileSet(List<AST.File> fileset)
+    {
+        this.fileset = fileset;
+    }
 
-    public List<AST.PrimitiveType> getPrimitiveTypes() {return this.primitivetypes;}
-    public void setPrimitiveTypes(List<AST.PrimitiveType> primitivetypes) {this.primitivetypes = primitivetypes;}
+    public List<AST.Package> getPackageSet()
+    {
+        return this.packageset;
+    }
 
-    public AST.Package getTopPackage() {return this.toppackage;}
-    public void setTopPackage(AST.Package p) {this.toppackage = p;}
+    public void setPackageSet(List<AST.Package> packageset)
+    {
+        this.packageset = packageset;
+    }
 
-    public AST.File getTopFile() {return this.topfile;}
-    public void setTopFile(AST.File p) {this.topfile = p;}
+    public List<AST.PrimitiveType> getPrimitiveTypes()
+    {
+        return this.primitivetypes;
+    }
+
+    public void setPrimitiveTypes(List<AST.PrimitiveType> primitivetypes)
+    {
+        this.primitivetypes = primitivetypes;
+    }
+
+    public AST.File getTopFile()
+    {
+        return this.topfile;
+    }
+
+    public void setTopFile(AST.File p)
+    {
+        this.topfile = p;
+    }
 }
 
 static public class
-File extends ASTDefault implements AST.File
+        File extends ASTDefault implements AST.File
 {
     AST.Package filepackage = null;
     AST.File parentfile = null;
     List<AST.File> imports = null;
     List<AST> decls = new ArrayList<AST>();
-
-    public File(String name)
-    {
-	super(Sort.FILE);
-	setName(name);
-    }
-
-    public AST.File getParentFile() {return parentfile;}
-    public void setParentFile(AST.File f) {parentfile = f;}
-    public AST.Package getFilePackage() {return this.filepackage;}
-    public void setFilePackage(AST.Package astpackage) {this.filepackage = astpackage;}
-    public List<AST.File> getImports() {return this.imports;}
-    public void setImports(List<AST.File> imports) {this.imports = imports;}
-}
-
-static public class
-Package extends ASTDefault implements AST.Package
-{
-    AST.File packagefile = null; // inverse of AST.File.filepackage
-
     List<AST.Message> messages = new ArrayList<AST.Message>();
     List<AST.Extend> extenders = new ArrayList<AST.Extend>();
     List<AST.Enum> enums = new ArrayList<AST.Enum>();
     List<AST.Service> services = new ArrayList<AST.Service>();
 
-    boolean ispseudo = false;
-
-    public Package(String name)
+    public File(String name)
     {
-	super(Sort.PACKAGE);
-	setName(name);
+        super(Sort.FILE);
+        setName(name);
     }
 
-    public AST.File getPackageFile() {return this.packagefile;}
-    public void setPackageFile(AST.File astfile) {this.packagefile = astfile;}
+    public AST.File getParentFile()
+    {
+        return parentfile;
+    }
 
-    public boolean isPseudoPackage() {return ispseudo;}
-    public void setPseudoPackage(boolean tf) {ispseudo = tf;}
+    public void setParentFile(AST.File f)
+    {
+        parentfile = f;
+    }
 
-    public List<AST.Message> getMessages() {return this.messages;}
-    public void setMessages(List<AST.Message> sessages) {this.messages = messages;}
-    public List<AST.Extend> getExtenders() {return this.extenders;}
-    public void setExtenders(List<AST.Extend> extenders) {this.extenders = extenders;}
-    public List<AST.Enum> getEnums() {return this.enums;}
-    public void setEnums(List<AST.Enum> enums) {this.enums = enums;}
-    public List<AST.Service> getServices() {return this.services;}
-    public void setServices(List<AST.Service> services) {this.services = services;}
+    public AST.Package getFilePackage()
+    {
+        return this.filepackage;
+    }
+
+    public void setFilePackage(AST.Package astpackage)
+    {
+        this.filepackage = astpackage;
+    }
+
+    public List<AST.File> getImports()
+    {
+        return this.imports;
+    }
+
+    public void setImports(List<AST.File> imports)
+    {
+        this.imports = imports;
+    }
+
+    public List<AST.Message> getMessages()
+    {
+        return this.messages;
+    }
+
+    public void setMessages(List<AST.Message> sessages)
+    {
+        this.messages = messages;
+    }
+
+    public List<AST.Extend> getExtends()
+    {
+        return this.extenders;
+    }
+
+    public void setExtends(List<AST.Extend> extenders)
+    {
+        this.extenders = extenders;
+    }
+
+    public List<AST.Enum> getEnums()
+    {
+        return this.enums;
+    }
+
+    public void setEnums(List<AST.Enum> enums)
+    {
+        this.enums = enums;
+    }
+
+    public List<AST.Service> getServices()
+    {
+        return this.services;
+    }
+
+    public void setServices(List<AST.Service> services)
+    {
+        this.services = services;
+    }
 
 }
 
 static public class
-Enum extends ASTDefault implements AST.Enum
+        Package extends ASTDefault implements AST.Package
+{
+    AST.File packagefile = null; // inverse of AST.File.filepackage
+
+    public Package(String name)
+    {
+        super(Sort.PACKAGE);
+        setName(name);
+    }
+
+    public AST.File getPackageFile()
+    {
+        return this.packagefile;
+    }
+
+    public void setPackageFile(AST.File astfile)
+    {
+        this.packagefile = astfile;
+    }
+
+
+}
+
+static public class
+        Enum extends ASTDefault implements AST.Enum
 {
     List<AST.EnumValue> enumvalues = new ArrayList<AST.EnumValue>();
 
     public Enum(String name)
     {
-	super(Sort.ENUM);
-	setName(name);
+        super(Sort.ENUM);
+        setName(name);
     }
 
-    public List<AST.EnumValue> getEnumValues() {return this.enumvalues;}
-    public void setEnumValues(List<AST.EnumValue> enumvalues) {this.enumvalues = enumvalues;}
+    public List<AST.EnumValue> getEnumValues()
+    {
+        return this.enumvalues;
+    }
+
+    public void setEnumValues(List<AST.EnumValue> enumvalues)
+    {
+        this.enumvalues = enumvalues;
+    }
 }
 
 static public class
-EnumValue extends ASTDefault implements AST.EnumValue
+        EnumValue extends ASTDefault implements AST.EnumValue
 {
     int value;
 
     public EnumValue(String name, int value)
     {
-	super(Sort.ENUMVALUE);
-	setName(name);
+        super(Sort.ENUMVALUE);
+        setName(name);
         setValue(value);
     }
 
-    public int getValue() {return this.value;}
-    public void setValue(int value) {this.value = value;}
+    public int getValue()
+    {
+        return this.value;
+    }
+
+    public void setValue(int value)
+    {
+        this.value = value;
+    }
 }
 
 static public class
-Extend extends ASTDefault implements AST.Extend
+        Extend extends ASTDefault implements AST.Extend
 {
     AST.Message message = null;
     List<AST.Field> fields = new ArrayList<AST.Field>();
@@ -277,74 +498,135 @@ Extend extends ASTDefault implements AST.Extend
 
     public Extend(String msgname)
     {
-	super(Sort.EXTEND);
+        super(Sort.EXTEND);
         setName(msgname);
     }
 
-    public AST.Message getMessage() {return this.message;}
-    public void setMessage(AST.Message message) {this.message = message;}
-    public List<AST.Field> getFields() {return this.fields;}
-    public void setFields(List<AST.Field> fields) {this.fields = fields;}
-    public List<AST.Group> getGroups() {return this.groups;}
-    public void setGroups(List<AST.Group> groups) {this.groups = groups;}
+    public AST.Message getMessage()
+    {
+        return this.message;
+    }
+
+    public void setMessage(AST.Message message)
+    {
+        this.message = message;
+    }
+
+    public List<AST.Field> getFields()
+    {
+        return this.fields;
+    }
+
+    public void setFields(List<AST.Field> fields)
+    {
+        this.fields = fields;
+    }
+
+    public List<AST.Group> getGroups()
+    {
+        return this.groups;
+    }
+
+    public void setGroups(List<AST.Group> groups)
+    {
+        this.groups = groups;
+    }
 }
 
 static public class
-Extensions extends ASTDefault implements AST.Extensions
+        Extensions extends ASTDefault implements AST.Extensions
 {
     List<AST.Range> ranges = new ArrayList<AST.Range>();
 
     public Extensions(String name)
     {
-	super(Sort.EXTENSIONS);
-	setName(name);
+        super(Sort.EXTENSIONS);
+        setName(name);
     }
 
-    public List<AST.Range> getRanges() {return this.ranges;}
-    public void setRanges(List<AST.Range> ranges) {this.ranges = ranges;}
+    public List<AST.Range> getRanges()
+    {
+        return this.ranges;
+    }
+
+    public void setRanges(List<AST.Range> ranges)
+    {
+        this.ranges = ranges;
+    }
 }
 
 static public class
-Field extends ASTDefault implements AST.Field
+        Field extends ASTDefault implements AST.Field
 {
     Cardinality cardinality = null;
     AST.Type fieldtype = null;
     int id;
-    AST.Extend extend = null;    
+    AST.Extend extend = null;
 
     public Field(String name, Cardinality cardinality, String fieldtype, int id)
     {
-	super(Sort.FIELD);
-	setName(name);
-	setCardinality(cardinality);
-	setAnnotation(fieldtype); // temporary storage
-	setId(id);
+        super(Sort.FIELD);
+        setName(name);
+        setCardinality(cardinality);
+        setAnnotation(fieldtype); // temporary storage
+        setId(id);
     }
 
-    public Cardinality getCardinality() {return this.cardinality;}
-    public void setCardinality(Cardinality cardinality) {this.cardinality = cardinality;}
-    public AST.Type getType() {return this.fieldtype;}
-    public void setType(AST.Type fieldtype) {this.fieldtype = fieldtype;}
-    public int getId() {return this.id;}
-    public void setId(int id) {this.id = id;}
-    public AST.Extend getExtend() {return extend;}
-    public void setExtend(AST.Extend ex) {extend = ex;}
+    public Cardinality getCardinality()
+    {
+        return this.cardinality;
+    }
+
+    public void setCardinality(Cardinality cardinality)
+    {
+        this.cardinality = cardinality;
+    }
+
+    public AST.Type getType()
+    {
+        return this.fieldtype;
+    }
+
+    public void setType(AST.Type fieldtype)
+    {
+        this.fieldtype = fieldtype;
+    }
+
+    public int getId()
+    {
+        return this.id;
+    }
+
+    public void setId(int id)
+    {
+        this.id = id;
+    }
+
+    public AST.Extend getExtend()
+    {
+        return extend;
+    }
+
+    public void setExtend(AST.Extend ex)
+    {
+        extend = ex;
+    }
 }
 
 // A group node is a special case of field
 static public class
-Group extends Field implements AST.Group
+        Group extends Field implements AST.Group
 {
     public Group(String name, Cardinality cardinality, int id)
     {
-	super(name,cardinality,null,id);
-	setSort(Sort.GROUP);
-	setName(name);
+        super(name, cardinality, null, id);
+        setSort(Sort.GROUP);
+        setName(name);
     }
 }
 
 static public class
-Message extends Type implements AST.Message
+        Message extends Type implements AST.Message
 {
     // Filled in during Semantic processing
     List<AST.Field> fields = new ArrayList<AST.Field>();
@@ -356,26 +638,73 @@ Message extends Type implements AST.Message
 
     public Message(String name)
     {
-	super(Sort.MESSAGE);
-	setName(name);
+        super(Sort.MESSAGE);
+        setName(name);
     }
 
-    public List<AST.Field> getFields() {return this.fields;}
-    public void setFields(List<AST.Field> fields) {this.fields = fields;}
-    public List<AST.Enum> getEnums() {return this.enums;}
-    public void setEnums(List<AST.Enum> enums) {this.enums = enums;}
-    public List<AST.Message> getMessages() {return this.messages;}
-    public void setMessages(List<AST.Message> messages) {this.messages = messages;}
-    public List<AST.Extend> getExtenders() {return this.extenders;}
-    public void setExtenders(List<AST.Extend> extenders) {this.extenders = extenders;}
-    public List<AST.Extensions> getExtensions() {return this.extensions;}
-    public void setExtensions(List<AST.Extensions> extension) {this.extensions = extensions;}
-    public List<AST.Group> getGroups() {return this.groups;}
-    public void setGroups(List<AST.Group> groups) {this.groups = groups;}
+    public List<AST.Field> getFields()
+    {
+        return this.fields;
+    }
+
+    public void setFields(List<AST.Field> fields)
+    {
+        this.fields = fields;
+    }
+
+    public List<AST.Enum> getEnums()
+    {
+        return this.enums;
+    }
+
+    public void setEnums(List<AST.Enum> enums)
+    {
+        this.enums = enums;
+    }
+
+    public List<AST.Message> getMessages()
+    {
+        return this.messages;
+    }
+
+    public void setMessages(List<AST.Message> messages)
+    {
+        this.messages = messages;
+    }
+
+    public List<AST.Extend> getExtenders()
+    {
+        return this.extenders;
+    }
+
+    public void setExtenders(List<AST.Extend> extenders)
+    {
+        this.extenders = extenders;
+    }
+
+    public List<AST.Extensions> getExtensions()
+    {
+        return this.extensions;
+    }
+
+    public void setExtensions(List<AST.Extensions> extension)
+    {
+        this.extensions = extensions;
+    }
+
+    public List<AST.Group> getGroups()
+    {
+        return this.groups;
+    }
+
+    public void setGroups(List<AST.Group> groups)
+    {
+        this.groups = groups;
+    }
 }
 
 static public class
-Option extends ASTDefault implements AST.Option
+        Option extends ASTDefault implements AST.Option
 {
     String value;
     boolean userdefined = false;
@@ -384,107 +713,184 @@ Option extends ASTDefault implements AST.Option
 
     public Option(String name, String value)
     {
-	super(Sort.OPTION);
-	setName(name);
-	setValue(value);
+        super(Sort.OPTION);
+        setName(name);
+        setValue(value);
     }
 
-    public String getValue() {return this.value;}
-    public void setValue(String value) {this.value = value;}
-    public boolean getUserDefined() {return this.userdefined;}
-    public void setUserDefined(boolean userdefined) {this.userdefined = userdefined;}
-    public AST.Type getType() {return optiontype;}
-    public void setType(AST.Type t) {this.optiontype = t;}
-    public boolean isStringValued() {return isstringvalued;}
-    public void setStringValued(boolean tf) {isstringvalued = tf;}
+    public String getValue()
+    {
+        return this.value;
+    }
+
+    public void setValue(String value)
+    {
+        this.value = value;
+    }
+
+    public boolean getUserDefined()
+    {
+        return this.userdefined;
+    }
+
+    public void setUserDefined(boolean userdefined)
+    {
+        this.userdefined = userdefined;
+    }
+
+    public AST.Type getType()
+    {
+        return optiontype;
+    }
+
+    public void setType(AST.Type t)
+    {
+        this.optiontype = t;
+    }
+
+    public boolean isStringValued()
+    {
+        return isstringvalued;
+    }
+
+    public void setStringValued(boolean tf)
+    {
+        isstringvalued = tf;
+    }
 }
 
 static public class
-CompoundConstant extends ASTDefault implements AST.CompoundConstant
+        CompoundConstant extends ASTDefault implements AST.CompoundConstant
 {
     List<AST.Pair> members = null;
 
     public CompoundConstant(String name)
     {
-	super(Sort.COMPOUNDCONSTANT);
-	setName(name);
+        super(Sort.COMPOUNDCONSTANT);
+        setName(name);
     }
 
-    public List<AST.Pair> getMembers() {return members;}
-    public void setMembers(List<AST.Pair> members) {this.members = members;}
+    public List<AST.Pair> getMembers()
+    {
+        return members;
+    }
+
+    public void setMembers(List<AST.Pair> members)
+    {
+        this.members = members;
+    }
 }
 
 static public class
-Pair extends ASTDefault implements AST.Pair
+        Pair extends ASTDefault implements AST.Pair
 {
     Object value = null;
 
     public Pair(String name, Object value)
     {
-	super(Sort.PAIR);
-	setName(name);
-	setValue(value);
+        super(Sort.PAIR);
+        setName(name);
+        setValue(value);
     }
 
-    public Object getValue() {return value;}
-    public void setValue(Object value) {this.value = value;}
+    public Object getValue()
+    {
+        return value;
+    }
+
+    public void setValue(Object value)
+    {
+        this.value = value;
+    }
 }
 
 static public class
-RPC extends ASTDefault implements AST.RPC
+        RPC extends ASTDefault implements AST.RPC
 {
     AST.Type argtype = null;
     AST.Type returntype = null;
 
     public RPC(String name, String argtype, String returntype)
     {
-	super(Sort.RPC);
-	setName(name);
-	// Use annotation to temporarily store the type names
-	String[] names = new String[2];
-	names[0] = argtype;
-	names[1] = returntype;
-	setAnnotation(names);
+        super(Sort.RPC);
+        setName(name);
+        // Use annotation to temporarily store the type names
+        String[] names = new String[2];
+        names[0] = argtype;
+        names[1] = returntype;
+        setAnnotation(names);
     }
 
-    public AST.Type getArgType() {return this.argtype;}
-    public void setArgType(AST.Type argtype) {this.argtype = argtype;}
-    public AST.Type getReturnType() {return this.returntype;}
-    public void setReturnType(AST.Type returntype) {this.returntype = returntype;}
+    public AST.Type getArgType()
+    {
+        return this.argtype;
+    }
+
+    public void setArgType(AST.Type argtype)
+    {
+        this.argtype = argtype;
+    }
+
+    public AST.Type getReturnType()
+    {
+        return this.returntype;
+    }
+
+    public void setReturnType(AST.Type returntype)
+    {
+        this.returntype = returntype;
+    }
 }
 
 static public class
-Service extends ASTDefault implements AST.Service
+        Service extends ASTDefault implements AST.Service
 {
     // Filled in during semantic processing
     List<AST.RPC> rpcs = new ArrayList<AST.RPC>();
 
     public Service(String name)
     {
-	super(Sort.SERVICE);
-	setName(name);
+        super(Sort.SERVICE);
+        setName(name);
     }
 
-    public List<AST.RPC> getRPCs() {return this.rpcs;}
-    public void setRPCs(List<AST.RPC> rpcs) {this.rpcs = rpcs;}
+    public List<AST.RPC> getRPCs()
+    {
+        return this.rpcs;
+    }
+
+    public void setRPCs(List<AST.RPC> rpcs)
+    {
+        this.rpcs = rpcs;
+    }
 }
 
 static public class
-PrimitiveType extends Type implements AST.PrimitiveType
+        PrimitiveType extends Type implements AST.PrimitiveType
 {
     PrimitiveSort primitivesort = null;
 
     public PrimitiveType(PrimitiveSort primitivesort)
     {
-	super(Sort.PRIMITIVETYPE);
-	this.primitivesort = primitivesort;
+        super(Sort.PRIMITIVETYPE);
+        this.primitivesort = primitivesort;
         setName(primitivesort.getName());
     }
 
-    public void setuid() {index = --primitiveuid;}
+    public void setuid()
+    {
+        index = --primitiveuid;
+    }
 
-    public PrimitiveSort getPrimitiveSort() {return this.primitivesort;}
-    public void setPrimitiveSort(PrimitiveSort primitivesort) {this.primitivesort = primitivesort;}
+    public PrimitiveSort getPrimitiveSort()
+    {
+        return this.primitivesort;
+    }
+
+    public void setPrimitiveSort(PrimitiveSort primitivesort)
+    {
+        this.primitivesort = primitivesort;
+    }
 }
 
 }// class ASTDefault

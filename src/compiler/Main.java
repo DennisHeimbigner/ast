@@ -117,7 +117,8 @@ public class Main
 	}
 	FileReader rdr = new FileReader(inputfile);
 
-        ProtobufParser parser = new ProtobufParser();
+        ASTFactory factory = new ASTFactoryDefault();
+        ProtobufParser parser = new ProtobufParser(factory);
 	parser.setIncludePaths(includePaths);
 	if(optionParseDebug) parser.setDebugLevel(1);
 
@@ -138,7 +139,7 @@ public class Main
 	    Debug.setTag("trace.duplicate.package");
 	}
 	Semantics sem = new ProtobufSemantics();
-	pass = sem.process(parser.getAST(),finalargv);
+	pass = sem.process(parser.getAST(),factory,finalargv);
 	if(!pass) {
 	    System.err.println("Protobuf semantic error detected.");
 	    System.exit(1);
@@ -155,7 +156,7 @@ public class Main
         try {
             Class semanticsclass = Class.forName(semanticsclassname);
 	    Semantics semantics = (Semantics)semanticsclass.newInstance();
-	    pass = semantics.process(parser.getAST(),finalargv);
+	    pass = semantics.process(parser.getAST(),factory,finalargv);
 	    if(!pass) {
 	        System.err.println("C Generation semantic error detected.");
 	        System.exit(1);

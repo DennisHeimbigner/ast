@@ -67,24 +67,27 @@ computescopename(AST node)
 	break;
     case FILE:    
 	// If the file has a package, then use that name.
-	// If the file is the topfile, then construct a scope name
-        // from the file name
 	AST.File file = (AST.File)node;
 	if(file.getFilePackage() != null) {
 	    scopename = file.getFilePackage().getName();
 	} else {
-	    scopename = file.getName();
+	    scopename = "";
+	    /*
 	    // remove leading path
 	    int index = scopename.lastIndexOf("/");
 	    if(index >= 0)
 		scopename = scopename.substring(index+1,scopename.length());
-	    // remove trailing .proto (if any) unless remaining name is "" */
+	    // remove trailing .proto (if any) unless remaining name is ""
 	    if(scopename.endsWith(".proto")) {
 	        index = scopename.lastIndexOf(".");
 	        if(index > 0) // not >= to avoid ""
 		    scopename = scopename.substring(0,index);
 	    }
+            */
 	} break;
+    case ROOT:
+        scopename = "";
+        break;
     default: break; // use default
     }
     return scopename;
@@ -199,7 +202,7 @@ findtypebyname(String typename, AST node)
         }
         for(AST subnode: file2.getNodeSet()) {
             if(subnode instanceof AST.Type
-               && subnode.getQualifiedName().endsWith(typename)) {
+               && subnode.getQualifiedName().endsWith("."+typename)) {
                typematches.add((AST.Type)subnode);
             }
         }
@@ -324,6 +327,24 @@ sortFieldIds(List<AST.Field> fields)
 	sorted.add(min);  local.remove(min);
     }
     return sorted;
+}
+
+
+static boolean
+getbooleanvalue(String optionvalue)
+{
+    boolean boolvalue = false;
+    if(optionvalue == null)
+	boolvalue = false;
+    else if(optionvalue.equalsIgnoreCase("true"))
+	boolvalue = true;
+    else if(optionvalue.equalsIgnoreCase("false"))
+	boolvalue = false;
+    else try {
+	int num = Integer.parseInt(optionvalue);
+	boolvalue = (num != 0);
+	} catch (NumberFormatException nfe) {} // ignore
+    return boolvalue;
 }
 
 } // class AuxFcns

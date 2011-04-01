@@ -31,15 +31,84 @@
  */
 
 package unidata.protobuf.compiler;
-import static unidata.protobuf.compiler.AST.*;
 
-abstract public class Semantics
+import java.util.List;
+import java.util.ArrayList;
+import java.io.*;
+
+import static unidata.protobuf.compiler.AST.*;
+import static unidata.protobuf.compiler.Debug.*;
+
+/**
+ * Implement any needed semantic tests
+ *for generating C code.
+ */
+
+public class CSemantics extends Semantics
 {
 
-public boolean process(AST.Root root, String[] argv) {return process(root,new ASTFactoryDefault(),argv);}
+//////////////////////////////////////////////////
 
-abstract public boolean process(AST.Root root, ASTFactory factory, String[] argv);
+ASTFactory factory = null;
 
+//////////////////////////////////////////////////
+// Constructor
+public CSemantics() {}
+
+//////////////////////////////////////////////////
+
+public boolean process(AST.Root root, ASTFactory factory, String[] argv)
+{
+    this.factory = factory;
+    if(!checkdupctypes(root)) return false;
+    if(!fixstringoptions(root)) return false;
+    return true;
+}
+
+boolean
+checkdupctypes(AST.Root root)
+{
+    // Since the C code generates all message types as top-level
+    // structs, we must check to see that we do not have any
+    // duplicates; similarly for enums.
+    List<AST> allenums = new ArrayList<AST>();
+    List<AST> allmsgs = new ArrayList<AST>();
+    for(AST node: root.getNodeSet()) {
+        switch (node.getSort()) {
+        case ENUM:
+	    for(AST e: allenums) {
+		if(e.getName().equals(node.getName()))
+		    return duperror(node,e,"Duplicate Enum Names; will prevent proper C code generation");
+            }
+            break;
+        case MESSAGE:
+	    for(AST msg: allmsgs) {
+		if(msg.getName().equals(node.getName()))
+		    return duperror(node,msg,"Duplicate Message Names; will prevent proper C code generation");
+            }
+            break;
+        default:
+	    break;
+        }
+    }
+    return true;
+}
+
+boolean
+fixstringoptions(AST.Root root)
+{
+    for(AST node: root.getNodeSet()) {
+	if(node.getSort() != AST.Sort.OPTION) continue;
+	AST.Option option = (AST.Option)node;
+	if(!option.isStringValued()) continue;
+        String value = option.getValue();
+	/* Add quotes and escapes */
+	value = '"'
+	        + AuxFcns.escapify(value,'"',AuxFcns.EscapeMode.EMODE_C)
+		+ '"';
+        option.setValue(value);
+    }
+    return true;
+}
 
 } // class Semantics
-

@@ -257,8 +257,8 @@ static void printTreeR(AST node, int depth,
                 for(AST subnode : root.getPackageSet())
                     printTreeR(subnode,depth+1,writer,presemantic);
             } break;
-        case PACKAGE:
-            AST.Package p = (AST.Package)node;
+        case FILE:
+            AST.File p = (AST.File)node;
             if(p.getOptions() != null) {
                 for(AST subnode : p.getOptions())
                     printTreeR(subnode,depth+1,writer,presemantic);
@@ -271,8 +271,8 @@ static void printTreeR(AST node, int depth,
                 for(AST subnode : p.getMessages())
                     printTreeR(subnode,depth+1,writer,presemantic);
             }
-            if(p.getExtenders() != null) {
-                for(AST subnode : p.getExtenders())
+            if(p.getExtends() != null) {
+                for(AST subnode : p.getExtends())
                     printTreeR(subnode,depth+1,writer,presemantic);
             }
             if(p.getServices() != null) {
@@ -348,7 +348,7 @@ static void printTreeR(AST node, int depth,
             break;
         case RPC:
         // No children
-        case FILE:
+        case PACKAGE:
         case ENUMVALUE:
         case OPTION:
         case PRIMITIVETYPE:

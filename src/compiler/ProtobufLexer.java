@@ -521,11 +521,17 @@ class ProtobufLexer implements Lexer {
     /* Capture and restore to/from file stack */
     public boolean pushFileStack(String importfile)
             throws IOException {
+	// Check for cyclic imports
+	for(FileEntry e: filestack) {
+            if(importfile.equals(e.filename))
+	        throw new IOException("Cyclic import sequence: "+importfile);
+        }
         importfile = AuxFcns.locatefile(importfile, includepaths); // use include paths
         File f = new File(importfile);
         if (!f.canRead()) return false;
         FileReader fr = new FileReader(f);
         FileEntry entry = new FileEntry();
+        entry.filename = importfile;
         entry.stream = stream;
         entry.pos = this.pos.clone();
         filestack.push(entry);

@@ -63,11 +63,13 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /*
-This generator generates two files per package:
-1. <package>.h and
-2. <package>.c
+This generator generates two files per proto file.
+1. <protofile>.h and
+2. <protofile>.c
 Thus, if a user has imports, then those import files
 must be separately compiled.
+Exception: if the option "include=true" is set for a file,
+then its declarations are generated also.
 */
 
 package unidata.protobuf.compiler;
@@ -124,7 +126,7 @@ static public class Annotation
 {
     String fileprefix = null;
     String filebase = null;
-    boolean generatecode = false;
+    List<AST.File> includes = null;
 }
 
 //////////////////////////////////////////////////
@@ -246,15 +248,32 @@ generate(AST.Root root, String[] argv) throws Exception
     }
 
     // Find files that will contribute code
-    String generators = topfile.optionLookup("generate");
-    if(generators != null) {
-	String[] files = generators.split(",");
-	for(AST.File f: root.getFileSet()) {
-	    for(String fname: files) {
-		if(f.getName().equals(fname) && !codefiles.contains(f))
-		    codefiles.add(f);
-	    }	    
-	}
+    List<String> includes = new ArrayList<String>();
+    // Topfile is always treated like include
+    // prime the search
+    codefiles.add(topfile);
+    String optinclude = topfile.optionLookup("include");
+    if(optinclude != null) {
+	// transitive closure over include option
+	boolean more;
+	do {
+	    more = false; // until proven otherwise
+breakpoint: for(AST.File file: codefiles) {
+	        optinclude = file.optionLookup("include");
+		if(optinclude == null ||  optinclude.length() == 0)
+		    break breakpoint;
+	        String[] names = optinclude.split(",");
+	        for(String name: names) {
+	            String n = name.trim();
+	            AST.File f = matchfile(n,root.getFileSet());
+	            if(f != null && !codefiles.contains(f)) {
+			codefiles.add(f);
+			more = true;
+			break breakpoint;
+		    }			
+		}
+	    }
+	} while(more);
     }
 
     // Compute the C output file name
@@ -272,6 +291,7 @@ generate(AST.Root root, String[] argv) throws Exception
 
     // outputdir overrides any prefix
     if(outputdir != null) prefix = outputdir;
+    if(prefix.length() == 0) prefix = ".";
     Annotation a = (Annotation)topfile.getAnnotation();
     a.filebase = basename;
     a.fileprefix = prefix;
@@ -333,6 +353,16 @@ generate(AST.Root root, String[] argv) throws Exception
     return true;
 } // generate()
 
+
+static AST.File
+matchfile(String fname, List<AST.File> files)
+{
+    for(AST.File f: files) {
+	if(f.getName().equals(fname)) return f;
+    }
+    return null;
+}
+
 void
 generate_h(AST.File topfile, List<AST.File> files, Printer printer)
 	throws Exception
@@ -344,18 +374,16 @@ generate_h(AST.File topfile, List<AST.File> files, Printer printer)
 
     for(AST.File f: files) {
         // Generate the enum definitions
-        for(AST ast: f.getNodeSet()) {
-   	    if(ast.getSort() != AST.Sort.ENUM) continue;
-	    generate_enum((AST.Enum)ast,printer);
+        for(AST.Enum ast: f.getEnums()) {
+	    generate_enum(ast,printer);
 	}
     }
 
     // Generate the message structure forwards
+    printer.blankline();
+    printer.printf("/* Forward definitions */\n");
     for(AST.File f: files) {
-        printer.blankline();
-        printer.printf("/* Forward definitions */\n");
-        for(AST ast: f.getNodeSet()) {
-	    if(ast.getSort() != AST.Sort.MESSAGE) continue;
+        for(AST.Message ast: f.getMessages()) {
             printer.printf("typedef struct %s %s;\n",
 		converttocname(ast.getName()),
 		converttocname(ast.getName()));
@@ -364,9 +392,8 @@ generate_h(AST.File topfile, List<AST.File> files, Printer printer)
 
     // Generate the message structures
     for(AST.File f: files) {
-        for(AST ast: f.getNodeSet()) {
-	    if(ast.getSort() != AST.Sort.MESSAGE) continue;
-	    generate_messagestruct((AST.Message)ast,printer);
+        for(AST.Message ast: f.getMessages()) {
+	    generate_messagestruct(ast,printer);
 	}
     }
 
@@ -398,6 +425,10 @@ generate_enum(AST.Enum e, Printer printer) throws Exception
 void
 generate_messagestruct(AST.Message msg, Printer printer) throws Exception
 {
+    // If the "declare" option is set, then do nothing
+    if(AuxFcns.getbooleanvalue(msg.optionLookup("declare")))
+	return;
+
     Annotation a = (Annotation)msg.getAnnotation();
     printer.blankline();
     printer.printf("struct %s {\n",converttocname(msg.getName()));
@@ -475,6 +506,10 @@ void
 generate_messagefunctions(AST.Message msg, Printer printer)
     throws Exception
 {
+    // If the "declare" option is set, then do nothing
+    if(AuxFcns.getbooleanvalue(msg.optionLookup("declare")))
+	return;
+
     generate_writefunction(msg,printer);
     printer.blankline();
     generate_readfunction(msg,printer);
@@ -595,7 +630,8 @@ generate_writefunction(AST.Message msg, Printer printer)
     }
     printer.outdent();
     printer.blankline();
-    printer.println("done:");
+    if(msg.getFields().size() > 0)
+        printer.println("done:");
     printer.indent();
     printer.println("return status;");
     printer.outdent();
@@ -857,8 +893,9 @@ generate_read_default_primitive(AST.Message msg, AST.Field field, Printer printe
 	    field_default = "0";
     } break;
     case STRING:
-	field_default = '"' + AuxFcns.escapify(field_default,'"',
-				AuxFcns.EscapeMode.EMODE_C) + '"';
+        if(field_default != null)
+	    field_default = '"' + AuxFcns.escapify(field_default,'"',
+				      AuxFcns.EscapeMode.EMODE_C) + '"';
      break;
     default: break;
     }
@@ -1007,7 +1044,8 @@ void generate_sizefunction(AST.Message msg, Printer printer)
     printer.println("{");
     printer.indent();
     printer.println("size_t totalsize = 0;");
-    printer.println("size_t fieldsize = 0;");
+    if(msg.getFields().size() > 0)
+        printer.println("size_t fieldsize = 0;");
     printer.blankline();
 
     // sum the field sizes; make sure to include the tag if not packed

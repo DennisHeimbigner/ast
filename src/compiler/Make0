@@ -5,7 +5,9 @@ CURLCONFIG=curl-config
 TESTS=Primtests.proto Bytetests.proto Msgtests.proto Enumtests.proto
 
 RTSRC=ast_runtime.c ast_internal.c ast_byteio.c ast_debug.c ast_util.c
-TESTSRC=testast.c ${TESTS:%.proto=%.c}
+TESTC=${TESTS:%.proto=%.c}
+TESTH=${TESTS:%.proto=%.h}
+TESTSRC=testast.c ${TESTC}
 CRSRC=testcr.c ast_curl.c ncstream.c nccr.c
 
 TOPDIR=d:/IdeaProjects/ast/src/compiler
@@ -45,7 +47,7 @@ CLASSES=${SRC:%.java=${BUILDDIR}/${ASTPATH}/%.class}\
 all: jar gen c
 
 gen:
-	for t in ${TESTS} ; do java -jar ${JAR} ${W} $$t ; done
+	for t in ${TESTS} ; do java -jar ${JAR} ${W} $${t} ; done
 
 jar ${JAR}: ${CLASSES} ${MF}
 	jar -cmf ${MF} ${JAR} ${PACKAGES:%=-C ${BUILDDIR} %}
@@ -71,9 +73,10 @@ clean::
 	rm -f  $(PARSER) Protobuf.output
 	rm -fr $(BUILDDIR)
 	rm -f ${MF} ${JAR}
-	rm -f ${TESTS:%.proto=%.c} ${TESTS:%.proto=%.h}
+	rm -f ${TESTC} ${TESTH}
 	rm -f *.o
 	rm -f testast testast.exe testcr testcr.exe
+	rm -f *.pb.cc *.pb.h
 
 # The sed operations are to fix some bugs in the generated java code
 #	bison -v -t -L Java $(GRAMMAR) -o ./tmp
@@ -100,5 +103,5 @@ t::
 	java -jar ${JAR} ${W} -I. yyy.proto
 
 cr:
-	java -jar ${JAR} -Dgenerate="xxx,yyy" ${W} -I. yyy.proto
+	java -jar ${JAR} ${W} -I. ncstream.proto
 	gcc -static ${CFLAGS} -I. ${INCL} -o testcr ${CRSRC} ${RTSRC} ${LIBS}

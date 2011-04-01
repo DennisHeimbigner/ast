@@ -50,12 +50,24 @@ static boolean ctrl = true;
 
 //////////////////////////////////////////////////
 
+ASTFactory factory = null;
+
+//////////////////////////////////////////////////
+
 public boolean
-process(AST.Root root, String[] argv)
+process(AST.Root root, ASTFactory factory, String[] argv)
 {
+    this.factory = factory;
+
     PrintWriter w = new PrintWriter(System.err);
     Debug.printprops.qualified = true;
 //    Debug.printprops.useuid = true;
+
+    if(!rootsetup(root)) return false;
+    if(ctrl && Debug.enabled("trace.semantics.steps")) {
+        w.println("\nrootsetup:");
+        Debug.printTreeNodes(root,w);        
+    }
 
     if(!collectglobalnodesets(root,root)) return false;
     if(ctrl && Debug.enabled("trace.semantics.steps")) {
@@ -69,7 +81,7 @@ process(AST.Root root, String[] argv)
 	Debug.printTreeNodes(root,w);
     }
 
-    if(!setfilelink(root,null)) return false;
+    if(!setfilelink(root)) return false;
     if(ctrl&& Debug.enabled("trace.semantics.steps")) {
         w.println("\nsetfilelink:");
 	Debug.printTreeNodes(root,w);
@@ -114,9 +126,10 @@ process(AST.Root root, String[] argv)
 	Debug.printTreeNodes(root,w);
     }
 
+    if(!checkmisc1(root)) return false;
+
     if(!applyExtensions(root)) return false;
 
-    if(!checkmisc1(root)) return false;
     if(!mapoptions(root)) return false;
 
     Debug.resetprintprops();
@@ -155,6 +168,71 @@ void verify(AST.Root root)
 
 /**
  * Pass does the following:
+ * - Place the set of primitive type nodes in the root
+ * - Cross Link package to file
+ * - Check for multiple package decls in a file
+ * - check for multiple instances of same file
+ *
+ * @param node The current node being walked
+ * @param root The AST tree root
+ * @return true if the processing succeeded.
+*/
+
+boolean
+rootsetup(AST.Root root)
+{
+    // Place the set of primitive type nodes in the root
+    // Construct the primitive type nodes
+    List<AST.PrimitiveType> primitives = new ArrayList<AST.PrimitiveType>();
+    for(AST.PrimitiveSort prim: AST.PrimitiveSort.values()) {
+	AST.PrimitiveType pt = factory.newPrimitiveType(prim);
+	primitives.add(pt);
+    }
+    root.setPrimitiveTypes(primitives);
+
+    // Remove duplicate imported files
+    List<AST.File> dups = new ArrayList<AST.File>();
+    for(AST ast: root.getChildSet()) {
+	if(ast.getSort() != AST.Sort.FILE) continue;
+	AST.File file = (AST.File)ast;
+        for(AST ast1: root.getChildSet()) {
+	    if(ast1.getSort() != AST.Sort.FILE) continue;
+            if(ast1 == file) continue;
+	    AST.File file1 = (AST.File)ast1;
+	    if(file1.getName().equals(file.getName())) {
+		dups.add(file);
+	    }
+	}
+    }
+    for(AST.File file: dups) {
+	root.getChildSet().remove(file);
+    }
+
+    // Cross link files and packages
+    for(AST ast: root.getChildSet()) {
+	if(ast.getSort() != AST.Sort.FILE) continue;
+	AST.File file = (AST.File)ast;
+	AST.Package p = null;
+        for(AST decl: file.getChildSet()) {	
+	    if(decl.getSort() == AST.Sort.PACKAGE) {
+		if(p != null) {
+		    // complain and ignore
+		    semerror(file,"File: "+file.getName()+"; multiple package declarations");
+		} else p = (AST.Package)decl;
+	    }
+	}
+	file.setFilePackage(p);	
+        if(p != null) { // move to front of decllist
+	    file.getChildSet().remove(p);
+	    file.getChildSet().add(0,p);
+	    p.setSrcFile(file);
+	}
+    }
+    return true;
+}
+
+/**
+ * Pass does the following:
  * - Collect all nodes
  * - Collect all package nodes and all file nodes
  * - link all nodes to the root
@@ -174,7 +252,8 @@ collectglobalnodesets(AST node, AST.Root root)
     // Collect selected sets of nodes
     switch (node.getSort()) {
     case FILE:
-	root.getFileSet().add((AST.File)node);
+	if(!root.getFileSet().contains((AST.File)node))
+            root.getFileSet().add((AST.File)node);
 	// Make sure the package is included
 	if(!collectglobalnodesets(((AST.File)node).getFilePackage(),root)) return false;
 	break;
@@ -259,29 +338,12 @@ collectsubtreesr(AST thisnode)
 */
 
 boolean
-setfilelink(AST node, AST.File currentfile)
+setfilelink(AST.Root root)
 {
-    node.setSrcFile(currentfile);
-    for(AST ast: node.getChildSet()) {
-	if(ast.getSort() == AST.Sort.FILE) {
-	    AST.File f = (AST.File)ast;
-	    // verify only one package
-	    AST.Package p = null;
-	    for(AST n: f.getChildSet()) {
-	        if(n.getSort() != AST.Sort.PACKAGE) continue;
-	        if(p == null)
-		    p = (AST.Package)n;
-	        else if(n != p) {
-                    semerror(f,"File: "+f.getName()+"; multiple package declarations");
-	        }
-	    }
-	    currentfile = f;
-	}
-	// recurse using this file as the current file
-	for(AST subnode: ast.getChildSet()) {
-            if(subnode.getSort() == AST.Sort.FILE) continue; // files will be handled above
-	    if(!setfilelink(subnode,currentfile)) return false;
-	}
+    for(AST.File f: root.getFileSet()) {
+        for(AST node: f.getNodeSet()) {
+            node.setSrcFile(f);
+        }
     }
     return true;
 }
@@ -291,8 +353,7 @@ setfilelink(AST node, AST.File currentfile)
  * - Link subnodes to closest containing package
  *   [note: implements #include semantics]
  *
- * @param node The current root for a subtree
- * @param currentpackage The currently containing package
+ * @param root AST.root
  * @return true if the processing succeeded.
 */
 
@@ -324,29 +385,29 @@ collectnodesets(AST.Root root)
     // Divide children lists
     for(AST node: allnodes) {
         switch (node.getSort()) {
-        case PACKAGE:
-            AST.Package astpackage = (AST.Package)node;
-            astpackage.setMessages(new ArrayList<AST.Message>());
-            astpackage.setExtenders(new ArrayList<AST.Extend>());
-            astpackage.setEnums(new ArrayList<AST.Enum>());
-            astpackage.setOptions(new ArrayList<AST.Option>());
-            astpackage.setServices(new ArrayList<AST.Service>());
-            for(AST ast: astpackage.getChildSet()) {
+        case FILE:
+            AST.File astfile = (AST.File)node;
+            astfile.setMessages(new ArrayList<AST.Message>());
+            astfile.setExtends(new ArrayList<AST.Extend>());
+            astfile.setEnums(new ArrayList<AST.Enum>());
+            astfile.setOptions(new ArrayList<AST.Option>());
+            astfile.setServices(new ArrayList<AST.Service>());
+            for(AST ast: astfile.getNodeSet()) {
                 switch(ast.getSort()) {
                 case ENUM:
-                    astpackage.getEnums().add((AST.Enum)ast);
+                    astfile.getEnums().add((AST.Enum)ast);
                     break;
                 case EXTEND:
-                    astpackage.getExtenders().add((AST.Extend)ast);
+                    astfile.getExtends().add((AST.Extend)ast);
                     break;
                 case MESSAGE:
-                    astpackage.getMessages().add((AST.Message)ast);
+                    astfile.getMessages().add((AST.Message)ast);
                     break;
                 case OPTION:
-                    astpackage.getOptions().add((AST.Option)ast);
+                    astfile.getOptions().add((AST.Option)ast);
                     break;
                 case SERVICE:
-                    astpackage.getServices().add((AST.Service)ast);
+                    astfile.getServices().add((AST.Service)ast);
                     break;
                 default: /*ignore*/ break;
                 }
@@ -436,7 +497,7 @@ collectnodesets(AST.Root root)
         // Cases where no extra action is required in pass
         case GROUP:
         case ROOT:
-        case FILE:
+        case PACKAGE:
         case EXTENSIONS:
         case OPTION:
         case RPC:
@@ -480,11 +541,9 @@ setscopenames(AST.Root root)
 boolean
 qualifynames(AST.Root root)
 {
-    for(AST.File file : root.getFileSet()) {
-	String qname = file.getScopeName();
-	for(AST ast: file.getChildSet()) {
-   	    if(!qualifynamesr(ast,qname)) return false;
-	}
+    String qname = "";
+    for(AST ast: root.getChildSet()) {
+	if(!qualifynamesr(ast,qname)) return false;
     }
     return true;
 }
@@ -499,18 +558,28 @@ qualifynames(AST.Root root)
 boolean
 qualifynamesr(AST ast, String qualprefix)
 {
+    AST.Root root = ast.getRoot();
     String qname = null;
     switch (ast.getSort()) {
 
     // Following cases all do simple suffixing
     case ENUM:
     case ENUMVALUE:
-    case FIELD:
     case MESSAGE:
     case RPC:
     case SERVICE:
 	if(qualprefix == null) qualprefix = "";
 	qname = qualprefix + "." + ast.getScopeName();
+	break;
+
+    case FIELD:
+	// fields that are part of an extend have no qualified name
+	if(ast.getParent().getSort() == AST.Sort.EXTEND)
+	    qname = null;
+        else {
+	    if(qualprefix == null) qualprefix = "";
+	    qname = qualprefix + "." + ast.getScopeName();
+	}
 	break;
 
     case FILE:
@@ -520,12 +589,12 @@ qualifynamesr(AST ast, String qualprefix)
 	} else {
 	    qname = "";
 	}
-	break;	    
+	break;
 
     // Ignore the prefix
     case PACKAGE:
     case PRIMITIVETYPE:
-	qname = ast.getScopeName();
+	qname = root.getScopeName()+"."+ast.getScopeName();
 	break;
 
     // These do not have qualifiednames
@@ -558,8 +627,10 @@ checkduplicatenames(AST.Root root)
 {
     List<AST> allnodes = root.getNodeSet();
     for(AST ast1 : allnodes) {
+        if(ast1.getSort() == AST.Sort.FILE || ast1.getSort() == AST.Sort.PACKAGE) continue;
         for(AST ast2 : allnodes) {
 	    if(ast2 == ast1 || ast2.getQualifiedName() == null) continue;
+            if(ast2.getSort() == AST.Sort.FILE || ast2.getSort() == AST.Sort.PACKAGE) continue;
 	    // special case testing
 	    if(ast2.getQualifiedName().equals(ast1.getQualifiedName())) {
 		// report and keep going
@@ -664,42 +735,22 @@ dereference(AST.Root root)
 static public boolean
 applyExtensions(AST.Root root)
 {
-    List<AST> allnodes = root.getNodeSet();
     // Locate extension nodes and insert into the corresponding
     // base message; also mark fields as extensions
-    for(AST ast1 : allnodes) {
-	if(ast1.getSort() != AST.Sort.EXTEND) continue;
-	AST.Extend extend = (AST.Extend)ast1;
-	AST.Message base = extend.getMessage();
-	List<Field> basefields = base.getFields();
-	List<Field> newfields = new ArrayList<Field>();
-	for(AST.Field efield: extend.getFields()) {
-	    boolean ok = true;
-	    boolean more = true;
-	    // Check to see if a field of the same name or id
-            // already exists
-	    for(AST.Field mfield: basefields) {
-		if(mfield.getName().equals(efield.getName())
-		   || mfield.getId() == efield.getId()) {
-		    System.err.printf("Extension field %s.%s duplicates Message field %s.%s\n",
-					extend.getName(),efield.getName(),
-					base.getName(),mfield.getName());
-
-		} else
-		    newfields.add(efield); // capture fields to add
-	    }
+    for(AST.File f : root.getFileSet()) {
+        for(AST.Extend extend : f.getExtends()) {
+            AST.Message base = extend.getMessage();
+            for(AST.Field efield: extend.getFields()) {
+                efield.setExtend(extend);
+                // fix links : package and parent
+                efield.setSrcFile(base.getSrcFile());
+                efield.setParent(base.getParent());
+                base.getFields().add(efield);
+                // Recompute qualified name
+                efield.setQualifiedName(AuxFcns.computequalifiedname(efield));
+            }
+            //base.setFields(AuxFcns.sortFieldIds(base.getFields()));
         }
-	for(AST.Field field: newfields) {
-	    field.setExtend(extend);
-	    basefields.add(field);
-	    // fix links : package and parent
-	    field.setSrcFile(base.getSrcFile());
-	    field.setParent(base.getParent());
-	    base.getFields().add(field);
-	    // Recompute qualified name
-	    field.setQualifiedName(AuxFcns.computequalifiedname(field));
-	}
-	base.setFields(AuxFcns.sortFieldIds(basefields));
     }
     return true;
 }
@@ -708,7 +759,7 @@ applyExtensions(AST.Root root)
  * Pass does the following:
  * - Check that all msg ids appear legal and are not duplicates
  * - Check for duplicate enum field values 
- *
+ * - Check that extend fields do not conflict with the base message
  * @param root AST.root
  * @return true if the processing succeeded.
 */
@@ -753,10 +804,30 @@ checkmisc1(AST.Root root)
             if(field.getId() < 0 || field.getId() >= AST.MAXFIELDID)
                 semerror(node,"Illegal message field id"+field.getId());
             break;
+
+        case EXTEND:
+	    AST.Extend extend = (AST.Extend)node;
+	    AST.Message base = extend.getMessage();
+	    for(AST.Field efield: extend.getFields()) {
+	        // Check to see if a field of the same name or id
+                // already exists
+	        for(AST.Field mfield: base.getFields()) {
+		    if(mfield.getName().equals(efield.getName())
+		       || mfield.getId() == efield.getId()) {
+		        semerror(efield,String.format("Extension field %s.%s duplicates Message field %s.%s\n",
+					extend.getName(),efield.getName(),
+					base.getName(),mfield.getName()));
+
+		    }
+		}
+	    }
+	    break;
+
         default:
 	    break;
         }
     }
+
     return true;
 }
 
@@ -772,10 +843,11 @@ checkmisc1(AST.Root root)
  * @param root The AST tree root
  * @return true if the processing succeeded.
 */
+
 boolean
 mapoptions(AST.Root root)
 {
-    /* Add in -D flags  and make default be to generate code*/
+    /* Add in -D flags */
     AST.File topfile = root.getTopFile();
     for(String key: System.getProperties().stringPropertyNames()) {
 	String value = System.getProperty(key);
@@ -784,34 +856,27 @@ mapoptions(AST.Root root)
 	}
     }
 
+    // Canonicalizes various option names and values
     for(AST ast: root.getNodeSet()) {
-	if(ast.getOptions() != null && ast.getOptions().size() > 0)
+	if(ast.getOptions() != null && ast.getOptions().size() > 0) {
 	    for(AST.Option option: ast.getOptions()) {
                 String optionname = option.getName();
                 String optionvalue = option.getValue();
-                if(optionname.equalsIgnoreCase("default")) optionname = "DEFAULT";
+                if(optionname.equalsIgnoreCase("default")) {
+		    optionname = "DEFAULT";
+                } else if(optionname.equalsIgnoreCase("packed")) {
+		    boolean tf = AuxFcns.getbooleanvalue(optionvalue);
+		    optionvalue = (tf?"true":"false");		    
+		    ast.setIsPacked(tf);
+                } else if(optionname.equalsIgnoreCase("declare")) {
+		    boolean tf = AuxFcns.getbooleanvalue(optionvalue);
+		    optionvalue = (tf?"true":"false");		    
+		}
 		ast.setOptionMap(optionname,optionvalue);
-		if(optionname.equalsIgnoreCase("packed"))
-		    ast.setIsPacked(getbooleanvalue(optionvalue));
 	    }
+	}
     }
     return true;
 }
-
-static boolean
-getbooleanvalue(String optionvalue)
-{
-    boolean ispacked = false;
-    if(optionvalue.equalsIgnoreCase("true"))
-	ispacked = true;
-    else if(optionvalue.equalsIgnoreCase("false"))
-	ispacked = false;
-    else try {
-	int num = Integer.parseInt(optionvalue);
-	ispacked = (num != 0);
-	} catch (NumberFormatException nfe) {} // ignore
-    return ispacked;
-}
-
 } // class Semantics
 

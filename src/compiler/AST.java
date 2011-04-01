@@ -183,6 +183,7 @@ AST
 
     String optionLookup(String key);
     void setOptionMap(String key, String value);
+    void unsetOptionMap(String key);
 
     // Add specific checks for certain true/false options
     boolean isPacked();
@@ -206,9 +207,6 @@ Root extends AST
     List<PrimitiveType> getPrimitiveTypes();
     void setPrimitiveTypes(List<PrimitiveType> primitivetypes);
 
-    Package getTopPackage();
-    void setTopPackage(Package p);
-
     File getTopFile();
     void setTopFile(File p);
 }
@@ -222,6 +220,19 @@ File extends AST
     void setFilePackage(Package astpackage);
     List<File> getImports();
     void setImports(List<File> imports);
+
+    // The following define the three important sets of decls
+    List<Message> getMessages();
+    void setMessages(List<Message> sessages);
+
+    List<Extend> getExtends();
+    void setExtends(List<Extend> extenders);
+
+    List<Enum> getEnums();
+    void setEnums(List<Enum> enums);
+
+    List<Service> getServices();
+    void setServices(List<Service> services);
 }
 
 public interface
@@ -230,19 +241,7 @@ Package extends AST
     File getPackageFile();
     void setPackageFile(File astfile);
 
-    // Define a pseudo package for use with files with no package decl.
-    boolean isPseudoPackage();
-    void setPseudoPackage(boolean tf);
 
-    List<Message> getMessages();
-    void setMessages(List<Message> sessages);
-    List<Extend> getExtenders();
-    void setExtenders(List<Extend> extenders);
-
-    List<Enum> getEnums();
-    void setEnums(List<Enum> enums);
-    List<Service> getServices();
-    void setServices(List<Service> services);
 }
 
 public interface

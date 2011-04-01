@@ -32,6 +32,7 @@ import unidata.protobuf.compiler.AST.Position;
     public ProtobufParser(ASTFactory factory)
     {
         super(factory);  
+        if(factory == null) factory = new ASTFactoryDefault();
         this.yylexer = new ProtobufLexer(this);
         this.lexstate = (ProtobufLexer)this.yylexer;
     }

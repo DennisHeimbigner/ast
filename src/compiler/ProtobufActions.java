@@ -60,7 +60,6 @@ static class Constant
     ASTFactory astfactory = null;
     AST.Root ast = null; // root node of the AST
     String filename = null;
-    List<AST.PrimitiveType> primitives = null;
     String importfilename = null; // temporary storage    
 
 //////////////////////////////////////////////////
@@ -76,12 +75,6 @@ ProtobufActions(ASTFactory factory)
     state = this;
     if(factory == null) factory = new ASTFactoryDefault();
     this.astfactory = factory;
-    // Construct the primitive type nodes
-    primitives = new ArrayList<AST.PrimitiveType>();
-    for(AST.PrimitiveSort prim: AST.PrimitiveSort.values()) {
-	AST.PrimitiveType pt = factory.newPrimitiveType(prim);
-	primitives.add(pt);
-    }
 }
 
 public void
@@ -125,9 +118,6 @@ protobufroot(Object file0)
     this.ast = root;
     root.setTopFile(file);
     root.getChildSet().add(file);
-    root.setTopPackage(file.getFilePackage());
-    // Place the set of primitive type nodes in the root
-    root.setPrimitiveTypes(primitives);
 }
 
 Object
@@ -136,23 +126,6 @@ protobuffile(Object decllist0)
     AST.File f = astfactory.newFile(null);
     f.getChildSet().addAll((List<AST>)decllist0);
     f.setPosition(position());
-    // See if the file has a (single) package declaration (must be top level)
-    // If so, then capture it and attach it to the file
-    AST.Package p = null;
-    for(AST ast: f.getChildSet()) {
-	if(ast.getSort() == AST.Sort.PACKAGE) {
-	    if(p == null) {// First found is chosen package
-	        p = (AST.Package)ast;
-		break;
-	    }
-	}
-    }
-    if(p != null) { // attach to file and move to front of decllist
-	f.getChildSet().remove(p);
-	f.getChildSet().add(0,p);
-        f.setFilePackage(p);
-	p.setSrcFile(f);
-    }
     return f;
 }
 
@@ -196,10 +169,14 @@ filepush()
 {
     // push file stack
     boolean ok = true;
+    String errmsg = null;
     try {
         ok = lexstate.pushFileStack(importfilename);
-    } catch (Exception e) {  ok = false; }
-    if(!ok) parseError("import file failure: "+importfilename);
+    } catch (Exception e) {  ok = false; errmsg = e.toString();}
+    if(!ok) {
+        errmsg = "import file failure: "+importfilename + (errmsg==null?"":errmsg);
+        parseError(errmsg);
+    }
     importfilename = null;
     return ok;
 }

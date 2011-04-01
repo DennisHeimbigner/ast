@@ -11,6 +11,7 @@
       <excludeFolder url="file://$MODULE_DIR$/compiler/ckp1" />
       <excludeFolder url="file://$MODULE_DIR$/compiler/ckp2" />
       <excludeFolder url="file://$MODULE_DIR$/compiler/ckp3" />
+      <excludeFolder url="file://$MODULE_DIR$/compiler/ckp4" />
       <excludeFolder url="file://$MODULE_DIR$/compiler/save" />
       <excludeFolder url="file://$MODULE_DIR$/compiler/testdata1" />
       <excludeFolder url="file://$MODULE_DIR$/cpp" />
