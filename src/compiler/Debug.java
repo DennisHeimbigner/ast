@@ -203,7 +203,7 @@ static void printR(AST node, int depth, PrintWriter writer)
 
 private static void printSimpleOption(String name, AST.Option option, PrintWriter writer)
 {
-    if(option.getUserDefined()) {
+    if(option.getOptionDef().userdefined) {
         writer.printf("(%s) = %s",name,option.getValue());
     } else if(name.equals(AST.DEFAULTNAME))
         writer.printf("DEFAULT = %s",option.getValue());

@@ -119,6 +119,7 @@ protobufroot(Object file0)
     this.ast = root;
     root.setTopFile(file);
     root.getChildSet().add(file);
+    root.setOptionDefs(optiondefs);
 }
 
 Object

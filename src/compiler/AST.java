@@ -206,12 +206,13 @@ AST
     void setOptionMap(String key, String value);
     void unsetOptionMap(String key);
 
-    // manage the option definitions
-    boolean setOptionDef(List<OptionDef> defs);
-    List<OptionDef> getOptionDefs();
-
     boolean isPacked();
     void setIsPacked(boolean tf);
+
+    // manage the option definitions
+    void setOptionDefs(List<OptionDef> defs);
+    List<OptionDef> getOptionDefs();
+    OptionDef getOptionDef(String key);
 
     String toString();
 
@@ -337,13 +338,11 @@ Message extends Type
 public interface
 Option extends AST
 {
+    OptionDef getOptionDef();
+    void setOptionDef(OptionDef od);
     String getValue();
     void setValue(String value);
-    boolean getUserDefined();
-    void setUserDefined(boolean userdefined);
-    Type getType();
-    void setType(Type t);
-    // Specifically call out string valued options
+    // Specifically call out string values
     boolean isStringValued();
     void setStringValued(boolean tf);
 }

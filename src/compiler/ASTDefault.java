@@ -63,7 +63,7 @@ List<AST> childset = new ArrayList<AST>(); // immediate children
 List<AST> nodeset = new ArrayList<AST>(); // All nodes under this node;
 // null except for root and packages
 List<AST.Option> options = new ArrayList<AST.Option>();
-Map<String, String> optionmap = new HashMap<OptionDef, String>();
+Map<OptionDef, String> optionmap = new HashMap<OptionDef, String>();
 List<AST.OptionDef> optiondefs = new ArrayList<AST.OptionDef>();
 
 int refcount = 0;
@@ -231,9 +231,9 @@ public void setOptions(List<AST.Option> options)
 
 public void addOption(AST.Option option)
 {
-    for(Option opt: options) {
+    for(AST.Option opt: options) {
 	if(opt.getName().equals(option.getName()))
-	    semerror(option,"Duplicate option names:"+opt.getName());
+	    Debug.semerror(option,"Duplicate option names:"+opt.getName());
     }
     this.options.add(option);
 }
@@ -246,7 +246,10 @@ public String optionLookup(String key)
 
 public void setOptionMap(String key, String value)
 {
-    this.optionmap.put(key, value);
+    OptionDef def = getOptionDef(key);
+    if(def == null)
+        Debug.semerror(null,"unknown option:"+key);
+    else this.optionmap.put(def, value);
 }
 
 public void unsetOptionMap(String key)
@@ -254,8 +257,8 @@ public void unsetOptionMap(String key)
     this.optionmap.remove(key);
 }
 
-public boolean
-setOptionDef(List<AST.OptionDef> defs)
+public void
+setOptionDefs(List<AST.OptionDef> defs)
 {
     this.optiondefs = defs;
 }
@@ -263,6 +266,14 @@ setOptionDef(List<AST.OptionDef> defs)
 public List<AST.OptionDef> getOptionDefs()
 {
     return this.optiondefs;
+}
+
+public AST.OptionDef getOptionDef(String key)
+{
+    for(OptionDef def: this.optiondefs) {
+        if(def.name.equals(key)) return def;
+    }
+    return null;
 }
 
 
@@ -728,9 +739,8 @@ Message extends Type implements AST.Message
 static public class
 Option extends ASTDefault implements AST.Option
 {
+    AST.OptionDef optiondef = null;
     String value;
-    boolean userdefined = false;
-    AST.Type optiontype = null;
     boolean isstringvalued = false;
 
     public Option(String name, String value)
@@ -750,24 +760,14 @@ Option extends ASTDefault implements AST.Option
         this.value = value;
     }
 
-    public boolean getUserDefined()
+    public AST.OptionDef getOptionDef()
     {
-        return this.userdefined;
+        return this.optiondef;
     }
 
-    public void setUserDefined(boolean userdefined)
+    public void setOptionDef(AST.OptionDef od)
     {
-        this.userdefined = userdefined;
-    }
-
-    public AST.Type getType()
-    {
-        return optiontype;
-    }
-
-    public void setType(AST.Type t)
-    {
-        this.optiontype = t;
+        this.optiondef = od;
     }
 
     public boolean isStringValued()

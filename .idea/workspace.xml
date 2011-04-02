@@ -158,19 +158,6 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/compiler/CGenerator.java" line="428" class="unidata.protobuf.compiler.CGenerator" package="unidata.protobuf.compiler">
-        <option name="ENABLED" value="true" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="false" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
     </line_breakpoints>
     <breakpoint_any>
       <breakpoint>
@@ -219,8 +206,8 @@
       <property name="field_breakpoints_groupByClasses" value="true" />
       <property name="method_breakpoints_groupByClasses" value="true" />
       <property name="exception_breakpoints_viewId" value="TABLE" />
-      <property name="exception_breakpoints_groupByClasses" value="true" />
       <property name="field_breakpoints_viewId" value="TABLE" />
+      <property name="exception_breakpoints_groupByClasses" value="true" />
       <property name="method_breakpoints_groupByMethods" value="false" />
     </ui_properties>
   </component>
@@ -251,10 +238,28 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CGenerator.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="CGenerator.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/compiler/CGenerator.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="395" column="0" selection-start="12412" selection-end="12412" vertical-scroll-proportion="0.1440678">
+            <state line="428" column="0" selection-start="13275" selection-end="13275" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ASTDefault.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/compiler/ASTDefault.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="260" column="0" selection-start="5786" selection-end="5786" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AST.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/compiler/AST.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="209" column="8" selection-start="6837" selection-end="6837" vertical-scroll-proportion="0.64285713">
               <folding />
             </state>
           </provider>
@@ -281,7 +286,7 @@
       <file leaf-file-name="ProtobufActions.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufActions.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="181" column="55" selection-start="5360" selection-end="5360" vertical-scroll-proportion="0.0">
+            <state line="191" column="55" selection-start="5541" selection-end="5541" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -326,8 +331,6 @@
         <option value="$PROJECT_DIR$/src/compiler/CSemantics.java" />
         <option value="$PROJECT_DIR$/src/compiler/AuxSemantics.java" />
         <option value="$PROJECT_DIR$/src/test/TestAST.java" />
-        <option value="$PROJECT_DIR$/src/compiler/AST.java" />
-        <option value="$PROJECT_DIR$/src/compiler/ASTDefault.java" />
         <option value="$PROJECT_DIR$/src/compiler/Debug.java" />
         <option value="$PROJECT_DIR$/src/compiler/Semantics.java" />
         <option value="$PROJECT_DIR$/src/compiler/ProtobufLexer.java" />
@@ -335,6 +338,8 @@
         <option value="$PROJECT_DIR$/src/compiler/AuxFcns.java" />
         <option value="$PROJECT_DIR$/src/compiler/CGenerator.java" />
         <option value="$PROJECT_DIR$/src/compiler/ProtobufSemantics.java" />
+        <option value="$PROJECT_DIR$/src/compiler/ASTDefault.java" />
+        <option value="$PROJECT_DIR$/src/compiler/AST.java" />
       </list>
     </option>
   </component>
@@ -413,17 +418,17 @@
     <property name="GenerateAntBuildDialog.inclineRuntiemClasspath" value="false" />
     <property name="GenerateAntBuildDialog.forceTargetJdk" value="true" />
     <property name="project.structure.side.proportion" value="0.2" />
-    <property name="GoToClass.includeJavaFiles" value="false" />
     <property name="MemberChooser.copyJavadoc" value="false" />
+    <property name="GoToClass.includeJavaFiles" value="false" />
     <property name="GenerateAntBuildDialog.enableUiFormCompile" value="false" />
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
-    <property name="GenerateAntBuildDialog.backupFiles" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
-    <property name="options.searchVisible" value="true" />
-    <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="GenerateAntBuildDialog.backupFiles" value="true" />
     <property name="dynamic.classpath" value="false" />
+    <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="options.searchVisible" value="true" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -443,24 +448,6 @@
       <method>
         <option name="AntTarget" enabled="false" />
         <option name="BuildArtifacts" enabled="false" />
-        <option name="Maven.BeforeRunTask" enabled="false" />
-      </method>
-    </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <method>
-        <option name="AntTarget" enabled="false" />
-        <option name="BuildArtifacts" enabled="false" />
-        <option name="Make" enabled="true" />
         <option name="Maven.BeforeRunTask" enabled="false" />
       </method>
     </configuration>
@@ -490,6 +477,24 @@
       <envs />
       <properties />
       <listeners />
+      <method>
+        <option name="AntTarget" enabled="false" />
+        <option name="BuildArtifacts" enabled="false" />
+        <option name="Make" enabled="true" />
+        <option name="Maven.BeforeRunTask" enabled="false" />
+      </method>
+    </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
       <method>
         <option name="AntTarget" enabled="false" />
         <option name="BuildArtifacts" enabled="false" />
@@ -547,7 +552,7 @@
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <option name="MAIN_CLASS_NAME" value="unidata.protobuf.compiler.Main" />
       <option name="VM_PARAMETERS" value="-ea" />
-      <option name="PROGRAM_PARAMETERS" value="-Wd ncstreamx.proto" />
+      <option name="PROGRAM_PARAMETERS" value="-Wd ncstream.proto" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/src/compiler" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" value="" />
@@ -665,7 +670,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-9" y="-9" width="1298" height="818" extended-state="6" />
+    <frame x="250" y="208" width="1004" height="560" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -675,12 +680,12 @@
       <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32920793" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.47031963" sideWeight="0.998993" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.46978852" sideWeight="0.998993" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32876712" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.22689769" sideWeight="0.9878234" order="1" side_tool="true" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.29956427" sideWeight="0.81435645" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39933994" sideWeight="0.50380516" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.22689769" sideWeight="0.0" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.29956427" sideWeight="0.16584158" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.51141554" sideWeight="0.97884184" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -781,16 +786,6 @@
         <state line="41" column="7" selection-start="2155" selection-end="2155" vertical-scroll-proportion="0.030035336" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/compiler/AST.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="226" column="32" selection-start="7234" selection-end="7234" vertical-scroll-proportion="-0.030821918" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/compiler/ASTDefault.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="233" column="0" selection-start="5158" selection-end="5158" vertical-scroll-proportion="0.055194806" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/compiler/Main.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="8" column="13" selection-start="151" selection-end="151" vertical-scroll-proportion="0.114285715" />
@@ -811,6 +806,11 @@
         <state line="38" column="61" selection-start="2124" selection-end="2124" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/compiler/CGenerator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="428" column="0" selection-start="13275" selection-end="13275" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufLexer.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="549" column="0" selection-start="16421" selection-end="16421" vertical-scroll-proportion="0.0" />
@@ -823,7 +823,12 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufActions.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="181" column="55" selection-start="5360" selection-end="5360" vertical-scroll-proportion="0.0" />
+        <state line="191" column="55" selection-start="5541" selection-end="5541" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufSemantics.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="808" column="0" selection-start="25149" selection-end="25149" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/compiler/Debug.java">
@@ -831,16 +836,16 @@
         <state line="510" column="0" selection-start="16648" selection-end="16648" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/compiler/ProtobufSemantics.java">
+    <entry file="file://$PROJECT_DIR$/src/compiler/ASTDefault.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="808" column="0" selection-start="25149" selection-end="25149" vertical-scroll-proportion="0.0">
+        <state line="260" column="0" selection-start="5786" selection-end="5786" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/compiler/CGenerator.java">
+    <entry file="file://$PROJECT_DIR$/src/compiler/AST.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="395" column="0" selection-start="12412" selection-end="12412" vertical-scroll-proportion="0.1440678">
+        <state line="209" column="8" selection-start="6837" selection-end="6837" vertical-scroll-proportion="0.64285713">
           <folding />
         </state>
       </provider>

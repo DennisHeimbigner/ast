@@ -169,6 +169,7 @@ void verify(AST.Root root)
 /**
  * Pass does the following:
  * - Place the set of primitive type nodes in the root
+ * - Place the set of predefined options in the option definitions
  * - Cross Link package to file
  * - Check for multiple package decls in a file
  * - check for multiple instances of same file
@@ -189,6 +190,17 @@ rootsetup(AST.Root root)
 	primitives.add(pt);
     }
     root.setPrimitiveTypes(primitives);
+
+    // Add the predefined optiondefs
+    OptionDef od;
+    od = new OptionDef("java_package","string",false);
+    od = new OptionDef("java_outer_classname","string",false);
+    od = new OptionDef("optimize_for","string",false);
+    od = new OptionDef("packed","bool",false);
+    od = new OptionDef("cc_generic_services","bool",false);
+    od = new OptionDef("java_generic_services","bool",false);
+    od = new OptionDef("py_generic_services","bool",false);
+    od = new OptionDef("deprecated","bool",false);
 
     // Remove duplicate imported files
     List<AST.File> dups = new ArrayList<AST.File>();
@@ -645,6 +657,9 @@ checkduplicatenames(AST.Root root)
 /**
  * Pass does the following:
  * - Deref all references to other objects
+ * - Make options point to their OptionDef
+ *   and validate/canonicalize the values
+ *   vis-a-vis type
  *
  * @param root The AST tree root
  * @return true if the processing succeeded.
@@ -726,6 +741,112 @@ dereference(AST.Root root)
 	    }
 	    break;
 
+	case OPTION:
+	    AST.Option option = (AST.Option)node;
+	    option.setOptionDef(null);
+	    for(OptionDef od: root.getOptionDefs()) {
+		if(od.name.equalsIgnoreCase(option.getName())) {
+	            option.setOptionDef(od);
+		    break;
+		}
+	    }
+	    if(option.getOptionDef() == null)
+		return semerror(option,"Unknown option: "+option.getName());
+	    // Deref the type
+	    typename = option.getOptionDef().typeref;
+	    typematches = AuxFcns.findtypebyname(typename,node);
+	    if(typematches.size() == 0) {
+	        return semerror(node,"Option has undefined type: "+typename);
+	    }
+	    AST.Type t = typematches.get(0);
+  	    option.getOptionDef().typedef = t;
+	    // Validate the value
+	    boolean typeok = true;
+	    switch (t.getSort()) {
+	    case PRIMITIVETYPE:
+		AST.PrimitiveType pt = (AST.PrimitiveType)t;
+	        switch (pt.getPrimitiveSort()) {
+		case SINT32:
+		case SFIXED32:
+		case INT32:
+		    try {
+			int i = Integer.parseInt(option.getValue());
+		    } catch(NumberFormatException nfe) {typeok=false;}
+		    break;
+		case FIXED32:
+		case UINT32:
+		    try {
+			long i = Long.parseLong(option.getValue());
+			if(i < 0 || i > Integer.MAX_VALUE)
+			    typeok = false;
+		    } catch(NumberFormatException nfe) {typeok=false;}
+		    break;
+
+		case SINT64:
+		case SFIXED64:
+		case INT64:
+		    try {
+			long i = Long.parseLong(option.getValue());
+		    } catch(NumberFormatException nfe) {typeok=false;}
+		    break;
+
+		case FIXED64:
+		case UINT64:
+		    try {
+			double d = Double.parseDouble(option.getValue());
+			if(d < 0 || d > Long.MAX_VALUE)
+			    typeok = false;
+		    } catch(NumberFormatException nfe) {typeok=false;}
+		    break;
+
+		case FLOAT:
+		case DOUBLE:
+		    try {
+			Double d = Double.parseDouble(option.getValue());
+		    } catch(NumberFormatException nfe) {typeok=false;}
+		    break;
+
+		case BOOL:
+		    String v = option.getValue();
+		    try {
+			long i = Long.parseLong(v);
+		        if("true".equalsIgnoreCase(v)
+		             || "yes".equalsIgnoreCase(v)
+		             || i != 0) {
+			    v = "true";
+			} else if("false".equalsIgnoreCase(v)
+		             || "no".equalsIgnoreCase(v)
+		             || i == 0) {
+			    v = "false";
+			} else
+			    typeok = false;
+		    } catch(NumberFormatException nfe) {typeok=false;}
+		    break;
+
+		case BYTES:
+		    v = option.getValue();
+		    if(v.length()%2 == 1) typeok = false;
+		    else for(int i=0;i<v.length();i++) {
+			if("0123456789abcdefABCDEF".indexOf(v.charAt(i)) < 0) {
+			    typeok = false;
+			    break;
+			}				
+		    }
+		    break;
+
+		case STRING: // always ok
+		    break;
+		}
+	        if(!typeok)		
+		    return semerror(option,
+				String.format("Option type mismatch: %s=%s",
+				option.getName(),
+				option.getValue()));
+		break;
+
+	    default:
+	        return semerror(node,"Illegal option type: "+option.getName());
+	    }
 	default: break; // ignore
 	}
     }
