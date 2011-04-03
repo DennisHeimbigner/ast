@@ -49,7 +49,9 @@ public class CSemantics extends Semantics
 
 //////////////////////////////////////////////////
 
+AST.Root root = null;
 ASTFactory factory = null;
+String[] argv = null;
 
 //////////////////////////////////////////////////
 // Constructor
@@ -57,9 +59,29 @@ public CSemantics() {}
 
 //////////////////////////////////////////////////
 
-public boolean process(AST.Root root, ASTFactory factory, String[] argv)
+public boolean
+initialize(AST.Root root, String[] argv, ASTFactory factory)
 {
     this.factory = factory;
+    this.root = root;
+    this.factory = factory;
+    this.argv = argv;
+
+    // Define the predefined options
+    List<OptionDef> odefs = root.getOptionDefs();
+
+    // Add the predefined optiondefs; user defined options
+    // will have already been added by parser
+    odefs.add(new OptionDef("c_file", "string"));
+
+    return true;
+}
+
+//////////////////////////////////////////////////
+
+public boolean
+process(AST.Root root)
+{
     if(!checkdupctypes(root)) return false;
     if(!fixstringoptions(root)) return false;
     return true;

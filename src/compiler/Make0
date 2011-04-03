@@ -1,4 +1,5 @@
 W=-Wd
+D=-Dinclude=config.h
 
 CURLCONFIG=curl-config
 
@@ -47,7 +48,7 @@ CLASSES=${SRC:%.java=${BUILDDIR}/${ASTPATH}/%.class}\
 all: jar gen c
 
 gen:
-	for t in ${TESTS} ; do java -jar ${JAR} ${W} $${t} ; done
+	for t in ${TESTS} ; do java ${D} -jar ${JAR} ${W} $${t} ; done
 
 jar ${JAR}: ${CLASSES} ${MF}
 	jar -cmf ${MF} ${JAR} ${PACKAGES:%=-C ${BUILDDIR} %}

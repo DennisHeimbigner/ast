@@ -36,9 +36,15 @@ import static unidata.protobuf.compiler.AST.*;
 abstract public class Semantics
 {
 
-public boolean process(AST.Root root, String[] argv) {return process(root,new ASTFactoryDefault(),argv);}
 
-abstract public boolean process(AST.Root root, ASTFactory factory, String[] argv);
+public boolean initialize(AST.Root root,String[] argv)
+{
+    return initialize(root,argv, new ASTFactoryDefault());
+}
+
+abstract public boolean initialize(AST.Root root, String[] argv, ASTFactory factory);
+
+abstract public boolean process(AST.Root root);
 
 
 } // class Semantics

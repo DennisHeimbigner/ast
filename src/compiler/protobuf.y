@@ -91,8 +91,15 @@ importstmt:
         ;
         
 importprefix:
-        IMPORT STRINGCONST ';'
-	    {$$=importprefix($2);}
+        IMPORT STRINGCONST '[' importoptionlist ']' ';'
+	    {$$=importprefix($2,$4);}
+
+importoptionlist:
+	  option
+	    {$$=importoptionlist(null,$1);}
+	| importoptionlist ',' option
+	    {$$=importoptionlist($1,$3);}
+	;
 
 pushfile: /*empty*/ {if(!filepush()) {return YYABORT;};}
 

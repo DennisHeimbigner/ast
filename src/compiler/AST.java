@@ -145,17 +145,27 @@ AST
 	String typeref;
 	AST.Type typedef;
 	boolean userdefined;
+	boolean system; // came from System.getProperties()
 
-	public OptionDef() {this(null,null,false);}
+	public OptionDef() {this(null,null);}
 
-	public OptionDef(String name, String typeref, boolean user)
+	public OptionDef(String name, String typeref)
         {
 	    this.name = name;
 	    this.typeref = typeref;
-	    this.userdefined = user;
 	    this.typedef = null;
+	    this.userdefined = false;
         }
+
+	public void setUserDefined(boolean tf) {userdefined = tf;}
+	public void setSystem(boolean tf) {system = tf;}
     }
+
+    void setOptionDefs(List<OptionDef> defs);
+    List<OptionDef> getOptionDefs();
+    OptionDef getOptionDef(String key);
+
+    //////////////////////////////////////////////////
 
     void setuid();
     int getId();
@@ -202,17 +212,14 @@ AST
     void setOptions(List<Option> options);
     void addOption(Option option);
 
-    String optionLookup(String key);
-    void setOptionMap(String key, String value);
-    void unsetOptionMap(String key);
+    Object optionLookup(OptionDef key);
+    Object optionLookup(String key);
+    Map<OptionDef,Object> getOptionMap();
+    void setOptionMap(OptionDef key, Object value);
+    void unsetOptionMap(OptionDef key);
 
     boolean isPacked();
     void setIsPacked(boolean tf);
-
-    // manage the option definitions
-    void setOptionDefs(List<OptionDef> defs);
-    List<OptionDef> getOptionDefs();
-    OptionDef getOptionDef(String key);
 
     String toString();
 

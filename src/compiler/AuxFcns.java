@@ -329,7 +329,6 @@ sortFieldIds(List<AST.Field> fields)
     return sorted;
 }
 
-
 static boolean
 getbooleanvalue(String optionvalue)
 {
@@ -346,6 +345,18 @@ getbooleanvalue(String optionvalue)
 	} catch (NumberFormatException nfe) {} // ignore
     return boolvalue;
 }
+
+
+static AST.OptionDef
+getOptionDef(AST node, String key)
+{
+    AST.Root root = node.getRoot();
+    for(AST.OptionDef od: root.getOptionDefs()) {
+	if(od.name.equals(key)) return od;
+    }
+    return null;
+}
+
 
 } // class AuxFcns
 

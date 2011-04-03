@@ -63,7 +63,7 @@ List<AST> childset = new ArrayList<AST>(); // immediate children
 List<AST> nodeset = new ArrayList<AST>(); // All nodes under this node;
 // null except for root and packages
 List<AST.Option> options = new ArrayList<AST.Option>();
-Map<OptionDef, String> optionmap = new HashMap<OptionDef, String>();
+Map<OptionDef, Object> optionmap = new HashMap<OptionDef, Object>();
 List<AST.OptionDef> optiondefs = new ArrayList<AST.OptionDef>();
 
 int refcount = 0;
@@ -239,20 +239,37 @@ public void addOption(AST.Option option)
 }
 
 // Map oriented option access
-public String optionLookup(String key)
+
+public Object
+optionLookup(String key)
+{
+    OptionDef def = AuxFcns.getOptionDef(this,key);
+    if(def == null)
+        Debug.semerror(root,"Unknown option name:"+key);
+    return optionLookup(def);
+}
+
+public Object
+optionLookup(OptionDef key)
 {
     return this.optionmap.get(key);
 }
 
-public void setOptionMap(String key, String value)
+public Map<OptionDef,Object>
+getOptionMap()
 {
-    OptionDef def = getOptionDef(key);
-    if(def == null)
-        Debug.semerror(null,"unknown option:"+key);
-    else this.optionmap.put(def, value);
+    return this.optionmap;
 }
 
-public void unsetOptionMap(String key)
+public void
+setOptionMap(OptionDef key, Object value)
+{
+    if(key == null)
+        Debug.semerror(null,"unknown option:"+key.name);
+    else this.optionmap.put(key, value);
+}
+
+public void unsetOptionMap(OptionDef key)
 {
     this.optionmap.remove(key);
 }

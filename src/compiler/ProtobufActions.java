@@ -44,12 +44,22 @@ public abstract class ProtobufActions
 static String GROUPKEYWORD = "group";
 static String GOOGLEKEYWORD = "google.protobuf";
 
+// Support classes
 static class Constant
 {
     int token;
     String lval;
     public Constant(int token, Object lval)
 	{this.token=token; this.lval=lval.toString();}
+}
+
+static class ImportInfo
+{
+    String filename;
+    List<AST.Option> options;
+    AST.Position pos;
+    public ImportInfo(String filename, List<AST.Option> options, AST.Position pos)
+	{this.filename=filename; this.options=options; this.pos=pos;}
 }
 
 //////////////////////////////////////////////////
@@ -150,20 +160,32 @@ importlist(Object list0, Object import0)
 }
 
 Object
-importstmt(Object importname0, Object file0)
+importstmt(Object importinfo0, Object file0)
 {
+    ImportInfo info = (ImportInfo)importinfo0;
     AST.File file = (AST.File) file0;
-    file.setName((String)importname0);
+    file.setName(info.filename);
+    file.getChildSet().addAll(info.options);
+    file.setPosition(info.pos);
     return file;
 }
 
+Object
+importprefix(Object filename0, Object options0)
+{
+    if(options0 == null) options0 = new ArrayList<AST.Option>();
+    ImportInfo info = new ImportInfo((String)filename0,
+				     (List<AST.Option>)options0,position());
+    return info;
+}
 
 Object
-importprefix(Object filename0)
+importoptionlist(Object list0, Object decl0)
 {
-    // temporarily store the filename
-    importfilename =  (String)filename0;
-    return filename0;
+    List<AST.Option> list = (List<AST.Option>)list0;
+    if(list == null) list = new ArrayList<AST.Option>();
+    if(decl0 != null) list.add((AST.Option)decl0);
+    return list;
 }
 
 boolean
@@ -235,8 +257,8 @@ extend(Object msg0, Object fieldlist0)
 	// Extract the option and store
 	for(AST.Field field: fields) {
 	     AST.OptionDef od = new AST.OptionDef(field.getName(),
-					          (String)field.getAnnotation(),
-						  true);
+					          (String)field.getAnnotation());
+ 	     od.setUserDefined(true);
 	     optiondefs.add(od); // check for validity later
 	}
 	return null;

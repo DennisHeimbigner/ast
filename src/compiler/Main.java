@@ -132,16 +132,18 @@ public class Main
         String[] finalargv = arglist.toArray(new String[arglist.size()]);
 
 	// Semantic Processing
+
 	if(optionSemanticStepsDebug) Debug.setTag("trace.semantics.steps");
 	if(optionSemanticStepsDebug) Debug.setTag("trace.semantics.steps");
 	if(optionSemanticsDebug) Debug.setTag("trace.semantics");
 	if(optionDuplicate) {
 	    Debug.setTag("trace.duplicate.package");
 	}
+
+	// Invoke all the initializers
 	Semantics sem = new ProtobufSemantics();
-	pass = sem.process(parser.getAST(),factory,finalargv);
-	if(!pass) {
-	    System.err.println("Protobuf semantic error detected.");
+	if(!sem.initialize(parser.getAST(),finalargv,factory)) {
+	    System.err.println("Protobuf semantic initialization failure.");
 	    System.exit(1);
 	}
 
@@ -153,17 +155,30 @@ public class Main
 				    + "."
 				    + classLanguageTag
 				    + "Semantics";
+        Semantics langsemantics = null;
         try {
             Class semanticsclass = Class.forName(semanticsclassname);
-	    Semantics semantics = (Semantics)semanticsclass.newInstance();
-	    pass = semantics.process(parser.getAST(),factory,finalargv);
-	    if(!pass) {
-	        System.err.println("C Generation semantic error detected.");
+	    langsemantics = (Semantics)semanticsclass.newInstance();
+	    if(!langsemantics.initialize(parser.getAST(),finalargv,factory)) {
+	        System.err.println(optionLanguage+": semantic initialization failure.");
 	        System.exit(1);
 	    }
         } catch (ClassNotFoundException e) {
 	    // Ignore
         }
+
+        // Do semantic processing
+	pass = sem.process(parser.getAST());
+	if(!pass) {
+	    System.err.println("Protobuf semantic error detected.");
+	    System.exit(1);
+	}
+	pass = langsemantics.process(parser.getAST());
+	if(!pass) {
+	    System.err.println(optionLanguage+": semantic errors detected");
+	    System.exit(1);
+	}
+
 	// Try to locate the language specific Generator class
 	String generatorclassname = DFALTPACKAGE
 				    + "."

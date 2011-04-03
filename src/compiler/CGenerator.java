@@ -249,37 +249,19 @@ generate(AST.Root root, String[] argv) throws Exception
 
     // Find files that will contribute code
     List<String> includes = new ArrayList<String>();
-    // Topfile is always treated like include
+    // Topfile is always treated as compiled
     // prime the search
     codefiles.add(topfile);
-    String optinclude = topfile.optionLookup("include");
-    if(optinclude != null) {
-	// transitive closure over include option
-	boolean more;
-	do {
-	    more = false; // until proven otherwise
-breakpoint: for(AST.File file: codefiles) {
-	        optinclude = file.optionLookup("include");
-		if(optinclude == null ||  optinclude.length() == 0)
-		    break breakpoint;
-	        String[] names = optinclude.split(",");
-	        for(String name: names) {
-	            String n = name.trim();
-	            AST.File f = matchfile(n,root.getFileSet());
-	            if(f != null && !codefiles.contains(f)) {
-			codefiles.add(f);
-			more = true;
-			break breakpoint;
-		    }			
-		}
-	    }
-	} while(more);
+    for(AST.File file: codefiles) {
+        String optcompile = (String)file.optionLookup("compile");
+	if(optcompile != null && optcompile.equals("true"))
+	    codefiles.add(file);
     }
 
     // Compute the C output file name
     String prefix = AuxFcns.getFilePrefix(topfile.getName());
     String basename = AuxFcns.getBaseName(topfile.getName());
-    String cfilename = topfile.optionLookup("c_file");
+    String cfilename = (String)topfile.optionLookup("c_file");
     if(cfilename != null) {
 	if(!AuxFcns.getFilePrefix(cfilename).equals("")) {
 	    prefix = AuxFcns.getFilePrefix(cfilename);
@@ -426,7 +408,7 @@ void
 generate_messagestruct(AST.Message msg, Printer printer) throws Exception
 {
     // If the "declare" option is set, then do nothing
-    if(AuxFcns.getbooleanvalue(msg.optionLookup("declare")))
+    if(AuxFcns.getbooleanvalue((String)msg.optionLookup("declare")))
 	return;
 
     Annotation a = (Annotation)msg.getAnnotation();
@@ -475,11 +457,43 @@ generate_c(AST.File topfile, List<AST.File> files, Printer printer)
 	throws Exception
 {
     // Add includes
+    // See if there are special includes to add
+    List<String> includes = new ArrayList<String>();
+    for(AST.File f: files) {
+        String optinclude = (String)f.optionLookup("include");
+	if(optinclude == null || optinclude.length() == 0) continue;
+	String[] includelist = optinclude.split(",");
+	for(String s: includelist) {
+	    String ss = s.trim();
+	    if(!includes.contains(ss)) includes.add(ss);
+	}
+    }
+
+    // Special handling for config.h
+    String cfg = null; // original
+    String cfgq = null; // quoted
+    if(includes.contains("config.h")) {
+	cfg = "config.h"; cfgq = "\"config.h\"";
+    } else if(includes.contains("<config.h>")) {
+	cfg = "<config.h>";
+	cfgq = cfg;
+    }
+    if(cfg!= null) {
+        printer.println("#include "+cfgq);
+	includes.remove(cfg);
+    }
+
     printer.printf("#include <stdlib.h>\n");
     printer.printf("#include <stdio.h>\n");
     printer.blankline();
     printer.printf("#include <ast_runtime.h>\n");
     printer.blankline();
+
+    if(includes.size() > 0) {
+        for(String s: includes)
+            printer.println("#include "+s);
+        printer.blankline();
+    }
 
     // dump in reverse order to match dependencies
     List<AST.File> subfiles = topfile.getRoot().getFileSet();
@@ -507,7 +521,7 @@ generate_messagefunctions(AST.Message msg, Printer printer)
     throws Exception
 {
     // If the "declare" option is set, then do nothing
-    if(AuxFcns.getbooleanvalue(msg.optionLookup("declare")))
+    if(AuxFcns.getbooleanvalue((String)msg.optionLookup("declare")))
 	return;
 
     generate_writefunction(msg,printer);

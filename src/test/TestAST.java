@@ -132,6 +132,7 @@ public class TestAST extends TestFiles
 	    		System.err.println("Parse failed");
 			break loop;
 		    }
+
 	   	    // Semantic Processing
 		    Semantics sem = new ProtobufSemantics();
 		    pass = sem.process(parser.getAST(),new String[0]);
