@@ -252,10 +252,18 @@ generate(AST.Root root, String[] argv) throws Exception
     // Topfile is always treated as compiled
     // prime the search
     codefiles.add(topfile);
-    for(AST.File file: codefiles) {
-        String optcompile = (String)file.optionLookup("compile");
-	if(optcompile != null && optcompile.equals("true"))
-	    codefiles.add(file);
+    String tmp = (String)topfile.optionLookup("compile");
+    if(tmp != null && tmp.length() > 0) {
+        String[] compilefiles = tmp.split(",");
+        for(String cfile: compilefiles) {
+	    // Locate the file
+            for(AST.File file: root.getFileSet()) {
+	        if(cfile.equals(file.getName())) {
+		    if(!codefiles.contains(file))
+		        codefiles.add(file);
+		}
+	    }
+	}
     }
 
     // Compute the C output file name

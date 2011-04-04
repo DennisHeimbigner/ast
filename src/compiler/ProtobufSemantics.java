@@ -79,7 +79,6 @@ initialize(AST.Root root, String[] argv, ASTFactory factory)
     odefs.add(new OptionDef("py_generic_services", "bool"));
     odefs.add(new OptionDef("deprecated", "bool"));
     odefs.add(new OptionDef("compile", "bool"));
-    odefs.add(new OptionDef("include", "string"));
     odefs.add(new OptionDef("declare", "bool"));
     odefs.add(new OptionDef("DEFAULT", "string")); // but see maptions() below
 

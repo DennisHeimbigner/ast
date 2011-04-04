@@ -703,3 +703,15 @@ ast_reclaim_bytes(ast_runtime* rt, bytes_t* value)
     ast_free(rt,value->bytes);
     return AST_NOERR;
 }
+
+ast_runtime_ops*
+ast_byteio_getopts(ast_runtime* rt)
+{
+    return rt->ops;
+}
+
+ast_err
+ast_byteio_setopts(ast_runtime* rt, ast_runtime_ops* ops)
+{
+    rt->ops = ops;
+}

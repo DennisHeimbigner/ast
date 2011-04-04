@@ -56,10 +56,8 @@ static class Constant
 static class ImportInfo
 {
     String filename;
-    List<AST.Option> options;
-    AST.Position pos;
-    public ImportInfo(String filename, List<AST.Option> options, AST.Position pos)
-	{this.filename=filename; this.options=options; this.pos=pos;}
+    public ImportInfo(String filename)
+	{this.filename=filename;}
 }
 
 //////////////////////////////////////////////////
@@ -165,17 +163,14 @@ importstmt(Object importinfo0, Object file0)
     ImportInfo info = (ImportInfo)importinfo0;
     AST.File file = (AST.File) file0;
     file.setName(info.filename);
-    file.getChildSet().addAll(info.options);
-    file.setPosition(info.pos);
+    file.setPosition(position());
     return file;
 }
 
 Object
-importprefix(Object filename0, Object options0)
+importprefix(Object filename0)
 {
-    if(options0 == null) options0 = new ArrayList<AST.Option>();
-    ImportInfo info = new ImportInfo((String)filename0,
-				     (List<AST.Option>)options0,position());
+    ImportInfo info = new ImportInfo((String)filename0);
     return info;
 }
 

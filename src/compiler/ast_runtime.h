@@ -161,9 +161,13 @@ extern const char* ast_strerror(ast_err err);
 extern void ast_logset(int tf);
 extern void ast_log(const char* fmt, ...);
 
+
 /**************************************************/
 /* IO */
 /**************************************************/
+
+extern ast_runtime_ops ast_runtime_getopts(ast_runtime*);
+extern ast_err ast_runtime_setopts(ast_runtime*, ast_runtime_ops*);
 
 /* Create a runtime readers and writers backed by a byte buffer */
 extern ast_err ast_runtime_bytes(void* buffer, size_t bufferlen, ast_iomode, ast_runtime** astp);

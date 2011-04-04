@@ -73,6 +73,7 @@ initialize(AST.Root root, String[] argv, ASTFactory factory)
     // Add the predefined optiondefs; user defined options
     // will have already been added by parser
     odefs.add(new OptionDef("c_file", "string"));
+    odefs.add(new OptionDef("include", "string"));
 
     return true;
 }

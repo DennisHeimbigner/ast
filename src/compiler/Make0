@@ -1,6 +1,8 @@
 W=-Wd
 D=-Dinclude=config.h
 
+PREFIX=/tmp
+
 CURLCONFIG=curl-config
 
 TESTS=Primtests.proto Bytetests.proto Msgtests.proto Enumtests.proto
@@ -52,6 +54,7 @@ gen:
 
 jar ${JAR}: ${CLASSES} ${MF}
 	jar -cmf ${MF} ${JAR} ${PACKAGES:%=-C ${BUILDDIR} %}
+	cp ${JAR} ${PREFIX}
 	
 ${MF}:
 	echo 'Manifest-Version: 1.0' > ${MF}
@@ -104,5 +107,16 @@ t::
 	java -jar ${JAR} ${W} -I. yyy.proto
 
 cr:
-	java -jar ${JAR} ${W} -I. ncStream.proto
-	gcc -static ${CFLAGS} -I. ${INCL} -o testcr ${CRSRC} ${RTSRC} ${LIBS}
+	java -jar ${JAR} ${W} -I. ncStreamx.proto
+
+#	gcc -static ${CFLAGS} -I. ${INCL} -o testcr ${CRSRC} ${RTSRC} ${LIBS}
+
+##################################################
+ASTSRC=ast_byteio.c ast_byteio.h ast_curl.c ast_curl.h \
+ast_debug.c ast_debug.h ast_internal.c ast_internal.h \
+ast_runtime.c ast_runtime.h ast_util.c ast_util.h
+
+sync synch::
+	'cp' -f ${ASTSRC} ${PREFIX}
+
+
