@@ -9,7 +9,7 @@ RTSRC=ast_runtime.c ast_internal.c ast_byteio.c ast_debug.c ast_util.c
 TESTC=${TESTS:%.proto=%.c}
 TESTH=${TESTS:%.proto=%.h}
 TESTSRC=testast.c ${TESTC}
-CRSRC=testcr.c ast_curl.c ncstream.c nccr.c
+CRSRC=testcr.c ast_curl.c ncStream.c nccr.c
 
 TOPDIR=d:/IdeaProjects/ast/src/compiler
 
@@ -104,5 +104,5 @@ t::
 	java -jar ${JAR} ${W} -I. yyy.proto
 
 cr:
-	java -jar ${JAR} ${W} -I. ncstream.proto
+	java -jar ${JAR} ${W} -I. ncStream.proto
 	gcc -static ${CFLAGS} -I. ${INCL} -o testcr ${CRSRC} ${RTSRC} ${LIBS}
