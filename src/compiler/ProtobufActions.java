@@ -68,7 +68,6 @@ static class ImportInfo
     ASTFactory astfactory = null;
     AST.Root ast = null; // root node of the AST
     String filename = null;
-    String importfilename = null; // temporary storage    
     List<AST.OptionDef> optiondefs = new ArrayList<AST.OptionDef>();
 
 //////////////////////////////////////////////////
@@ -184,19 +183,19 @@ importoptionlist(Object list0, Object decl0)
 }
 
 boolean
-filepush()
+filepush(Object info0)
 {
+    ImportInfo info = (ImportInfo)info0;
     // push file stack
     boolean ok = true;
     String errmsg = null;
     try {
-        ok = lexstate.pushFileStack(importfilename);
+        ok = lexstate.pushFileStack(info.filename);
     } catch (Exception e) {  ok = false; errmsg = e.toString();}
     if(!ok) {
-        errmsg = "import file failure: "+importfilename + (errmsg==null?"":errmsg);
+        errmsg = "import file failure: "+info.filename + (errmsg==null?"":errmsg);
         parseError(errmsg);
     }
-    importfilename = null;
     return ok;
 }
 

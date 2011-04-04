@@ -86,15 +86,15 @@ packagedecl:
 	;
 
 importstmt:
-	importprefix pushfile protobuffile
-	    {$$=importstmt($1,$3);}
+	importprefix protobuffile
+	    {$$=importstmt($1,$2);}
         ;
         
 importprefix:
         IMPORT STRINGCONST ';'
-	    {$$=importprefix($2);}
+	    {$$=importprefix($2); if(!filepush($$)) return YYABORT; }
 
-pushfile: /*empty*/ {if(!filepush()) {return YYABORT;};}
+/* pushfile: {if(!filepush()) {return YYABORT;};} */
 
 decllist:
 	  /*empty*/
