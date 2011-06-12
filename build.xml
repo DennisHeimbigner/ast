@@ -1,50 +1,65 @@
 <?xml version="1.0"?>
-<project name="ast.compiler" default="all" basedir=".">
+<project name="ast" default="all" basedir=".">
+
+<!-- Site dependent values;modify as needed -->
+<property name="autoreconf.path" value="/usr/bin/autoreconf"/>
+
 
 <!-- Compiler Settings -->
 <property name="compile.deprecation"	value="off"/>
 
-<!-- Project directories -->
-<property name="src.main.dir"		location="src"/>
-<property name="src.test.dir"		location="src/test"/>
+<!-- Source directories -->
+<property name="src.dir"	     location="src"/>
+<property name="src.main.dir"	     location="${src.dir}/main"/>
+<property name="src.main.java.dir"   location="${src.main.dir}/java"/>
+<!-- Do path convert for these properties -->
+<pathconvert property="src.main.java.ast.dir" dirsep="/">
+    <path location="${src.main.dir}/java/ast"/>
+</pathconvert>
+<pathconvert property="src.main.c.dir" dirsep="/">
+    <path location="${src.main.dir}/c"/>
+</pathconvert>
 
-<property name="doc.dir"	location="doc"/>
-<property name="lib.dir"	location="lib"/>
-<!--property name="bin.dir"	location="bin"/ -->
-<!--property name="dist.dir"	location="dist"/ -->
-<property name="resources.dir"	location="${src.main.dir}/resources"/>
-<property name="schema.dir"	location="schema"/>
-<property name="testsuites.dir" location="${src.test.dir}/testsuites"/>
-<property name="buildfiles.dir" location="target"/>
+<property name="src.main.java.ast.compiler.dir"   location="${src.main.java.ast.dir}/compiler"/>
+
 
 <!-- Build Directories -->
-<property name="build.dir"	location="build"/>
+<pathconvert property="build.dir" dirsep="/">
+    <path location="target"/>
+</pathconvert>
+
 <property name="build.classes"	location="${build.dir}/classes"/>
 <property name="build.doc"	location="${build.dir}/doc"/>
 <property name="build.lib"	location="${build.dir}/lib"/>
+<property name="javadoc.dir"    location="${build.dir}/javadoc"/>
+
+<!-- Test Source and baselines -->
+<property name="test.dir"	      location="src/test"/>
+<property name="test.java.dir"        location="${test.dir}/java"/>
+<property name="test.resources.dir"   location="${test.dir}/resources"/>
+
+<!-- Misc Directories --><!-- Misc Directories -->
+<property name="doc.dir"	location="doc"/>
+<property name="lib.dir"	location="lib"/>
+<property name="schema.dir"	location="schema"/>
+<property name="testsuites.dir" location="${test.resources.dir}/testsuites"/>
 
 <!-- Where to put test case output -->
 <property name="results.dir"	location="${build.dir}/results"/>
 
 <!-- jar files -->
-<property name="protobufjar" value="protobuf.jar"/>
+<property name="astjar" value="ast.jar"/>
 <property name="main.class" value="unidata.protobuf.ast.compiler.Main"/>
 
-<available file="t:/JetBrains/IntelliJ IDEA Community Edition 9.0.3/lib/junit.jar"
-           property="junitjar" value="t:/JetBrains/IntelliJ IDEA Community Edition 9.0.3/lib/junit.jar"/>
-
-<available file="C:/Program Files (x86)/JetBrains/IntelliJ IDEA 9.0.2/lib/junit.jar"
-           property="junitjar" value="C:/Program Files (x86)/JetBrains/IntelliJ IDEA 9.0.2/lib/junit.jar"/>
-
+<!-- Misc Properties -->
+<property name="grammar" value="protobuf.y"/>
+<property name="parser" value="ProtobufParser.java"/>
 
 <!-- BUILD TASKS  -->
 
-<target name="all" depends="init,compiler"/>
+<target name="all" depends="jar"/>
 
-<!--
-- Target "init" prepares (creates if neccessary)
-- the build dircteory tree.
--->
+<!-- Target: init - creates the build dirctory tree. -->
 <target name="init" description="Prepare all build directories.">
     <mkdir dir="${build.dir}"/>
     <mkdir dir="${build.lib}"/>
@@ -55,40 +70,29 @@
     <echo level="info" message="time: ${TSTAMP}"/>
 </target>
 
-<target name="compiletests">
-    <javac
-	destdir="${build.classes}"
-	includeAntRuntime="false"
-	deprecation="${compile.deprecation}"
-	classpath="${build.classes}:${junitjar}">
-	<src path="${src.test.dir}"/>
-	<include name="*.java"/>
-    </javac>
+<target name="clean" depends="makeclean">
+    <delete includeemptydirs="true" failonerror="false">
+        <fileset dir="${build.dir}"/>
+    </delete>
 </target>
 
-<target name="test" depends="compiletests">
-    <java classname="unidata.protobuf.ast.test.TestAST"
-          classpath="${build.classes}:${junitjar}"/>
-</target>
-
-<target name="generate" depends="compiletests">
-    <java classname="unidata.protobuf.test.TestAST"
-          classpath="${build.classes}:${junitjar}">
-        <arg value="-generate"/>
-    </java>
-</target>
-
+<!-- Compiler compiles the protobuf compiler -->
 <target name="compiler" depends="init">
+    <echo message="${src.main.java.ast.dir}"/>
     <javac
 	destdir="${build.classes}"
 	classpath="${build.classes}"
 	includeAntRuntime="false"
 	deprecation="${compile.deprecation}">
-	<src path="${src.main.dir}"/>
+	<src path="${src.main.java.ast.dir}"/>
 	<include name="compiler/*.java"/>
-	<include name="Java/*.java"/>
+	<include name="c/*.java"/>
     </javac>
-    <jar destfile="${build.dir}/${protobufjar}" basedir="${build.classes}">
+</target>
+
+<!-- Construct the ast.jar file -->
+<target name="jar" depends="compiler">
+    <jar destfile="${build.dir}/${astjar}" basedir="${build.classes}">
 	<manifest>
 	<attribute name="Manifest-Version" value="1.0"/>
 	<attribute name="Main-class" value="${main.class}"/>
@@ -96,10 +100,81 @@
     </jar>
 </target>
 
-<target name="clean">
-    <delete includeemptydirs="true" failonerror="false">
-        <fileset dir="${build.dir}"/>
-    </delete>
+<!--==================================================-->
+<!-- Provide a limited (and ugly) interface to the
+     Makefiles for building the C runtime library.
+-->
+
+<!-- Build (using subsidiary Makefile) the C-based Runtime Library  -->
+<target name="libast"
+        depends="init,configure,makeclean,makeall,makeinstall">
 </target>
+
+<target name="makeclean">
+    <!-- Invoke make clean -->
+    <exec executable="make" dir="${basedir}">
+      <arg value="clean"/>
+    </exec>
+</target>
+
+<target name="makeall">
+    <echo message="executing make all"/>
+    <exec executable="make" dir="${basedir}">
+      <arg value="all"/>
+    </exec>
+</target>
+
+<target name="makeinstall">
+    <echo message="executing make install"/>
+    <exec executable="make" dir="${basedir}">
+      <arg value="install"/>
+    </exec>
+</target>
+
+<target name="configure">
+    <echo message="executing ./configure"/>
+    <exec executable="sh" dir="${basedir}">
+      <arg value="./configure"/>
+      <arg value="--prefix"/>
+      <arg value="${build.dir}"/>
+    </exec>
+</target>
+
+<!-- Invoke autoreconf; not automatic because it requires
+     extra tools like bison
+-->
+<target name="autoreconf">
+    <echo message="executing autoreconf"/>
+    <exec executable="sh" dir="${basedir}">
+      <arg value="${autoreconf.path}"/>
+      <arg value="-i"/>
+      <arg value="--force"/>
+    </exec>
+</target>
+
+
+<!-- This is an isolated task that documents how to build
+     the Java parser files from scratch. It should normally only
+     be used by developers. It requires bison-2.5.2 or later,
+     which supports java parsers.
+-->
+<target name="parser" depends="init">
+    <echo message="wd: ${src.main.java.ast.compiler.dir}"/>
+    <exec executable="bison" dir="${src.main.java.ast.compiler.dir}">
+      <arg value="-t"/>
+      <arg value="-L"/>
+      <arg value="Java"/>
+      <arg value="${grammar}"/>
+      <arg value="-o"/>
+      <arg value="${parser}"/>
+  </exec>
+</target>
+
+<!--==================================================-->
+<!-- Invoke testing -->
+
+<target name="test">
+</target>
+
 
 </project>
