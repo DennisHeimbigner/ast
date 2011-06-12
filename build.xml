@@ -87,6 +87,7 @@
 	<src path="${src.main.java.ast.dir}"/>
 	<include name="compiler/*.java"/>
 	<include name="c/*.java"/>
+	<include name="gnu/*.java"/>
     </javac>
 </target>
 
