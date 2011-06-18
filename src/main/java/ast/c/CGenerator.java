@@ -508,9 +508,7 @@ generate_c(AST.File topfile, List<AST.File> files, Printer printer)
     printer.printf("#include <stdlib.h>\n");
     printer.printf("#include <stdio.h>\n");
     printer.blankline();
-    printer.printf("#include <ast_runtime.h>\n");
-    if(Main.debug)
-        printer.printf("#include <ast_debug.h>\n");
+    printer.printf("#include <ast.h>\n");
     printer.blankline();
 
     if(includes.size() > 0) {

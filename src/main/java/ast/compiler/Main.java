@@ -74,7 +74,7 @@ public class Main
 		if(path.length() > 0) includePaths.add(path);
 		break;	
 	    case 'L':
-		String optionLanguage = g.getOptarg();
+		optionLanguage = g.getOptarg();
 		break;
 	    case 'W':
 		String wvalue = g.getOptarg();
@@ -105,6 +105,7 @@ public class Main
 
 	// Map the -L language to the class tag
 	String classLanguageTag = null;
+        if(optionLanguage == null) optionLanguage = DFALTLANGUAGE;
         for(int i=0;i<languagemap.length;i++) {
 	    if(optionLanguage.equalsIgnoreCase(languagemap[i][0])) {
 	        classLanguageTag = languagemap[i][1];
@@ -151,6 +152,8 @@ public class Main
 	// Compute the post-getopt argv.
         String[] finalargv = arglist.toArray(new String[arglist.size()]);
 
+        Semantics sem = new ProtobufSemantics();
+
 	// Try to locate language specific classes using reflection
         ClassLoader classLoader = Main.class.getClassLoader();
 
@@ -163,10 +166,6 @@ public class Main
         try {
             Class semanticsclass = Class.forName(semanticsclassname);
 	    langsemantics = (Semantics)semanticsclass.newInstance();
-	    if(!langsemantics.initialize(parser.getAST(),finalargv,factory)) {
-	        System.err.println(optionLanguage+": semantic initialization failure.");
-	        System.exit(1);
-	    }
         } catch (ClassNotFoundException e) {/* Ignore */ }
 
 	String generatorclassname = DFALTPACKAGE
@@ -178,7 +177,6 @@ public class Main
         try {
             Class generatorclass = Class.forName(generatorclassname);
 	    generator = (Generator)generatorclass.newInstance();
-	    generator.generate(parser.getAST(),finalargv);
         } catch (ClassNotFoundException e) {
 	    System.err.println("Generator class not found: "+generatorclassname);
 	    System.exit(1);
@@ -194,11 +192,14 @@ public class Main
 	}
 
 	// Invoke all the initializers
-	Semantics sem = new ProtobufSemantics();
 	if(!sem.initialize(parser.getAST(),finalargv,factory)) {
 	    System.err.println("Protobuf semantic initialization failure.");
 	    System.exit(1);
 	}
+        if(!langsemantics.initialize(parser.getAST(),finalargv,factory)) {
+            System.err.println(optionLanguage+": semantic initialization failure.");
+            System.exit(1);
+        }
 
         // Do semantic processing
 	pass = sem.process(parser.getAST());
@@ -206,11 +207,19 @@ public class Main
 	    System.err.println("Protobuf semantic error detected.");
 	    System.exit(1);
 	}
+
 	pass = langsemantics.process(parser.getAST());
 	if(!pass) {
 	    System.err.println(optionLanguage+": semantic errors detected");
 	    System.exit(1);
 	}
+
+        pass = generator.generate(parser.getAST(),finalargv);
+        if(!pass) {
+                System.err.println(optionLanguage+": code generation errors detected");
+                System.exit(1);
+        }
+
 
     }
 }

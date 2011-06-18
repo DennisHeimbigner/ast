@@ -5,13 +5,12 @@
  *   $Header$
  *********************************************************************/
 
-#ifndef AST_BYTEIO_H
-#define AST_BYTEIO_H
+#ifndef AST_H
+#define AST_H
 
-extern ast_err ast_byteio_new(ast_iomode, void* buf, size_t len, ast_runtime**);
+#include "ast_runtime.h"
+#include "ast_byteio.h"
+#include "ast_debug.h"
+#include "ast_util.h"
 
-extern ast_err ast_byteio_count(ast_runtime*, size_t*);
-
-extern ast_err ast_byteio_content(ast_runtime*, bytes_t*);
-
-#endif /*AST_BYTEIO_H*/
+#endif /*AST_H*/

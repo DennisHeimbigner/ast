@@ -6,7 +6,7 @@
 # options selected during configure.
 
 # This directory stores libtool macros, put there by aclocal.
-ACLOCAL_AMFLAGS = -I m4
+ACLOCAL_AMFLAGS = -Im4
 
 EXTRA_DIST =
 DISTCLEANFILES = 
@@ -28,17 +28,17 @@ testast_SOURCES = testast.c \
 TESTS = testast
 check_PROGRAMS = ${TESTS}
 
-CLEANFILES += \
-	Primtests.c Bytetests.c Msgtests.c Enumtests.c \
-	Primtests.h Bytetests.h Msgtests.h Enumtests.h
-
 .PHONEY: rebuild
 
 ASTJAR = ${top_srcdir}/target/ast.jar
-ASTFLAGS = "-Iast.h"
-DFLAGS="-Dconfig_h=true"
+ASTCLASSES = ${top_srcdir}/target/classes
+ASTMAIN = unidata.protobuf.ast.compiler.Main
+ASTFLAGS = -Iast.h
+JFLAGS = -ea -Dconfig_h=true
 
 rebuild: ${TESTPROTO} ${ASTJAR}
-	for t in ${TESTPROTO} ; do java ${DFLAGS} -jar ${ASTJAR} ${ASTFLAGS} $${t}; done
+	for t in ${TESTPROTO} ; do \
+	java ${JFLAGS} -jar ${ASTJAR} ${ASTFLAGS} $${t}; \
+	done
 
 

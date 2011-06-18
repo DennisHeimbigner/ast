@@ -133,7 +133,7 @@
 </target>
 
 <target name="configure">
-    <echo message="executing ./configure"/>
+    <echo message="executing ./configure --prefix ${build.dir}"/>
     <exec executable="sh" dir="${basedir}">
       <arg value="./configure"/>
       <arg value="--prefix"/>

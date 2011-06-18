@@ -1,3 +1,10 @@
+/*********************************************************************
+ *   Copyright 2010, UCAR/Unidata
+ *   See netcdf/COPYRIGHT file for copying and redistribution conditions.
+ *   $Id$
+ *   $Header$
+ *********************************************************************/
+
 #ifndef AST_RUNTIME_H
 #define AST_RUNTIME_H
 
@@ -129,14 +136,20 @@ extern ast_err ast_repeat_append(ast_runtime*,ast_sort,void*,void*);
 /* Procedure to write out tag */
 extern ast_err ast_write_tag(ast_runtime*, const unsigned int, const unsigned int);
 
-/* Procedure to write out count */
+/* Procedure to write out count (unused?) */
 extern ast_err ast_write_count(ast_runtime*, const size_t);
+
+/* Procedure to write out size */
+extern ast_err ast_write_size(ast_runtime*, const size_t);
 
 /* Procedure to extract tags */
 extern ast_err ast_read_tag(ast_runtime* rt, int* wiretypep, int* fieldnop);
 
-/* Procedure to extract count */
-extern ast_err ast_read_count(ast_runtime* rt, size_t* countp);
+/* Procedure to extract count (unused?) */
+extern ast_err ast_read_count(ast_runtime*, size_t*);
+
+/* Procedure to extract size */
+extern ast_err ast_read_size(ast_runtime*, size_t*);
 
 /* Procedure to skip an unknown field */
 extern ast_err ast_skip_field(ast_runtime* rt, int wiretype, int fieldno);

@@ -378,13 +378,24 @@ ast_write_tag(ast_runtime* rt, const uint32_t wiretype, const uint32_t fieldno)
     return AST_NOERR;
 }
 
-/* Procedure to write out count */
+/* Procedure to write out count (unused?) */
 ast_err
 ast_write_count(ast_runtime* rt, const size_t count)
 {
     uint8_t buffer[VARINTMAX64];
     /* write count as varint */
     size_t len = uint64_encode((uint64_t)count,buffer);
+    if(ast_write(rt,len,buffer) != len) return AST_EIO;
+    return AST_NOERR;
+}
+
+/* Procedure to write out size*/
+ast_err
+ast_write_size(ast_runtime* rt, const size_t size)
+{
+    uint8_t buffer[VARINTMAX64];
+    /* write size as varint */
+    size_t len = uint64_encode((uint64_t)size,buffer);
     if(ast_write(rt,len,buffer) != len) return AST_EIO;
     return AST_NOERR;
 }
@@ -407,6 +418,7 @@ done:
     return status;
 }
 
+/* (unused?) */
 ast_err
 ast_read_count(ast_runtime* rt, size_t* countp)
 {
@@ -417,6 +429,20 @@ ast_read_count(ast_runtime* rt, size_t* countp)
     if(status != AST_NOERR) ATHROW(status,done);
     count = uint64_decode(len,buffer);
     if(countp) *countp = (size_t)count;
+done:
+    return ACATCH(status);
+}
+
+ast_err
+ast_read_size(ast_runtime* rt, size_t* sizep)
+{
+    uint64_t size = 0;
+    uint8_t buffer[VARINTMAX64];
+    size_t len;
+    ast_err status = ast_readvarint(rt,buffer,&len);
+    if(status != AST_NOERR) ATHROW(status,done);
+    size = uint64_decode(len,buffer);
+    if(sizep) *sizep = (size_t)size;
 done:
     return ACATCH(status);
 }

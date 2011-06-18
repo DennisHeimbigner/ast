@@ -1,7 +1,9 @@
 #ifndef AST_DEBUG_H
 #define AST_DEBUG_H
 
+#ifndef ASTDEBUG
 #define ASTDEBUG
+#endif
 
 #ifdef ASTDEBUG
 extern int ast_catch(int);

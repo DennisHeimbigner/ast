@@ -12,7 +12,14 @@ AC_CONFIG_HEADERS([config.h])
 # This call is required by automake.
 AM_INIT_AUTOMAKE([foreign dist-zip])
 
+AC_MSG_NOTICE([finding utilities])
 AC_PROG_LIBTOOL
+AC_PROG_INSTALL
+
+AC_MSG_NOTICE([finding C compiler])
+AC_PROG_CC
+AM_PROG_CC_C_O
+AC_C_CONST
 
 #AC_MSG_CHECKING([if fsync support is enabled])
 #AC_ARG_ENABLE([fsync],
