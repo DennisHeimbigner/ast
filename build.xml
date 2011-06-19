@@ -4,7 +4,6 @@
 <!-- Site dependent values;modify as needed -->
 <property name="autoreconf.path" value="/usr/bin/autoreconf"/>
 
-
 <!-- Compiler Settings -->
 <property name="compile.deprecation"	value="off"/>
 
@@ -21,7 +20,6 @@
 </pathconvert>
 
 <property name="src.main.java.ast.compiler.dir"   location="${src.main.java.ast.dir}/compiler"/>
-
 
 <!-- Build Directories -->
 <pathconvert property="build.dir" dirsep="/">
@@ -55,6 +53,11 @@
 <property name="grammar" value="protobuf.y"/>
 <property name="parser" value="ProtobufParser.java"/>
 
+<!-- Conditional Properties -->
+<condition property="makefile.in.exists">
+<resourceexists><file file="Makefile.in"/></resourceexists>
+</condition>
+
 <!-- BUILD TASKS  -->
 
 <target name="all" depends="jar"/>
@@ -70,10 +73,13 @@
     <echo level="info" message="time: ${TSTAMP}"/>
 </target>
 
-<target name="clean" depends="makeclean">
+<target name="cleanbuild">
     <delete includeemptydirs="true" failonerror="false">
         <fileset dir="${build.dir}"/>
     </delete>
+</target>
+
+<target name="clean" depends="makeclean,cleanbuild">
 </target>
 
 <!-- Compiler compiles the protobuf compiler -->
@@ -108,7 +114,7 @@
 
 <!-- Build (using subsidiary Makefile) the C-based Runtime Library  -->
 <target name="libast"
-        depends="init,configure,makeclean,makeall,makeinstall">
+        depends="init,autoreconf,configure,makeclean,makeall,makeinstall">
 </target>
 
 <target name="makeclean">
@@ -144,7 +150,7 @@
 <!-- Invoke autoreconf; not automatic because it requires
      extra tools like bison
 -->
-<target name="autoreconf">
+<target name="autoreconf" unless="makefile.in.exists">
     <echo message="executing autoreconf"/>
     <exec executable="sh" dir="${basedir}">
       <arg value="${autoreconf.path}"/>
@@ -153,6 +159,20 @@
     </exec>
 </target>
 
+<!-- Access distclean and maintainer-clean -->
+<target name="distclean" depends="cleanbuild">
+    <!-- Invoke make distclean -->
+    <exec executable="make" dir="${basedir}">
+      <arg value="distclean"/>
+    </exec>
+</target>
+
+<target name="maintainer-clean" depends="cleanbuild">
+    <!-- Invoke make maintainer-clean -->
+    <exec executable="make" dir="${basedir}">
+      <arg value="maintainer-clean"/>
+    </exec>
+</target>
 
 <!-- This is an isolated task that documents how to build
      the Java parser files from scratch. It should normally only

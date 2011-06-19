@@ -41,6 +41,3 @@ lib_LTLIBRARIES = libast.la
 
 #noinst_HEADERS = ast_curl.h ast_internal.h ast_util.h
 include_HEADERS = ast.h ast_byteio.h ast_debug.h ast_runtime.h
-
-
-
