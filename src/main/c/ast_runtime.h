@@ -112,7 +112,7 @@ struct ast_runtime_ops {
     void    (*free)(ast_runtime*,void*); /* free allocated memory */
 };
 
-/* Wrappers for rt->mark and unmark */
+/* Wrappers for the ast_runtime_ops functions. */
 extern ast_err ast_mark(ast_runtime* rt, size_t avail);
 extern ast_err ast_unmark(ast_runtime* rt);
 extern void* ast_alloc(ast_runtime*,size_t); /* allocated zero'd memory */
@@ -179,8 +179,8 @@ extern void ast_log(const char* fmt, ...);
 /* IO */
 /**************************************************/
 
-extern ast_runtime_ops ast_runtime_getopts(ast_runtime*);
-extern ast_err ast_runtime_setopts(ast_runtime*, ast_runtime_ops*);
+extern ast_runtime_ops ast_runtime_getops(ast_runtime*);
+extern ast_err ast_runtime_setops(ast_runtime*, ast_runtime_ops*);
 
 /* Create a runtime readers and writers backed by a byte buffer */
 extern ast_err ast_runtime_bytes(void* buffer, size_t bufferlen, ast_iomode, ast_runtime** astp);

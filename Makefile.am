@@ -15,7 +15,7 @@ main_class = "unidata.protobuf.ast.compiler.Main"
 JAVASRC = src/main/java/ast/compiler/*.java src/main/java/ast/c/*.java src/main/java/ast/gnu/*.java 
 JAVACLASSES = ${JAVASRC:*/%.java=target/classes/%.class}
 
-SUBDIRS=src/main/c src/test/c
+SUBDIRS=src/main/c src/test/c src/main/java/ast
 
 # These files get added to the distribution.
 EXTRA_DIST =
@@ -24,6 +24,7 @@ DISTCLEANFILES = Makefile
 # List of files to remove for a maintainer-clean
 MAINTAINERCLEANFILES =
 
+EXTRA_DIST += build.xml CHANGES.txt LICENSE.txt NOTICE.txt README.txt 
 
 ##################################################
 # Duplicates of the build.xml targets

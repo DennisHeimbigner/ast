@@ -2,6 +2,9 @@
 <project name="ast" default="all" basedir=".">
 
 <!-- Site dependent values;modify as needed -->
+<property name="prefix" value="${build.dir}"/>
+
+<!-- autoreconf.path should normally not be changed -->
 <property name="autoreconf.path" value="/usr/bin/autoreconf"/>
 
 <!-- Compiler Settings -->
@@ -49,6 +52,9 @@
 <property name="astjar" value="ast.jar"/>
 <property name="main.class" value="unidata.protobuf.ast.compiler.Main"/>
 
+<property name="distjar" value="unidata.jar"/>
+
+
 <!-- Misc Properties -->
 <property name="grammar" value="protobuf.y"/>
 <property name="parser" value="ProtobufParser.java"/>
@@ -60,7 +66,9 @@
 
 <!-- BUILD TASKS  -->
 
-<target name="all" depends="jar"/>
+<target name="all" depends="jar,libast"/>
+
+<target name="install" depends="jar,libast,makeinstall"/>
 
 <!-- Target: init - creates the build dirctory tree. -->
 <target name="init" description="Prepare all build directories.">
@@ -75,6 +83,7 @@
 
 <target name="cleanbuild">
     <delete includeemptydirs="true" failonerror="false">
+        <filelist files="stamp-h1"/>
         <fileset dir="${build.dir}"/>
     </delete>
 </target>
@@ -114,7 +123,7 @@
 
 <!-- Build (using subsidiary Makefile) the C-based Runtime Library  -->
 <target name="libast"
-        depends="init,autoreconf,configure,makeclean,makeall,makeinstall">
+        depends="init,autoreconf,configure,makeclean,makeall">
 </target>
 
 <target name="makeclean">
@@ -139,11 +148,11 @@
 </target>
 
 <target name="configure">
-    <echo message="executing ./configure --prefix ${build.dir}"/>
+    <echo message="executing ./configure --prefix ${prefix}"/>
     <exec executable="sh" dir="${basedir}">
       <arg value="./configure"/>
       <arg value="--prefix"/>
-      <arg value="${build.dir}"/>
+      <arg value="${prefix}"/>
     </exec>
 </target>
 
