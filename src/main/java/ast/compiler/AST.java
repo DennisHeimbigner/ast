@@ -272,8 +272,6 @@ Package extends AST
 {
     File getPackageFile();
     void setPackageFile(File astfile);
-
-
 }
 
 public interface

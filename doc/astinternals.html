@@ -1,16 +1,17 @@
-<!-- Copyright 2010, UCAR/Unidata  -->
-<!-- See the COPYRIGHT file for more information. -->
+<!-- Copyright 2011, UCAR/Unidata  -->
+<!-- See the LICENSE.txt file for more information. -->
 <html>
 <body>
 <center>
 
-<h1>Unidata AST Translation System</h1>
-<h1>Internals Documentation</h1>
+<h1>Unidata AST Translation System<br>
+Internals Documentation</h1>
 <h3>Draft: 05/14/2011<br>
 Last Revised: 06/19/2011</h3>
 <h3>Author: Dennis Heimbigner</h3>
 <h3>dmh@ucar.edu</h3>
 <h3>Unidata</h3>
+<h3>Copyright 2011, UCAR/Unidata.</h3>
 </center>
 
 <h2><u>Introduction</u></h2>
@@ -30,7 +31,7 @@ separate from the (de)serialize code.  Even Google is
 deprecating the RPC output for, one presumes, the same reason.
 <p>
 <li> The Unidata ast compiler uses a more traditional compiler approach
-based on the use of an abstract syntax tree (AST).
+based on the use of a (mostly) read-only abstract syntax tree (AST).
 The key is that the AST is never (well, almost never)
 modified to add language specific code, which is the approach
 of the Google compiler.  Instead, code generation is performed
@@ -80,17 +81,172 @@ approach for defining the generation of the output code.
 Basically this means that one can look at the file <i>CGenerator.java</i>
 and see in one place all the procedures involved in code generation.
 Extending the system to provide, say, support for translation to another
-language, then just requires the developer to duplicate <i>CGenerator.java<i>
+language, then just requires the developer to duplicate <i>CGenerator.java</i>
 and modify it to generate the desired new language output.
 
 <h3>The Abstract Syntax Tree (AST) Structure</h3>
 In order to understand code generation, it is necessary to have some
 understanding of the AST node structure.
+<a href="#appendixa">Appendix A</a>.
+lists all of the node types (along with their primary interface procedures)
+that may occur in an AST.
+<p>
+The parser initially produces a raw AST tree.
+The file <i>ProtobufSemantics.java</i> walks the raw tree
+and (1) checks for semantic legality and (2) modifies the
+tree to fully implement some the interface procedures listed in
+<a href="#appendixa">Appendix A</a>.
+<p>
+The semantic processor performs the following actions
+in the following order.
+<ol>
+<li>Setup
+    <ol>
+    <li>Construct a set of nodes representing the primitive types.
+    <li>Remove any duplicate file importations.
+    <li>Cross-link the file nodes and the package nodes.
+    </ol>
+<p>
+<li>Collect global node sets
+    <ol>
+    <li>Collect the set of all AST tree nodes and store in the tree root.
+    <li>Collect the set of all AST package and file nodes and store in the tree root.
+    <li>Link all nodes to the root node.
+    <li>Link all nodes to their parent node (if any).
+    </ol>
+<p>
+<li>Collect sub-trees
+    <ol>
+    <li>For each node collect the set of nodes in the subtree below it
+        (this is, roughly, the transitive closure of the child set).
+        However, for each file node, exclude any contained file subtrees.
+    </ol>
+<p>
+<li>Set file link
+    <ol>
+    <li>Link each node to the source file from which it came.
+    </ol>
+<p>
+<li>Set package link
+    <ol>
+    <li>Link each node to the closest containing package.
+    </ol>
+<p>
+<li>Collect node sets
+    <ol>
+    <li>Fill in various fields for each node type.
+        For example, for AST.File nodes, collect and store
+        the set of all contained messages, extends, enums, and
+        services.
+    <li>Collect the set of options that apply to a given node.
+    </ol>
+<p>
+<li>Set scope names
+    <ol>
+    <li>Assign the scope name to each node.
+        The scope name is a canonical name for each node.
+        For messages, for example, it is the message type name.
+    </ol>
+<p>
+<li>Set qualified names(root)) return false;
+    <ol>
+    <li>The (fully) qualified name is the concatenation of scope names
+        from the root to the specified node. 
+    </ol>
+<p>
+<li>Check duplicate names
+    <ol>
+    <li>Check for duplicate qualified names.
+    </ol>
+<p>
+<li>Dereference
+    <ol>
+    <li>For nodes that reference other nodes by name, make a direct
+        link from the node to the node that it references. For example,
+        AST.Extend nodes will link directly to the corresponding
+        AST.Message node.
+    </ol>
+<p>
+<li>Miscellanous checks
+    <ol>
+    <li>Check that all msg ids appear legal and are not duplicates.
+    <li>Check for duplicate enum field values.
+    <li>Check that extend fields do not conflict with the base message.
+    </ol>
+<p>
+<li>Apply extensions
+    <ol>
+    <li> Locate extension nodes and insert into the corresponding
+         base message; also mark fields as extensions.
+    </ol>
+<p>
+<li>Define options
+    <ol>
+    <li>Define any predefined options.
+    <li>De-reference the type of the option.
+    </ol>
+<p>
+<li>Map options
+    <ol>
+    <li>Copy the raw options for each node into the optionmap for that node.
+    <li>Capture value of selected true/false options (e.g. packed).
+    <li>Pull in any defined options from the System.getProperties() list.
+        This list is the one produced by the <i>-D</i> flags set when
+        invoking java. This method of defining options is deprecated.
+    <li>Pull in any defined options from the Main.defines() list.;
+        This list is the one produced by the <i>-D</i> flags set as arguments
+	to the main. In effect there are two sets of <i>-D</i> flags.
+        This set of flags is preferred over using the Java -D flags.
+    </ol>
+</ol>
 
+<h2>Option Handling</h2>
+After semantic processing, each node has
+an associated <i>optionmap</i>, which
+maps an option name to an arbitrary value object.
+This allows user defined code to easily access
+the value associated with an option for a given node
+using the following procedure.
+<pre>
+    Object optionLookup(String key);
+</pre>
 
-
-<h3>Annotating the AST</h3>
-
+<h2>Annotating the AST</h2>
+After semantic processing, the
+AST is considered to be read-only.
+However, a mechanism is provided for
+annotating nodes of the tree with translation specific information.
+Every AST node has the type <i>AST</i> as its ultimate supertype.
+This type has two functions for annotation.
+<ol>
+<li>Object getAnnotation();
+<li>void setAnnotation(Object);
+</ol>
+<p>
+The <i>setAnnotation</i>
+procedure associates an arbitary object
+with a specified AST node.
+The <i>getAnnotation</i>
+function returns any annotation associated
+with a specified AST node. If there is no
+annotation, then the Java value <i>null</i> is returned.
+<p>
+The C code translator makes little use of
+the annotation capability. It annotates
+the top level AST.File node
+with instances of the following structure.
+<pre>
+static public class Annotation
+{
+    String fileprefix = null;
+    String filebase = null;
+    List<AST.File> includes = null;
+}
+</pre>
+<p>
+The fileprefix is the directory and the filebase is the filename
+of the output file. The includes field list the set of
+<i>#include</i>directives to place in the output file.
 
 <h2><u>Runtime Internal Operations</u></h2>
 <h3>Key Data Structures</h3>
@@ -141,19 +297,19 @@ Most procedures (including the generated read and write procedures)
 will return an ast error code as defined in <i>ast_runtime.h</i>
 The current set of error codes is as follows.
 <table>
-<tr valign=top><td>AST_NOERR<td>&mdash;
+<tr valign=top><td>AST_NOERR<td>&nbsp;&mdash;&nbsp;
 <td>The normal return value when no error occurred. This is always
 defined to have the value zero. All other ast error codes are
 defined as negative integers.
-<tr valign=top><td>AST_EOF<td>&mdash;
+<tr valign=top><td>AST_EOF<td>&nbsp;&mdash;&nbsp;
 <td>An end-of-file was encountered in reading from a stream.
 This may or may not be a fatal error.
-<tr valign=top><td>AST_ENOMEM<td>&mdash;
+<tr valign=top><td>AST_ENOMEM<td>&nbsp;&mdash;&nbsp;
 <td>Allocatable memory is exhausted.
-<tr valign=top><td>AST_EFAIL<td>&mdash;
+<tr valign=top><td>AST_EFAIL<td>&nbsp;&mdash;&nbsp;
 <td>Generic failure of some kind; log output may provide
 more information.
-<tr valign=top><td>AST_EIO<td>&mdash;
+<tr valign=top><td>AST_EIO<td>&nbsp;&mdash;&nbsp;
 <td>An I/O error occurred in reading or writing a stream.
 </table>
 <p>
@@ -194,21 +350,21 @@ struct ast_runtime_ops {
 The semantics of the operations are defined in the following table.
 <table>
 <tr valign=top><td><td>
-<tr valign=top><td>write<td>&mdash;
+<tr valign=top><td>write<td>&nbsp;&mdash;&nbsp;
 <td>Writes N bytes of data to the stream object.
-<tr valign=top><td>read<td>&mdash;
+<tr valign=top><td>read<td>&nbsp;&mdash;&nbsp;
 <td>Reads N bytes of data from the stream object.
-<tr valign=top><td>mark<td>&mdash;
+<tr valign=top><td>mark<td>&nbsp;&mdash;&nbsp;
 <td>Marks the input stream so that an attempt
 to read more than N bytes will cause an EOF.
 Multiple nested marks are supported.
-<tr valign=top><td>unmark<td>&mdash;
+<tr valign=top><td>unmark<td>&nbsp;&mdash;&nbsp;
 <td>Restore previous mark limit in LIFO order.
-<tr valign=top><td>reclaim<td>&mdash;
+<tr valign=top><td>reclaim<td>&nbsp;&mdash;&nbsp;
 <td>Reclaim (i.e, free) this ast_runtime instance.
-<tr valign=top><td>alloc<td>&mdash;
+<tr valign=top><td>alloc<td>&nbsp;&mdash;&nbsp;
 <td>Wrapper for malloc/calloc; allocates a chunk of memory.
-<tr valign=top><td>free<td>&mdash;
+<tr valign=top><td>free<td>&nbsp;&mdash;&nbsp;
 <td>Wrapper for the free function; frees previously allocated memory.
 </table>
 <p>
@@ -234,13 +390,164 @@ the ast error code is returned as the procedure value. Additionally,
 an <i>ast_runtime</i> object is created and a pointer to it is returned
 in the last argument.
 
-<h3><u>Change Log</u></h3>
+<h3><u><a name="appendixa">Appendix A: AST Node Types</a></u></h3>
+Note that the term "type" is being used loosely. In fact, the
+"types" are implemented as Java <i>interfaces</i>. The concrete
+classes implementing the interfaces are in the file
+<i>ASTDefault.java</i>
+(but see also <i>ASTFactory.java</i>).
+<p>
+<table>
+<tr valign=top><th>Type<th><th>Primary Fields ("getters")<th>Notes
+<tr><td colspan=4><hr/>
+<tr valign=top><td><center>AST</center><td>&nbsp;&mdash;&nbsp;
+<td>
 <ul>
-<li>01/14/2010 - First draft.
+<li>List<AST> getChildSet();
+<li>List<AST> getNodeSet();
+<li>Root getRoot();
+<li>File getSrcFile();
+<li>Package getPackage();
+<li>AST getParent();
+<li>String getName();
+<li>String getScopeName();
+<li>String getQualifiedName();
+<li>Object getAnnotation();
+<li>List<Option> getOptions();
+<li>boolean isPacked();
 </ul>
+<td>Parent type for all AST types.
+<tr valign=top><td>Root<td>&nbsp;&mdash;&nbsp;
+<td>
+<ul>
+</ul>
+<td>Root node of the AST tree.
+<tr valign=top><td>File<td>&nbsp;&mdash;&nbsp;
+<td>
+<ul>
+<li>List<File> getFileSet();
+<li>List<Package> getPackageSet();
+<li>List<PrimitiveType> getPrimitiveTypes();
+<li>File getTopFile();
+</ul>
+<td>
+Initial .proto file or import file.
+<tr valign=top><td>EnumValue<td>&nbsp;&mdash;&nbsp;
+<td>
+<ul>
+<li>File getParentFile();
+<li>Package getFilePackage();
+<li>List<File> getImports();
+<li>List<Message> getMessages();
+<li>List<Extend> getExtends();
+<li>List<Enum> getEnums();
+<li>List<Service> getServices();
+</ul>
+<td>
+<tr valign=top><td>Package<td>&nbsp;&mdash;&nbsp;
+<td>
+<ul>
+<li>File getPackageFile();
+</ul>
+<td>
+<tr valign=top><td>Enum<td>&nbsp;&mdash;&nbsp;
+<td>
+<ul>
+<li>List<EnumValue> getEnumValues();
+</ul>
+<td>
+<tr valign=top><td>EnumValue<td>&nbsp;&mdash;&nbsp;
+<td>
+<ul>
+<li>int getValue();
+</ul>
+<td>
+<tr valign=top><td>Extend<td>&nbsp;&mdash;&nbsp;
+<td>
+<ul>
+<li>Message getMessage();
+<li>List<Field> getFields();
+<li>List<Group> getGroups();
+</ul>
+<td>
+<tr valign=top><td>Extensions<td>&nbsp;&mdash;&nbsp;
+<td>
+<ul>
+<li>List<AST.Range> getRanges();
+</ul>
+<td>
+<tr valign=top><td>Field<td>&nbsp;&mdash;&nbsp;
+<td>
+<ul>
+<li>Cardinality getCardinality();
+<li>Type getType();
+<li>int getId();
+<li>AST.Extend getExtend();
+</ul>
+<td>
+<tr valign=top><td>Group<td>&nbsp;&mdash;&nbsp;
+<td>
+<ul>
+</ul>
+<td>Not implemented.
+<tr valign=top><td>Message<td>&nbsp;&mdash;&nbsp;
+<td>
+<ul>
+<li>List<Field> getFields();
+<li>List<Enum> getEnums();
+<li>List<Message> getMessages();
+<li>List<Extend> getExtenders();
+<li>List<Extensions> getExtensions();
+<li>List<Group> getGroups();
+</ul>
+<td>
+<tr valign=top><td>Option<td>&nbsp;&mdash;&nbsp;
+<td>
+<ul>
+<li>OptionDef getOptionDef();
+<li>String getValue();
+<li>boolean isStringValued();
+</ul>
+<td>
+<tr valign=top><td>CompoundConstant<td>&nbsp;&mdash;&nbsp;
+<td>
+<ul>
+<li>List<AST.Pair> getMembers();
+</ul>
+<td>
+<tr valign=top><td>Pair<td>&nbsp;&mdash;&nbsp;
+<td>
+<ul>
+<li>Object getValue();
+</ul>
+<td>
+<tr valign=top><td>RPC<td>&nbsp;&mdash;&nbsp;
+<td>
+<ul>
+<li>Type getArgType();
+<li>Type getReturnType();
+</ul>
+<td>
+<tr valign=top><td>Service<td>&nbsp;&mdash;&nbsp;
+<td>
+<ul>
+<li>List<RPC> getRPCs();
+</ul>
+<td>
+<tr valign=top><td>PrimitiveType<td>&nbsp;&mdash;&nbsp;
+<td>
+<ul>
+<li>PrimitiveSort getPrimitiveSort();
+</ul>
+<td>
+</table>
 
-<h3><u>Copyright</u></h3>
-Copyright 2010, UCAR/Unidata.
+
+
+<h3><u>Change Log</u></h3>
+<ol>
+<li>01/14/2010 - First draft.
+</ol>
+
 </body
 </html>
-

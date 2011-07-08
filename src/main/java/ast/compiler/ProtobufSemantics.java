@@ -823,11 +823,12 @@ dereference(AST.Root root)
     return true;
 }
 
+/* Locate extension nodes and insert into the corresponding
+ * base message; also mark fields as extensions
+ */
 static public boolean
 applyExtensions(AST.Root root)
 {
-    // Locate extension nodes and insert into the corresponding
-    // base message; also mark fields as extensions
     for (AST.File f : root.getFileSet()) {
         for (AST.Extend extend : f.getExtends()) {
             AST.Message base = extend.getMessage();

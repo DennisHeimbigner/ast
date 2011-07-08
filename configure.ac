@@ -51,6 +51,7 @@ AC_CONFIG_FILES([Makefile
 		 src/main/c/Makefile
 		 src/main/java/ast/Makefile
 		 src/test/c/Makefile
+		 doc/Makefile
 		])
 AC_OUTPUT()
 

@@ -16,14 +16,17 @@ AM_LDFLAGS =
 AM_CFLAGS =
 
 # Link to our assembled library.
-AM_CFLAGS += -I${top_builddir}/target
+AM_CFLAGS += -I${top_builddir}/target/include
 AM_LDFLAGS += -L${top_builddir}/target/lib -last
 
 TESTPROTO = Primtests.proto Bytetests.proto Msgtests.proto Enumtests.proto
 
 testast_SOURCES = testast.c \
 	Primtests.c Bytetests.c Msgtests.c Enumtests.c \
-	Primtests.h Bytetests.h Msgtests.h Enumtests.h
+	Primtests.h Bytetests.h Msgtests.h Enumtests.h \
+	testprim1.c testprim2.c testprim3.c testprim4.c \
+	testenum1.c testmsg1.c \
+	testprim1.h
 
 TESTS = testast
 check_PROGRAMS = ${TESTS}
