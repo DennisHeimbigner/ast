@@ -278,6 +278,77 @@ Calulate the on-the-wire size of a primitive value.
 <p>
 </dl>
 
+<h2><u>Example</u></h2>
+<h3>Example 1</h3>
+This example shows a procedure that takes as input
+a pointer to a message object (of type "Msg"). It encodes
+the message and then decodes the resulting byteio stream.
+It then invokes a user define procedure to compare the two
+instances for equality.
+<pre>
+static int
+test(Msg* msg)
+{
+    int status = AST_NOERR;
+    ast_runtime* rt;
+    bytes_t encoded;
+    Msg* decodedmsg = NULL;
+
+    /* Create an expandable byteio stream into which
+       msg will be encoded.
+    */
+
+    /* Note the use of NULL buffer and 0 length */
+    /* This function creates an ast_runtime instance
+       and returns a pointer in the last argument.
+    */
+    status = ast_byteio_new(AST_WRITE,NULL,0,&rt);
+    if(status != AST_NOERR) goto fail;
+
+    /* Write the msg object into the runtime buffer */
+    status = Msg_write(rt,msg);
+    if(status != AST_NOERR) goto fail;
+
+    /* Extract the contents of the stream */
+    status = ast_byteio_content(rt, &encoded);
+    if(status != AST_NOERR) goto fail;
+        
+    /* Reclaim the ast_runtime object */
+    status = ast_reclaim(rt);
+    if(status != AST_NOERR) goto fail;
+
+    /* Create byteio stream backed by the bytes
+       from the encode process.
+    */
+
+    status = ast_byteio_new(AST_READ,encoded.bytes,encoded.nbytes,&rt);
+    if(status != AST_NOERR) goto fail;
+
+    /* Decode a Msg instance; not the use of the Msg** in last argument */
+    decodedmsg = NULL;
+    status = Msg_read(rt,&decodedmsg);
+    if(status != AST_NOERR) goto fail;
+
+    status = ast_reclaim(rt);
+    if(status != AST_NOERR) goto fail;
+
+    /* Compare using an assumed user-defined compare function*/
+    if(!compare(msg,decodedmsg)) {
+        fprintf(stderr,"*** FAIL: content mismatch\n");
+        status = AST_EFAIL;
+        goto fail;
+    }
+
+    fprintf(stderr,"*** PASS: %s\n",testname);
+    return status;
+
+fail:
+    fprintf(stderr,"*** FAIL: %s  status=%d\n",testname,status);
+    return status;
+}
+</pre>
+
+
 <h2><u>Change Log</u></h2>
 <ol>
 <li>07/03/2010 - First draft.

@@ -26,7 +26,7 @@ typedef long long   int64_t;
 #define true 1
 #define false 0
 #define TRUE 1
-#define FALSE 1
+#define FALSE 0
 #endif
 
 typedef unsigned int bool_t;

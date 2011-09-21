@@ -41,7 +41,7 @@ public class Main
     {
 	int c;
 
-	String options = "-:D:I:L:W:V";
+	String options = "-:D:I:L:W:V"; // update usage() if changed
 	// In case we ever need to use long options
 	StringBuilder longopttag = new StringBuilder();
 	LongOpt[] LongOptions = new LongOpt[]{
@@ -94,10 +94,10 @@ public class Main
 		optionVerbose = true;		
 		break;
 	    case ':':
-	        System.err.println("Command line option requires argument "+g.getOptopt());
+	        usage("Command line option requires argument "+g.getOptopt());
 	        System.exit(1);
 	    case '?':
-	        System.err.println("Illegal cmd line option: "+g.getOptopt());
+	        usage("Illegal cmd line option: "+g.getOptopt());
 	        System.exit(1);
 	    default: break; // ignore
 	    }
@@ -113,13 +113,13 @@ public class Main
 	    }
         }
         if(classLanguageTag == null) {
-	    System.err.println("Unknown language: "+optionLanguage);
+	    usage("Unknown language: "+optionLanguage);
 	    System.exit(1);
         }
 
 
 	if(arglist.size() == 0) {
-	    System.err.println("No input file specified");
+	    usage("No input file specified");
 	    System.exit(1);
 	}
 
@@ -128,12 +128,12 @@ public class Main
 	String inputfilename = AuxFcns.locatefile(rawfilename,includePaths);
 
 	if(inputfilename == null) {
-	    System.err.println("Cannot locate input file: "+rawfilename);
+	    usage("Cannot locate input file: "+rawfilename);
 	    System.exit(1);
 	}
 	File inputfile = new File(inputfilename);
 	if(!inputfile.canRead()) {
-	    System.err.println("Cannot read input file: "+inputfile.toString());
+	    usage("Cannot read input file: "+inputfile.toString());
 	    System.exit(1);
 	}
 	FileReader rdr = new FileReader(inputfile);
@@ -145,7 +145,7 @@ public class Main
 
 	boolean pass = parser.parse(rawfilename,rdr);
 	if(!pass) {
-	    System.err.println("Parse failed");
+	    usage("Parse failed");
 	    System.exit(1);
 	}
 
@@ -178,7 +178,7 @@ public class Main
             Class generatorclass = Class.forName(generatorclassname);
 	    generator = (Generator)generatorclass.newInstance();
         } catch (ClassNotFoundException e) {
-	    System.err.println("Generator class not found: "+generatorclassname);
+	    usage("Generator class not found: "+generatorclassname);
 	    System.exit(1);
         }
 
@@ -193,34 +193,55 @@ public class Main
 
 	// Invoke all the initializers
 	if(!sem.initialize(parser.getAST(),finalargv,factory)) {
-	    System.err.println("Protobuf semantic initialization failure.");
+	    usage("Protobuf semantic initialization failure.");
 	    System.exit(1);
 	}
         if(!langsemantics.initialize(parser.getAST(),finalargv,factory)) {
-            System.err.println(optionLanguage+": semantic initialization failure.");
+            usage(optionLanguage+": semantic initialization failure.");
             System.exit(1);
         }
 
         // Do semantic processing
 	pass = sem.process(parser.getAST());
 	if(!pass) {
-	    System.err.println("Protobuf semantic error detected.");
+	    usage("Protobuf semantic error detected.");
 	    System.exit(1);
 	}
 
 	pass = langsemantics.process(parser.getAST());
 	if(!pass) {
-	    System.err.println(optionLanguage+": semantic errors detected");
+	    usage(optionLanguage+": semantic errors detected");
 	    System.exit(1);
 	}
 
         pass = generator.generate(parser.getAST(),finalargv);
         if(!pass) {
-                System.err.println(optionLanguage+": code generation errors detected");
+                usage(optionLanguage+": code generation errors detected");
                 System.exit(1);
         }
 
 
     }
-}
 
+    static void usage(String msg)
+    {
+	System.err.println(msg);
+	System.err.print(
+"usage: java -jar ast.jar <options>*"
++"where the options are:"
++"-V              -- verbose."
++"-D option=value -- define global options."
++"-I include-file -- specify include file to include in .c output;"
++"                   the file name may optionally be surrounded by <...>."
++"-L language     -- specify the output language;"
++"                   currently only C is suppported."
++"-W woption      -- specify various subsidiary debug options:"
++"                   'd' -- turn on general debugging."  
++"                   'p' -- turn on parsing debug output."  
++"                   't' -- track semantic steps."  
++"                   's' -- general semantics debug"  
++"                   'D' -- check for duplicates"
+	);
+	System.err.flush();
+    }    
+}
