@@ -1,0 +1,101 @@
+W=-WdT
+D=
+
+TESTS=Primtests.proto Msgtests.proto Enumtests.proto Bytetests.proto
+
+RTSRC=
+
+MAIN=TestAst
+
+TESTJ=${TESTS:%.proto=%.java}
+TESTSRC=${MAIN}.java ${TESTJ}
+CRSRC=testcr.c ast_curl.c ncStream.c nccr.c
+
+PARSER=ProtobufParser.java
+
+GRAMMAR=protobuf.y
+
+JARMAIN=unidata.protobuf.compiler.Main
+
+JAR=ast.jar
+JARDIR=f:/git/ast/target
+
+MF=Manifest.mf
+
+PACKAGES=unidata gnu
+
+ASTPATH=unidata/protobuf/ast/compiler
+GNUPATH=gnu/getopt
+
+BUILDDIR=classes
+
+SRC=Main.java \
+    ProtobufActions.java ProtobufLexer.java $(PARSER) AST.java \
+    AuxFcns.java Printer.java Debug.java  \
+    ASTFactory.java ASTFactoryDefault.java ASTDefault.java \
+    Semantics.java Generator.java \
+    ProtobufSemantics.java \
+    CSemantics.java CGenerator.java
+
+GNUSRC=Getopt.java LongOpt.java
+
+CLASSES=${SRC:%.java=${BUILDDIR}/${ASTPATH}/%.class}\
+	${GNUSRC:%.java=${BUILDDIR}/${GNUPATH}/%.class}
+
+.PHONEY: compiler gen jar
+
+all: gen
+
+gen:
+	for t in ${TESTS} ; do java ${D} -jar ${JARDIR}/${JAR} -Ljava ${W} $${t} ; done
+
+fix::
+	for f in $(SRC) ; do \
+	    sed -e 's/ast.protobuf/unidata.protobuf.ast/g'  <save/$$f >./$$f ; \
+	done
+
+pb::
+	protoc -I=. --cpp_out=. xxx.proto
+	protoc -I=. --cpp_out=. yyy.proto
+
+CFLAGS=-g -O0 -Wall
+LIBS=`${CURLCONFIG} --libs`
+INCL=`${CURLCONFIG} --cflags`
+
+c:
+	gcc -static ${CFLAGS} -o ${MAIN} -I. ${RTSRC} ${TESTSRC}
+
+cr:
+	java -jar ${JAR} ${W} -I. test.proto
+
+#	gcc -static ${CFLAGS} -I. ${INCL} -o testcr ${CRSRC} ${RTSRC} ${LIBS}
+
+##################################################
+ASTSRC=ast_byteio.c ast_byteio.h ast_curl.c ast_curl.h \
+ast_debug.c ast_debug.h ast_internal.c ast_internal.h \
+ast_runtime.c ast_runtime.h ast_util.c ast_util.h
+
+diffast::
+	for a in ${ASTSRC} ; do \
+	    diff --brief -wBb $$a ../../../$$a ; \
+	done
+
+sync synch::
+	for a in ${ASTSRC} ; do \
+	    'cp' -f ../../../$$a . ; \
+	done
+
+clean::
+	rm -fr classes
+	rm -f ${TESTJ}
+
+jar::
+	cd f:/git/ast ; ant all
+
+ENCODING=-Dencoding=xdr
+
+test::
+	rm -fr classes
+	mkdir classes
+	javac -d classes -classpath "${JARDIR}/${JAR}" ${TESTSRC}
+	java ${ENCODING} -cp "classes;${JARDIR}/${JAR}" unidata.ast.test.${MAIN}

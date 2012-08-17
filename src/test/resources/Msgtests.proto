@@ -1,0 +1,14 @@
+package unidata.ast.test;
+
+// Goal is to test msg typed fields (and nesting)
+
+message Msgtest {
+    message Submsg {
+        required int32 f_int32 = 1;
+    }
+    required Submsg rqmsg = 1;
+    optional Submsg opmsg = 2;
+    repeated Submsg rpmsg = 3;
+}
+
+

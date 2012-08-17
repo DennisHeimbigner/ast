@@ -1,5 +1,5 @@
 /*
- * Copyright 2011, Dennis Heimbigner
+ * Copyright 2012, Dennis Heimbigner
  *
  * Author: Dennis Heimbigner (dennis.heimbigner@ieee.com)
  *

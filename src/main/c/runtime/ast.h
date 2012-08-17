@@ -8,14 +8,6 @@
 #ifndef AST_H
 #define AST_H
 
-/* Suspenders and belt */
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
-#include "ast_runtime.h"
-#include "ast_byteio.h"
-#include "ast_debug.h"
-#include "ast_util.h"
+#include "Ast_runtime.h"
 
 #endif /*AST_H*/

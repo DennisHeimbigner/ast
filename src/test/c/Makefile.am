@@ -16,8 +16,8 @@ AM_LDFLAGS =
 AM_CFLAGS =
 
 # Link to our assembled library.
-AM_CFLAGS += -I${top_builddir}/src/main/c
-AM_LDFLAGS += -L${top_builddir}/src/main/c -last
+AM_CFLAGS += -I${top_builddir}/src/main/c/runtime
+AM_LDFLAGS += -L${top_builddir}/src/main/c/runtime -last
 
 TESTPROTO = Primtests.proto Bytetests.proto Msgtests.proto Enumtests.proto
 
@@ -43,7 +43,5 @@ JFLAGS = -ea -Dconfig_h=true
 
 rebuild: ${TESTPROTO} ${ASTJAR}
 	for t in ${TESTPROTO} ; do \
-	java ${JFLAGS} -jar ${ASTJAR} ${ASTFLAGS} $${t}; \
+	java ${JFLAGS} -jar ${ASTJAR} ${ASTFLAGS} ../resources/$${t}; \
 	done
-
-

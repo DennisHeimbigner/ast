@@ -4,6 +4,9 @@
 <!-- Site dependent values;modify as needed; must be absolute path  -->
 <property name="prefix" value="/usr/local"/>
 
+<!-- Watch out if this is under cygwin -->
+<!--property name="prefix" value="c:/cygwin/usr/local"/-->
+
 <!-- Compiler Settings -->
 <property name="compile.deprecation"	value="off"/>
 
@@ -11,8 +14,7 @@
 <property name="src.dir"	     location="src"/>
 <property name="src.main.dir"	     location="${src.dir}/main"/>
 <property name="src.main.java.dir"   location="${src.main.dir}/java"/>
-<property name="src.main.java.ast.dir" value="${src.main.dir}/java/ast"/>
-<property name="src.main.c.dir" value="${src.main.dir}/c"/>
+<property name="src.main.java.ast.dir" value="${src.main.dir}/java/unidata/ast"/>
 <property name="src.main.java.ast.compiler.dir"   location="${src.main.java.ast.dir}/compiler"/>
 
 <!-- Build Directories -->
@@ -34,7 +36,7 @@
 
 <!-- jar files -->
 <property name="astjar" value="ast.jar"/>
-<property name="main.class" value="unidata.protobuf.ast.compiler.Main"/>
+<property name="main.class" value="unidata.ast.compiler.Main"/>
 
 <property name="distjar" value="unidata.jar"/>
 
@@ -45,14 +47,14 @@
 <!-- Path sets -->
 <path id="javasrcdirs">
     <fileset dir="${src.main.java.ast.dir}/compiler"/>
-    <fileset dir="${src.main.java.ast.dir}/c"/>
-    <fileset dir="${src.main.java.ast.dir}/gnu"/>
+    <fileset dir="${src.main.java.ast.dir}/runtime"/>
+    <fileset dir="${src.main.java.dir}/gnu"/>
 </path>
 
 <path id="javasrc">
-    <fileset dir="${src.main.java.ast.dir}/compiler" includes="*.java"/>
-    <fileset dir="${src.main.java.ast.dir}/c" includes="*.java"/>
-    <fileset dir="${src.main.java.ast.dir}/gnu" includes="*.java"/>
+    <fileset dir="${src.main.java.ast.dir}/compiler" includes="**/*.java"/>
+    <fileset dir="${src.main.java.ast.dir}/runtime"/>
+    <fileset dir="${src.main.java.dir}/gnu" includes="**/*.java"/>
 </path>
 
 <!-- BUILD TASKS  -->
@@ -64,6 +66,7 @@
     <mkdir dir="${build.dir}"/>
     <mkdir dir="${build.classes}"/>
     <mkdir dir="${build.doc}"/>
+    <mkdir dir="${javadoc.dir}"/>
     <mkdir dir="${results.dir}"/>
     <!--tstamp -->
     <echo level="info" message="time: ${TSTAMP}"/>
@@ -86,6 +89,9 @@
 	deprecation="${compile.deprecation}"
 	srcdir="${src.main.java.ast.dir}">
 	<include name="**/*.java"/>
+	<exclude name="**/ckp1/*"/>
+	<exclude name="**/ckp2/*"/>
+	<exclude name="**/ckp3/*"/>
     </javac>
 </target>
 
@@ -101,7 +107,7 @@
 
 <!-- Install the ast.jar file -->
 <target name="install" depends="jar,javadocs">
-    <copy file="${build.dir}/${astjar}" todir="${prefix}"/>
+    <copy file="${build.dir}/${astjar}" todir="${prefix}/lib"/>
     <copy todir="${prefix}"><fileset dir="${javadoc.dir}"/></copy>
 </target>
 
@@ -110,7 +116,7 @@
     <javadoc
              destdir="${javadocs.dir}"
 	     private="true">
-	<fileset dir="${src.main.java.ast.dir}" includes="**/*.java"/>
+	<fileset dir="${src.main.java.dir}" includes="**/*.java"/>
     </javadoc>
 </target>
 
@@ -130,6 +136,15 @@
       <arg value="-o"/>
       <arg value="${parser}"/>
   </exec>
+</target>
+
+<target name="test" depends="jar">
+    <echo message="${build.classes}"/>
+    <echo message="${main.class}"/>
+    <java classpath="${build.classes}" classname="${main.class}">
+	<arg value="-Ljava"/>	
+	<arg value="Primtests.proto"/>
+    </java>
 </target>
 
 </project>
