@@ -1,0 +1,6 @@
+
+veryclean::
+	if test -f Makefile ; then make maintainer-clean; fi
+	rm -f install-sh ltmain.sh m4/* missing aclocal.m4 compile depcomp
+	rm -f config.guess config.h.in* config.sub configure Makefile.in
+	rm -fr autom4te.cache

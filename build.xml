@@ -123,8 +123,8 @@
 <!-- ||||||||||||||||||||||||| -->
 <!-- This is an unused task that documents how to build
      the Java parser files from scratch. It should normally only
-     be used by developers. It requires bison-2.5.2 or later,
-     which supports java parsers.
+     be used by developers. It requires bison-2.5.2 or later
+     (2.6.4 or later preferred) because it supports java parsers.
 -->
 <target name="parser" depends="init">
     <echo message="wd: ${src.main.java.ast.compiler.dir}"/>

@@ -1,0 +1,31 @@
+The following items are currently unimplemented vis-a-vis
+the latest protobuf standard (something that does not really
+exist).
+Items are ordered in approximate priority: highest to lowest
+
+* Custom options can have aggregate types. For example,
+      message MyOption {
+        optional string comment = 1;
+        optional string author = 2;
+      }
+      extend google.protobuf.FieldOptions {
+        optional MyOption myoption = 12345;
+      }
+    This option can now be set as follows:
+      message SomeType {
+        optional int32 field = 1 [(myoption) = { comment:'x' author:'y' }];
+      }
+
+* Transfer .proto comments to generated code
+
+* Add Import Public
+
+* Add allow_alias
+
+
+
+
+
+inf, -inf, and nan can now be used as default values for float and double
+    fields.
+
