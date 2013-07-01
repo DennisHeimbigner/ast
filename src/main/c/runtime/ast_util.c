@@ -1,16 +1,11 @@
-#include "config.h"
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdarg.h>
-
-#include "ast_internal.h"
 
 static int logstate = 1;
 
-void ast_logset(int tf) {logstate = tf;}
-
+void
+ast_logset(int tf)
+{
+    logstate = tf;
+}
 
 void
 ast_log(const char* fmt, ...)

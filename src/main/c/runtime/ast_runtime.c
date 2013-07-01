@@ -1,14 +1,5 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
-
-#include "config.h"
-#include "ast_internal.h"
-
-
 /* Define a null value for bytes_t */
-bytes_t bytes_t_null = {0,NULL};
+static bytes_t bytes_t_null = {0,NULL};
 
 /**************************************************/
 /* Misc data */
@@ -34,7 +25,7 @@ static Ast_resources dfaltresources = {NULL, &dfaltresourceops};
 /**************************************************/
 /* System Initialization */
 
-ast_err
+static ast_err
 ast_initialize(void)
 {
     if(!initialized) {
@@ -46,7 +37,7 @@ ast_initialize(void)
     return AST_NOERR;
 }
 
-ast_err
+static ast_err
 ast_finalize(void)
 {
     if(initialized) {
@@ -83,7 +74,7 @@ Ast_runtime_new(Ast_resources* resources, Ast_runtime** rtp)
 }
 
 /* Destructor */
-ast_err
+static ast_err
 ast_reclaim(Ast_runtime* rt)
 {
     Ast_runtime* p = runtimelist;

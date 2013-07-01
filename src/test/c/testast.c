@@ -5,8 +5,7 @@
 #include <string.h>
 #include <ctype.h>
  
-#include <ast_runtime.h>
-#include <ast_byteio.h>
+#include <ast.h>
 
 /* Consistency */
 typedef int32_t sint32_t;

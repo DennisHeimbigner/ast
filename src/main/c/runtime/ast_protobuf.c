@@ -19,14 +19,6 @@
  * Author: Dennis Heimbigner (dennis.heimbigner@ieee.org).
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
-
-#include "config.h"
-#include "ast_internal.h"
-
 /* max length of a 32 varint Must hold at least lub(32/7) = 5 */
 #define MAXVARINTSIZE32 = 10;
 
@@ -1053,18 +1045,21 @@ done:
     return ACATCH(status);    
 }
 
+static void
 pb_reclaim_string(Ast_runtime* rt, char* value)
 {
     ast_free(rt,value);
 }
 
+static void
 pb_reclaim_bytes(Ast_runtime* rt, bytes_t* value)
 {
     ast_free(rt,value->bytes);
     ast_free(rt,value);
 }
 
-Ast_encoding encoding = {
+static Ast_encoding protobuf_static_encoding =
+{
 
 pb_skip_field, /*(Ast_runtime*, const int wiretype, const int fieldno);*/
 
@@ -1092,4 +1087,5 @@ pb_reclaim_bytes, /*(Ast_runtime*, bytes_t* value);*/
 
 }; /* protobuf_encoding */
 
-Ast_encoding* protobuf_encoding = &encoding;
+Ast_encoding* protobuf_encoding = &static_protobuf_encoding;
+

@@ -1,10 +1,3 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
-
-#include "config.h"
-#include "ast_internal.h"
 
 #define DFALTALLOC 1024
 
@@ -201,10 +194,8 @@ done:
     return ACATCH(status);
 }
 
-
-
 /* Extract the current position from a byteio runtime */
-ast_err
+static ast_err
 ast_byteio_count(Ast_runtime* rt, size_t* countp)
 {
     ast_err status = AST_NOERR;
@@ -222,7 +213,7 @@ done:
 }
 
 /* Extract the buffer from a byteio runtime */
-ast_err
+static ast_err
 ast_byteio_content(Ast_runtime* rt, bytes_t* result)
 {
     ast_err status = AST_NOERR;
@@ -248,7 +239,7 @@ done:
     return ACATCH(status);
 }
 
-int
+static int
 ast_byteio_new(Ast_runtime* rt, Ast_iomode mode, void* buf, size_t len, Ast_io** iop)
 {
     ast_err status = AST_NOERR;

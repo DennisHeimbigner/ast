@@ -6,8 +6,10 @@
  *   $Header$
  *********************************************************************/
 
-#ifndef AST_RUNTIME_H
-#define AST_RUNTIME_H
+#ifndef AST_H
+#define AST_H
+
+/* Define everything needed by a user of the ast runtime */
 
 /* These may already be defined */
 #ifdef HAVE_STDINT_H
@@ -226,5 +228,10 @@ extern ast_err	ast_repeat_append(Ast_runtime*, const Ast_sort sort, const void* 
 extern ast_err	ast_reclaim_string(Ast_runtime*, char* value);
 extern ast_err	ast_reclaim_bytes(Ast_runtime*, bytes_t* value);
 
+extern ast_err ast_byteio_new(Ast_runtime*, Ast_iomode, void* buf, size_t len, Ast_io**);
+extern ast_err ast_byteio_count(Ast_runtime*, size_t*);
+extern ast_err ast_byteio_content(Ast_runtime*, bytes_t*);
 
-#endif /*AST_RUNTIME_H*/
+#endif /*AST_H*/
+
+

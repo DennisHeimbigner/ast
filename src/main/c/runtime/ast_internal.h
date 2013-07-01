@@ -16,12 +16,9 @@
 #include "ast_runtime.h"
 #include "ast_debug.h"
 #include "ast_encoding.h"
-#include "ast_util.h"
-#include "ast_byteio.h"
 
 /* Define the known encodings */
 
 extern Ast_encoding* protobuf_encoding;
-extern Ast_encoding* xdr_encoding;
 
 #endif /*AST_H*/

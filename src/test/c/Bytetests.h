@@ -12,7 +12,6 @@ struct BytesRequired {
     bytes_t f_bytes;
 };
 
-
 extern ast_err BytesRequired_write(ast_runtime*,BytesRequired*);
 extern ast_err BytesRequired_read(ast_runtime*,BytesRequired**);
 extern ast_err BytesRequired_reclaim(ast_runtime*,BytesRequired*);

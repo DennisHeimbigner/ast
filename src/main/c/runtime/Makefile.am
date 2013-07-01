@@ -22,20 +22,11 @@ MAINTAINERCLEANFILES =
 HSRC=\
 ast.h \
 ast_byteio.h \
-ast_curl.h \
 ast_debug.h \
 ast_encoding.h \
 ast_util.h
 
-CSRC=\
-ast_byteio.c \
-ast_curl.c \
-ast_debug.c \
-ast_protobuf.c \
-ast_protobuf.c \
-ast_runtime.c \
-ast_util.c \
-ast_xdr.c
+CSRC=ast.c
 
 libast_la_SOURCES = ${HSRC} ${CSRC}
 
@@ -45,4 +36,5 @@ lib_LTLIBRARIES = libast.la
 include_HEADERS = ast.h ast_runtime.h ast_byteio.h 
 noinst_HEADERS = ast_curl.h ast_debug.h ast_internal.h ast_util.h
 
-
+ast.c: ast_include.c ast_runtime.c ast_byteio.c ast_debug.c ast_util.c ast_protobuf.c
+	cat $< >ast.c
